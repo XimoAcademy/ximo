@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#F4F4F0;font-family:'SF Pro Display','SF Pro Text','-apple-system','BlinkMacSystemFont','Inter',system-ui,sans-serif;}
+  ::-webkit-scrollbar{width:4px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:rgba(27,138,143,0.2);border-radius:2px;}
+  input::placeholder,textarea::placeholder{color:#9AABB8;}
+  select{appearance:auto;}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const {useState,useEffect,useCallback}=React;
+
+const D={
+  bg:"#F4F4F0",bgCard:"rgba(255,255,255,0.92)",
+  navy:"#09182A",navyMid:"#0F2137",navyLight:"#162D47",
+  teal:"#1B8A8F",tealLight:"rgba(27,138,143,0.12)",tealBorder:"rgba(27,138,143,0.25)",
+  gold:"#C8955A",goldLight:"rgba(200,149,90,0.10)",goldBorder:"rgba(200,149,90,0.22)",
+  text:"#0D1B2A",textMid:"#2D3F50",textLight:"#5E7080",textXLight:"#9AABB8",
+  border:"rgba(13,27,42,0.07)",borderMid:"rgba(13,27,42,0.13)",
+  green:"#0B9970",greenL:"rgba(11,153,112,0.10)",
+  amber:"#D4820A",amberL:"rgba(212,130,10,0.10)",
+  red:"#C83232",redL:"rgba(200,50,50,0.09)",
+  white:"#FFFFFF",
+  shadow:"0 1px 12px rgba(9,24,42,0.06)",shadowMd:"0 4px 20px rgba(9,24,42,0.09)",
+  r:14,rSm:10,rLg:20,
+};
+const font="'SF Pro Display','SF Pro Text','-apple-system','BlinkMacSystemFont','Inter',system-ui,sans-serif";
+const mono="'SF Mono','Fira Mono','Consolas',monospace";
+const s=(base,extra={})=>({fontFamily:font,...base,...extra});
+
+// ── Primitives ──────────────────────────────────────────────────
+function GeoPattern({width=400,height=160,color=D.teal,opacity=0.05}){
+  const lines=[];
+  for(let i=0;i<8;i++){
+    const y=18+i*16;
+    lines.push(React.createElement("path",{key:i,d:`M0 ${y} Q${width/4} ${y-7} ${width/2} ${y} Q${3*width/4} ${y+7} ${width} ${y}`,stroke:color,strokeWidth:"0.8",fill:"none",opacity:opacity*(1-i*0.09)}));
+  }
+  return React.createElement("svg",{width,height,viewBox:`0 0 ${width} ${height}`,style:{position:"absolute",bottom:0,left:0,pointerEvents:"none"}},
+    ...lines,
+    React.createElement("path",{d:"M0 0 L0 24 L4 24 L4 8 L8 8 L8 4 L24 4 L24 0",fill:color,opacity:opacity*2.2}),
+    React.createElement("path",{d:`M${width} 0 L${width} 24 L${width-4} 24 L${width-4} 8 L${width-8} 8 L${width-8} 4 L${width-24} 4 L${width-24} 0`,fill:color,opacity:opacity*2.2})
+  );
+}
+
+function Divider({color=D.teal,opacity=0.3,style={}}){
+  return React.createElement("div",{style:{display:"flex",alignItems:"center",gap:10,...style}},
+    React.createElement("div",{style:{flex:1,height:1,background:`linear-gradient(to right,transparent,${color}55)`}}),
+    React.createElement("svg",{width:"20",height:"8",viewBox:"0 0 20 8",fill:"none"},
+      React.createElement("path",{d:"M1 7 L1 4 L4 4 L4 1 L7 1 L7 4 L10 4 L10 1 L13 1 L13 4 L16 4 L16 7 L19 7",stroke:color,strokeWidth:"1",strokeLinecap:"round",strokeLinejoin:"round",opacity:opacity+0.2})
+    ),
+    React.createElement("div",{style:{flex:1,height:1,background:`linear-gradient(to left,transparent,${color}55)`}})
+  );
+}
+
+function Diamond({size=12,color=D.teal,opacity=0.55,style={}}){
+  return React.createElement("svg",{width:size,height:size,viewBox:"0 0 12 12",fill:"none",style},
+    React.createElement("rect",{x:"6",y:"1",width:"7",height:"7",rx:"1",transform:"rotate(45 6 6)",stroke:color,strokeWidth:"1",opacity}),
+    React.createElement("rect",{x:"6",y:"3.5",width:"3",height:"3",rx:"0.5",transform:"rotate(45 6 6)",fill:color,opacity})
+  );
+}
+
+function Corner({size=18,color=D.teal,opacity=0.2,flip=false,style={}}){
+  return React.createElement("svg",{width:size,height:size,viewBox:"0 0 18 18",fill:"none",style:{transform:flip?"scaleX(-1)":"none",...style}},
+    React.createElement("path",{d:"M2 16 L2 7 L5 7 L5 4 L7 4 L7 2 L16 2",stroke:color,strokeWidth:"1.4",strokeLinecap:"round",strokeLinejoin:"round",opacity})
+  );
+}
+
+function Logo({size=30,style={}}){
+  return React.createElement("div",{style:{width:size,height:size,borderRadius:Math.round(size*0.26),background:`linear-gradient(135deg,${D.navyMid},${D.navy})`,border:`1px solid rgba(27,138,143,0.4)`,display:"flex",alignItems:"center",justifyContent:"center",position:"relative",overflow:"hidden",flexShrink:0,...style}},
+    React.createElement(GeoPattern,{width:size,height:size,opacity:0.1}),
+    React.createElement("span",{style:{fontWeight:800,fontSize:Math.round(size*0.44),color:D.teal,position:"relative",zIndex:1,lineHeight:1,fontFamily:font}},"X")
+  );
+}
+
+function Fade({children,delay=0,style={}}){
+  const [vis,setVis]=useState(false);
+  useEffect(()=>{const t=setTimeout(()=>setVis(true),delay);return()=>clearTimeout(t);},[delay]);
+  return React.createElement("div",{style:{opacity:vis?1:0,transform:vis?"translateY(0)":"translateY(6px)",transition:"opacity 0.35s ease,transform 0.35s ease",...style}},children);
+}
+
+function Btn({children,onClick,variant="primary",size="md",full=false,style={}}){
+  const [hov,setHov]=useState(false);
+  const sz={sm:{p:"5px 12px",fs:11},md:{p:"8px 18px",fs:13},lg:{p:"11px 28px",fs:14}}[size];
+  const v={
+    primary:{bg:D.teal,color:D.white,border:"none",bh:"#167C80"},
+    secondary:{bg:D.tealLight,color:D.teal,border:`1px solid ${D.tealBorder}`,bh:"rgba(27,138,143,0.18)"},
+    ghost:{bg:"transparent",color:D.textMid,border:`1px solid ${D.border}`,bh:"rgba(0,0,0,0.04)"},
+    navy:{bg:D.navy,color:D.white,border:"none",bh:D.navyMid},
+    gold:{bg:D.goldLight,color:D.gold,border:`1px solid ${D.goldBorder}`,bh:"rgba(200,149,90,0.18)"},
+  }[variant];
+  return React.createElement("button",{
+    onClick,onMouseEnter:()=>setHov(true),onMouseLeave:()=>setHov(false),
+    style:s({border:v.border||"none",cursor:"pointer",borderRadius:D.rSm,padding:sz.p,fontSize:sz.fs,fontWeight:600,letterSpacing:-0.1,display:"inline-flex",alignItems:"center",gap:6,justifyContent:"center",transition:"all 0.15s",width:full?"100%":"auto",background:hov?v.bh:v.bg,color:v.color,boxShadow:variant==="primary"?"0 2px 10px rgba(27,138,143,0.28)":"none",...style})
+  },children);
+}
+
+function Badge({text,color=D.teal,bg}){
+  return React.createElement("span",{style:s({display:"inline-flex",alignItems:"center",borderRadius:20,padding:"2px 8px",fontSize:10,fontWeight:600,letterSpacing:0.15,color,background:bg||`${color}14`})},text);
+}
+
+function Card({children,style={},hover=false,onClick}){
+  const [hov,setHov]=useState(false);
+  return React.createElement("div",{
+    onMouseEnter:()=>hover&&setHov(true),onMouseLeave:()=>hover&&setHov(false),onClick,
+    style:s({background:D.bgCard,borderRadius:D.r,border:`1px solid ${D.border}`,boxShadow:hov?D.shadowMd:D.shadow,transition:"box-shadow 0.2s,transform 0.2s",transform:hov?"translateY(-1px)":"none",position:"relative",overflow:"hidden",cursor:onClick?"pointer":"default",...style})
+  },children);
+}
+
+function Bar({value,max=100,color=D.teal,height=5}){
+  return React.createElement("div",{style:{height,background:D.border,borderRadius:height,overflow:"hidden"}},
+    React.createElement("div",{style:{width:`${Math.min((value/max)*100,100)}%`,height:"100%",background:color,borderRadius:height,transition:"width 0.7s ease"}})
+  );
+}
+
+function Inp({label,value,onChange,placeholder,type="text",style={}}){
+  const [foc,setFoc]=useState(false);
+  return React.createElement("div",{style:s({display:"flex",flexDirection:"column",gap:4,...style})},
+    label&&React.createElement("label",{style:s({fontSize:10,fontWeight:600,color:D.textLight,textTransform:"uppercase",letterSpacing:0.9})},label),
+    React.createElement("input",{type,value,onChange,placeholder,onFocus:()=>setFoc(true),onBlur:()=>setFoc(false),
+      style:s({border:`1px solid ${foc?D.teal:D.border}`,borderRadius:D.rSm,padding:"8px 12px",fontSize:13,background:"rgba(255,255,255,0.88)",color:D.text,outline:"none",width:"100%",boxSizing:"border-box",transition:"border-color 0.15s,box-shadow 0.15s",boxShadow:foc?"0 0 0 3px rgba(27,138,143,0.11)":"none"})
+    })
+  );
+}
+
+function Sel({label,value,onChange,options,style={}}){
+  return React.createElement("div",{style:s({display:"flex",flexDirection:"column",gap:4,...style})},
+    label&&React.createElement("label",{style:s({fontSize:10,fontWeight:600,color:D.textLight,textTransform:"uppercase",letterSpacing:0.9})},label),
+    React.createElement("select",{value,onChange,style:s({border:`1px solid ${D.border}`,borderRadius:D.rSm,padding:"8px 12px",fontSize:13,background:"rgba(255,255,255,0.88)",color:D.text,outline:"none",cursor:"pointer"})},
+      options.map(o=>React.createElement("option",{key:o.value||o,value:o.value||o},o.label||o))
+    )
+  );
+}
+
+function Spark({data,color=D.teal,h=50,w=120}){
+  if(!data||data.length<2)return null;
+  const mn=Math.min(...data),mx=Math.max(...data),rng=mx-mn||1;
+  const pts=data.map((v,i)=>{
+    const x=(i/(data.length-1))*(w-4)+2;
+    const y=h-2-((v-mn)/rng)*(h-4);
+    return `${x},${y}`;
+  });
+  const last=pts[pts.length-1].split(",");
+  return React.createElement("svg",{width:w,height:h,viewBox:`0 0 ${w} ${h}`,style:{overflow:"visible"}},
+    React.createElement("polyline",{points:pts.join(" "),fill:"none",stroke:color,strokeWidth:"1.8",strokeLinecap:"round",strokeLinejoin:"round"}),
+    React.createElement("circle",{cx:last[0],cy:last[1],r:"3",fill:color})
+  );
+}
+
+// ── DATA ──────────────────────────────────────────────────────────
+const UNIS=[
+  {id:1,name:"Stanford University",nick:"Cardinal",conf:"Pac-12",div:"D1",state:"CA",rank:1,coach:"Daniel Schemmel",email:"dschemmel@stanford.edu",gpa:"3.9",tuition:59000,t50:"20.1",t100:"43.2",difficulty:"Elite",size:"Large",scholarships:"9.9 equiv",intl:"Yes",rosterSize:28,gradOpp:"2025,2026",confRank:2,location:"Palo Alto CA",climate:"Mild",majors:"STEM, Humanities, Business"},
+  {id:2,name:"University of Florida",nick:"Gators",conf:"SEC",div:"D1",state:"FL",rank:2,coach:"Anthony Nesty",email:"anesty@ufl.edu",gpa:"3.7",tuition:28000,t50:"20.3",t100:"43.4",difficulty:"Elite",size:"Large",scholarships:"9.9 equiv",intl:"Yes",rosterSize:32,gradOpp:"2025",confRank:1,location:"Gainesville FL",climate:"Warm",majors:"Business, Engineering, Sciences"},
+  {id:3,name:"University of Texas",nick:"Longhorns",conf:"Big 12",div:"D1",state:"TX",rank:3,coach:"Bob Bowman",email:"bowman@utexas.edu",gpa:"3.8",tuition:52000,t50:"20.2",t100:"43.5",difficulty:"Elite",size:"Large",scholarships:"9.9 equiv",intl:"Yes",rosterSize:30,gradOpp:"2025,2026",confRank:1,location:"Austin TX",climate:"Warm",majors:"Business, Engineering, Liberal Arts"},
+  {id:4,name:"University of Michigan",nick:"Wolverines",conf:"Big Ten",div:"D1",state:"MI",rank:4,coach:"Mike Bottom",email:"mbottom@umich.edu",gpa:"3.7",tuition:51000,t50:"20.5",t100:"43.6",difficulty:"High",size:"Large",scholarships:"9.9 equiv",intl:"Yes",rosterSize:26,gradOpp:"2026",confRank:3,location:"Ann Arbor MI",climate:"Cold",majors:"Engineering, Business, Medicine"},
+  {id:5,name:"Auburn University",nick:"Tigers",conf:"SEC",div:"D1",state:"AL",rank:5,coach:"Ryan Wochomurka",email:"rwocho@auburn.edu",gpa:"3.5",tuition:32000,t50:"20.7",t100:"44.0",difficulty:"High",size:"Large",scholarships:"9.9 equiv",intl:"Yes",rosterSize:29,gradOpp:"2025",confRank:3,location:"Auburn AL",climate:"Warm",majors:"Engineering, Business, Science"},
+  {id:6,name:"Ohio State University",nick:"Buckeyes",conf:"Big Ten",div:"D1",state:"OH",rank:7,coach:"Bill Dorenkott",email:"bdoren@osu.edu",gpa:"3.6",tuition:34000,t50:"20.8",t100:"44.2",difficulty:"High",size:"Large",scholarships:"9.9 equiv",intl:"Yes",rosterSize:25,gradOpp:"2025,2026",confRank:4,location:"Columbus OH",climate:"Cold",majors:"Engineering, Business, Science"},
+  {id:7,name:"LSU",nick:"Tigers",conf:"SEC",div:"D1",state:"LA",rank:8,coach:"Dave Geyer",email:"dgeyer@lsu.edu",gpa:"3.4",tuition:28000,t50:"21.0",t100:"44.5",difficulty:"Medium",size:"Large",scholarships:"9.9 equiv",intl:"Yes",rosterSize:22,gradOpp:"2025",confRank:5,location:"Baton Rouge LA",climate:"Warm",majors:"Business, Engineering, Agriculture"},
+  {id:8,name:"UC Berkeley",nick:"Cal Bears",conf:"Pac-12",div:"D1",state:"CA",rank:10,coach:"Dave Durden",email:"ddurden@berkeley.edu",gpa:"3.8",tuition:44000,t50:"20.7",t100:"43.9",difficulty:"High",size:"Large",scholarships:"9.9 equiv",intl:"Yes",rosterSize:24,gradOpp:"2026",confRank:3,location:"Berkeley CA",climate:"Mild",majors:"Engineering, Science, Business"},
+  {id:9,name:"Indiana University",nick:"Hoosiers",conf:"Big Ten",div:"D1",state:"IN",rank:11,coach:"Ray Looze",email:"rlooze@indiana.edu",gpa:"3.5",tuition:35000,t50:"21.2",t100:"44.6",difficulty:"Medium",size:"Large",scholarships:"9.9 equiv",intl:"Yes",rosterSize:23,gradOpp:"2025,2026",confRank:6,location:"Bloomington IN",climate:"Cold",majors:"Business, Music, Education"},
+  {id:10,name:"Virginia Tech",nick:"Hokies",conf:"ACC",div:"D1",state:"VA",rank:14,coach:"Sergio Lopez",email:"slopez@vt.edu",gpa:"3.5",tuition:35000,t50:"21.5",t100:"45.0",difficulty:"Medium",size:"Medium",scholarships:"9.9 equiv",intl:"Yes",rosterSize:20,gradOpp:"2025",confRank:6,location:"Blacksburg VA",climate:"Mild",majors:"Engineering, Business, Science"},
+  {id:11,name:"Towson University",nick:"Tigers",conf:"CAA",div:"D1",state:"MD",rank:18,coach:"Tom Himes",email:"thimes@towson.edu",gpa:"3.2",tuition:24000,t50:"22.0",t100:"46.0",difficulty:"Accessible",size:"Medium",scholarships:"4.0 equiv",intl:"Yes",rosterSize:18,gradOpp:"2025",confRank:2,location:"Towson MD",climate:"Mild",majors:"Business, Education, Science"},
+];
+
+const PROG=[
+  {m:"Aug",v:28.1},{m:"Sep",v:27.8},{m:"Oct",v:27.4},{m:"Nov",v:27.1},
+  {m:"Dec",v:26.8},{m:"Jan",v:26.5},{m:"Feb",v:26.2},{m:"Mar",v:26.0}
+];
+
+const EVENTS=[
+  {e:"50 libre",best:"26.0",d1:"21.5",pct:62,trend:[27.8,27.5,27.1,26.8,26.5,26.2,26.0],vel:-0.3},
+  {e:"100 libre",best:"58.0",d1:"46.5",pct:55,trend:[60.1,59.8,59.4,59.0,58.7,58.3,58.0],vel:-0.35},
+  {e:"200 libre",best:"2:06.0",d1:"1:41.0",pct:48,trend:[130,128,126,126,124,127,126],vel:-0.6},
+  {e:"100 fly",best:"63.0",d1:"47.2",pct:40,trend:[65,64.5,64,63.8,63.5,63.2,63.0],vel:-0.3},
+  {e:"100 back",best:"65.0",d1:"49.0",pct:38,trend:[67,66.5,66,65.8,65.5,65.2,65.0],vel:-0.28},
+];
+
+const DIMS=[
+  {k:"vel",label:"Improvement Rate",score:82,desc:"Top 18% trajectory"},
+  {k:"spe",label:"Event Strength",score:74,desc:"50/100 free specialist"},
+  {k:"con",label:"Consistency",score:78,desc:"Low variance drops"},
+  {k:"nca",label:"NCAA Fit Score",score:61,desc:"D1 mid-tier window"},
+  {k:"rel",label:"Relay Value",score:80,desc:"High sprint relay impact"},
+  {k:"pot",label:"Long-term Potential",score:71,desc:"Projected peak 24.2s"},
+];
+
+const STAGES=[
+  {id:"identified",label:"Identified",dot:"#9AABB8",color:D.textLight},
+  {id:"contacted",label:"Contacted",dot:D.teal,color:D.teal},
+  {id:"replied",label:"Replied",dot:D.amber,color:D.amber},
+  {id:"campus",label:"Campus Visit",dot:D.gold,color:D.gold},
+  {id:"offer",label:"Offer Received",dot:D.green,color:D.green},
+];
+
+const INIT_CRM=[
+  {id:1,uni:"Indiana University",coach:"Ray Looze",email:"rlooze@indiana.edu",status:"replied",pri:"high",notes:"Interested — sent follow-up after 50 libre drop",date:"Mar 12",last:"5d",rp:72,eng:84},
+  {id:2,uni:"Virginia Tech",coach:"Sergio Lopez",email:"slopez@vt.edu",status:"contacted",pri:"high",notes:"No reply yet. Follow up Mar 25.",date:"Mar 8",last:"12d",rp:55,eng:60},
+  {id:3,uni:"Towson University",coach:"Tom Himes",email:"thimes@towson.edu",status:"campus",pri:"medium",notes:"Campus visit scheduled Apr 3",date:"Feb 28",last:"2d",rp:88,eng:95},
+  {id:4,uni:"LSU",coach:"Dave Geyer",email:"dgeyer@lsu.edu",status:"identified",pri:"medium",notes:"Target after March meet",date:"Mar 15",last:"—",rp:30,eng:20},
+  {id:5,uni:"Auburn University",coach:"Ryan Wochomurka",email:"rwocho@auburn.edu",status:"contacted",pri:"low",notes:"Initial email sent",date:"Mar 10",last:"10d",rp:40,eng:35},
+];
+
+const POSTS=[
+  {id:1,user:"AlejandroR_Swim",tag:"Achievement",text:"Just dropped to 49.8 on 100 libre LC! First time under 50. Years of work paying off.",media:"49.8s — 100 libre LC · Guadalajara Open",likes:48,comments:11,liked:false,verified:false,time:"2h"},
+  {id:2,user:"XIMO",tag:"Tip",text:"REMINDER: NCAA contact rules allow coaches to contact you starting September 1 of 11th grade. Before that, YOU must initiate. Document every interaction in your CRM.",media:null,likes:134,comments:22,liked:false,verified:true,time:"5h"},
+  {id:3,user:"FerSwim_GDL",tag:"Question",text:"Anyone here got a D2 scholarship offer as an international? What documents did they ask for first?",media:null,likes:19,comments:8,liked:false,verified:false,time:"8h"},
+  {id:4,user:"ValSwim_CDMX",tag:"Progress",text:"Coach from Virginia Tech replied to my email 3 days after sending. The XIMO template 100% worked. Keep going everyone.",media:null,likes:67,comments:14,liked:false,verified:false,time:"1d"},
+  {id:5,user:"XIMO",tag:"Tip",text:"Power tip: Your 50 libre time is the most universal benchmark for D1 coaches scouting international sprinters. Make it your primary metric.",media:null,likes:201,comments:31,liked:false,verified:true,time:"2d"},
+];
+
+const MEETS=[
+  {meet:"Guadalajara Open 2025",date:"Mar 8, 2025",events:[{e:"50 libre",t:"26.0",place:3,pb:true},{e:"100 libre",t:"58.0",place:5,pb:false}]},
+  {meet:"FINA Mexican Championship",date:"Feb 14, 2025",events:[{e:"50 libre",t:"26.2",place:4,pb:false},{e:"100 fly",t:"63.0",place:6,pb:true}]},
+  {meet:"Regional Invitational 2024",date:"Nov 22, 2024",events:[{e:"50 libre",t:"26.5",place:2,pb:false},{e:"100 libre",t:"58.7",place:4,pb:false}]},
+  {meet:"XIMO Winter Classic",date:"Dec 10, 2024",events:[{e:"50 libre",t:"26.4",place:1,pb:false},{e:"200 libre",t:"2:06.0",place:3,pb:true}]},
+];
+
+const NAV=[
+  {id:"dashboard",icon:"⬡",label:"Dashboard"},
+  {id:"intelligence",icon:"◈",label:"Intelligence"},
+  {id:"universities",icon:"◫",label:"Universities"},
+  {id:"analytics",icon:"◑",label:"Analytics"},
+  {id:"recruitment",icon:"◎",label:"Recruiting CRM"},
+  {id:"community",icon:"◉",label:"Community"},
+  {id:"media",icon:"▷",label:"Reels & Media"},
+  {id:"courses",icon:"◳",label:"Academy"},
+  {id:"profile",icon:"◷",label:"Profile"},
+];
+
+const diffC={Elite:D.red,High:D.amber,Medium:D.teal,Accessible:D.green};
+const tagC={Progress:D.teal,Achievement:D.gold,Question:D.amber,Tip:D.green,Meet:D.textMid};
+
+function fit(u){
+  const gap=26.0-parseFloat(u.t50);
+  return Math.round(Math.max(0,Math.min(100,100-(gap*20))));
+}
+function fitC(f){return f>=80?D.green:f>=60?D.teal:f>=40?D.amber:D.red;}
+function fitL(f){return f>=80?"Strong Target":f>=60?"Realistic":f>=40?"Reach":"Long Reach";}
+
+// ── Sidebar ──────────────────────────────────────────────────────
+function Sidebar({active,setActive,user}){
+  return React.createElement("div",{style:s({width:200,minHeight:"100vh",background:D.navy,display:"flex",flexDirection:"column",padding:"18px 0",flexShrink:0,position:"relative",overflow:"hidden"})},
+    React.createElement(GeoPattern,{width:200,height:300,color:D.teal,opacity:0.04}),
+    // Logo
+    React.createElement("div",{style:s({padding:"0 16px 18px",display:"flex",alignItems:"center",gap:9,position:"relative",zIndex:1})},
+      React.createElement(Logo,{size:30}),
+      React.createElement("div",null,
+        React.createElement("div",{style:s({color:D.white,fontWeight:800,fontSize:17,letterSpacing:1.4,lineHeight:1})},"XIMO"),
+        React.createElement("div",{style:s({color:"rgba(255,255,255,0.22)",fontSize:7,letterSpacing:2.8,fontWeight:600,textTransform:"uppercase",marginTop:1})},"ACADEMY")
+      )
+    ),
+    React.createElement(Divider,{color:D.teal,opacity:0.12,style:{margin:"0 16px 14px"}}),
+    // Nav
+    React.createElement("div",{style:{flex:1,position:"relative",zIndex:1}},
+      NAV.map(n=>{
+        const act=active===n.id;
+        return React.createElement("button",{key:n.id,onClick:()=>setActive(n.id),
+          style:s({width:"100%",background:act?"rgba(27,138,143,0.13)":"transparent",border:"none",borderLeft:`2px solid ${act?D.teal:"transparent"}`,cursor:"pointer",padding:"8px 16px",display:"flex",alignItems:"center",gap:9,transition:"all 0.13s",textAlign:"left"})},
+          React.createElement("span",{style:{fontSize:12,color:act?D.teal:"rgba(255,255,255,0.22)",lineHeight:1}},n.icon),
+          React.createElement("span",{style:s({fontSize:12,fontWeight:act?600:400,color:act?D.white:"rgba(255,255,255,0.42)",letterSpacing:0.05})},n.label),
+          n.id==="recruitment"&&React.createElement("span",{style:s({marginLeft:"auto",background:D.teal,color:D.white,borderRadius:10,padding:"1px 5px",fontSize:9,fontWeight:700})},"5")
+        );
+      })
+    ),
+    React.createElement(Divider,{color:D.teal,opacity:0.1,style:{margin:"14px 16px 12px"}}),
+    React.createElement("div",{style:s({padding:"0 16px",display:"flex",alignItems:"center",gap:9,position:"relative",zIndex:1})},
+      React.createElement("div",{style:s({width:28,height:28,borderRadius:7,background:"rgba(27,138,143,0.18)",border:"1px solid rgba(27,138,143,0.28)",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:11,color:D.teal})},user?.name?.[0]||"A"),
+      React.createElement("div",null,
+        React.createElement("div",{style:s({color:D.white,fontSize:11.5,fontWeight:600,lineHeight:1})},user?.name||"Athlete"),
+        React.createElement("div",{style:s({color:"rgba(255,255,255,0.25)",fontSize:9.5,marginTop:1})},"Pro · Mexico")
+      )
+    )
+  );
+}
+
+// ── Landing ──────────────────────────────────────────────────────
+function Landing({onLogin,onRegister}){
+  return React.createElement("div",{style:s({minHeight:"100vh",background:D.bg,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"40px 20px"})},
+    React.createElement(Fade,null,
+      React.createElement("div",{style:{textAlign:"center",maxWidth:480}},
+        React.createElement("div",{style:{display:"flex",justifyContent:"center",marginBottom:26}},
+          React.createElement("div",{style:{width:76,height:76,borderRadius:20,background:`linear-gradient(135deg,${D.navyMid},${D.navy})`,border:"2px solid rgba(27,138,143,0.4)",display:"flex",alignItems:"center",justifyContent:"center",position:"relative",overflow:"hidden",boxShadow:"0 20px 60px rgba(9,24,42,0.3)"}},
+            React.createElement(GeoPattern,{width:76,height:76,opacity:0.1}),
+            React.createElement("span",{style:{fontWeight:800,fontSize:30,color:D.teal,position:"relative",zIndex:1,fontFamily:font}},"X")
+          )
+        ),
+        React.createElement("div",{style:s({fontWeight:800,fontSize:38,color:D.text,letterSpacing:-1.8,lineHeight:1.05,marginBottom:6})},"XIMO Academy"),
+        React.createElement("div",{style:s({fontSize:14,color:D.textLight,marginBottom:8,letterSpacing:0.4})},"The operating system for the future NCAA athlete."),
+        React.createElement(Divider,{color:D.teal,opacity:0.22,style:{margin:"18px 0"}}),
+        React.createElement("div",{style:s({fontSize:12.5,color:D.textMid,lineHeight:1.75,marginBottom:28})},"Elite athlete intelligence · NCAA recruiting · Performance analytics · Community"),
+        React.createElement("div",{style:{display:"flex",gap:12,justifyContent:"center"}},
+          React.createElement(Btn,{size:"lg",onClick:onRegister},"Get started free →"),
+          React.createElement(Btn,{size:"lg",variant:"ghost",onClick:onLogin},"Sign in")
+        )
+      )
+    )
+  );
+}
+
+// ── Auth ─────────────────────────────────────────────────────────
+function Auth({mode,onAuth,onSwitch,onBack}){
+  const [name,setName]=useState("");
+  const [email,setEmail]=useState("");
+  const [pw,setPw]=useState("");
+  return React.createElement("div",{style:s({minHeight:"100vh",background:D.bg,display:"flex",alignItems:"center",justifyContent:"center",padding:20})},
+    React.createElement(Fade,null,
+      React.createElement(Card,{style:{width:360,padding:"28px 30px",position:"relative"}},
+        React.createElement(Corner,{size:14,color:D.teal,opacity:0.2,style:{position:"absolute",top:8,left:8}}),
+        React.createElement("div",{style:{display:"flex",justifyContent:"center",marginBottom:18}},React.createElement(Logo,{size:34})),
+        React.createElement("div",{style:s({fontWeight:800,fontSize:19,color:D.text,textAlign:"center",marginBottom:3})},mode==="login"?"Welcome back":"Join XIMO Academy"),
+        React.createElement("div",{style:s({fontSize:11.5,color:D.textLight,textAlign:"center",marginBottom:18})},mode==="login"?"Sign in to your account":"Start your NCAA journey today"),
+        React.createElement("div",{style:s({display:"flex",flexDirection:"column",gap:11,marginBottom:18})},
+          mode==="register"&&React.createElement(Inp,{label:"Full name",value:name,onChange:e=>setName(e.target.value),placeholder:"Alejandro Ramírez"}),
+          React.createElement(Inp,{label:"Email",value:email,onChange:e=>setEmail(e.target.value),placeholder:"athlete@example.com"}),
+          React.createElement(Inp,{label:"Password",value:pw,onChange:e=>setPw(e.target.value),type:"password",placeholder:"••••••••"})
+        ),
+        React.createElement(Btn,{full:true,onClick:()=>onAuth({name:name||"Alejandro",email})},mode==="login"?"Sign in →":"Create account →"),
+        React.createElement("div",{style:s({textAlign:"center",marginTop:13,fontSize:11.5,color:D.textLight})},
+          mode==="login"?"Don't have an account? ":"Already a member? ",
+          React.createElement("button",{onClick:onSwitch,style:{background:"none",border:"none",color:D.teal,fontWeight:600,cursor:"pointer",fontSize:11.5,fontFamily:font}},mode==="login"?"Sign up":"Sign in")
+        ),
+        React.createElement("button",{onClick:onBack,style:s({display:"block",margin:"10px auto 0",background:"none",border:"none",color:D.textXLight,fontSize:10.5,cursor:"pointer"})},"← Back to home")
+      )
+    )
+  );
+}
+
+// ── Dashboard ────────────────────────────────────────────────────
+function Dashboard({user}){
+  const ps=71;
+  return React.createElement("div",{style:s({display:"flex",gap:20})},
+    React.createElement("div",{style:s({flex:1,minWidth:0})},
+      // Hero
+      React.createElement(Fade,null,
+        React.createElement("div",{style:s({background:`linear-gradient(150deg,${D.navy},${D.navyLight})`,borderRadius:D.rLg,padding:"24px 28px",marginBottom:16,position:"relative",overflow:"hidden"})},
+          React.createElement(GeoPattern,{width:700,height:200,color:D.teal,opacity:0.05}),
+          React.createElement(Corner,{size:18,color:D.teal,opacity:0.2,style:{position:"absolute",top:9,left:9}}),
+          React.createElement(Corner,{size:18,color:D.teal,opacity:0.2,flip:true,style:{position:"absolute",top:9,right:9}}),
+          React.createElement("div",{style:s({display:"flex",justifyContent:"space-between",alignItems:"flex-start"})},
+            React.createElement("div",null,
+              React.createElement("div",{style:s({color:"rgba(255,255,255,0.32)",fontSize:9.5,fontWeight:700,letterSpacing:2,textTransform:"uppercase",marginBottom:5})},"Your Intelligence Report"),
+              React.createElement("div",{style:s({color:D.white,fontWeight:800,fontSize:22,letterSpacing:-0.7,marginBottom:4})},`Good morning, ${user.name.split(" ")[0]}.`),
+              React.createElement("div",{style:s({color:"rgba(255,255,255,0.42)",fontSize:12.5,lineHeight:1.6})},
+                "50 libre: ",React.createElement("span",{style:{color:D.teal,fontWeight:700}},"26.0s"),
+                " · Rank Mexico: ",React.createElement("span",{style:{color:D.white,fontWeight:600}},"Top 15"),
+                " · Recruiting: ",React.createElement("span",{style:{color:D.gold,fontWeight:600}},"Active")
+              )
+            ),
+            React.createElement("svg",{width:"76",height:"76",viewBox:"0 0 76 76"},
+              React.createElement("circle",{cx:"38",cy:"38",r:"30",fill:"none",stroke:"rgba(255,255,255,0.07)",strokeWidth:"6"}),
+              React.createElement("circle",{cx:"38",cy:"38",r:"30",fill:"none",stroke:D.teal,strokeWidth:"6",strokeDasharray:`${2*Math.PI*30*ps/100} ${2*Math.PI*30*(1-ps/100)}`,strokeLinecap:"round",transform:"rotate(-90 38 38)"}),
+              React.createElement("text",{x:"38",y:"36",textAnchor:"middle",fontSize:"16",fontWeight:"800",fill:D.white,fontFamily:font},ps),
+              React.createElement("text",{x:"38",y:"48",textAnchor:"middle",fontSize:"7",fill:D.teal,fontFamily:font,letterSpacing:"0.4"},"XIMO SCORE")
+            )
+          )
+        )
+      ),
+      // Stats
+      React.createElement(Fade,{delay:40},
+        React.createElement("div",{style:s({display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:9,marginBottom:16})},
+          [{l:"D1 Readiness",v:"62%",c:D.teal,sub:"vs 47% 6mo ago"},
+           {l:"Improvement Rate",v:"−0.3s/mo",c:D.green,sub:"Trending up"},
+           {l:"Coach Views",v:"18",c:D.gold,sub:"Last 30 days"},
+           {l:"Recruiting Score",v:"71/100",c:D.amber,sub:"D1 mid-tier"}
+          ].map(({l,v,c,sub})=>React.createElement(Card,{key:l,style:{padding:"13px 15px"}},
+            React.createElement("div",{style:s({fontSize:9.5,color:D.textLight,fontWeight:600,textTransform:"uppercase",letterSpacing:0.8,marginBottom:5})},l),
+            React.createElement("div",{style:s({fontSize:20,fontWeight:800,color:c,letterSpacing:-0.4,fontFamily:mono})},v),
+            React.createElement("div",{style:s({fontSize:9.5,color:D.textXLight,marginTop:2})},sub)
+          ))
+        )
+      ),
+      // Dimensions
+      React.createElement(Fade,{delay:60},
+        React.createElement(Card,{style:{padding:"18px 22px",marginBottom:16}},
+          React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7,marginBottom:14})},
+            React.createElement(Diamond,{color:D.teal,opacity:0.6}),
+            React.createElement("span",{style:s({fontWeight:700,fontSize:13.5,color:D.text})},"XIMO Intelligence Dimensions"),
+            React.createElement("span",{style:s({marginLeft:"auto",fontSize:10.5,color:D.textXLight})},"Season 2024–25")
+          ),
+          React.createElement("div",{style:s({display:"grid",gridTemplateColumns:"1fr 1fr",gap:11})},
+            DIMS.map(({k,label,score,desc})=>{
+              const c=score>=75?D.green:score>=55?D.teal:D.amber;
+              return React.createElement("div",{key:k},
+                React.createElement("div",{style:s({display:"flex",justifyContent:"space-between",marginBottom:4})},
+                  React.createElement("span",{style:s({fontSize:11.5,color:D.textMid,fontWeight:500})},label),
+                  React.createElement("span",{style:s({fontSize:11.5,fontWeight:700,color:c,fontFamily:mono})},score)
+                ),
+                React.createElement(Bar,{value:score,color:c,height:5}),
+                React.createElement("div",{style:s({fontSize:9.5,color:D.textXLight,marginTop:2})},desc)
+              );
+            })
+          )
+        )
+      ),
+      // Best matches
+      React.createElement(Fade,{delay:80},
+        React.createElement(Card,{style:{padding:"18px 22px"}},
+          React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7,marginBottom:12})},
+            React.createElement(Diamond,{color:D.teal,opacity:0.6}),
+            React.createElement("span",{style:s({fontWeight:700,fontSize:13.5,color:D.text})},"Recruiting Intelligence — Best Matches")
+          ),
+          [{n:"Towson University",f:91,tier:"Strong Target",c:D.green},
+           {n:"Indiana University",f:74,tier:"Realistic Target",c:D.teal},
+           {n:"Virginia Tech",f:68,tier:"Realistic Target",c:D.teal},
+           {n:"LSU",f:55,tier:"Reach School",c:D.amber}
+          ].map(({n,f,tier,c})=>React.createElement("div",{key:n,style:s({display:"flex",alignItems:"center",gap:11,padding:"8px 0",borderBottom:`1px solid ${D.border}`})},
+            React.createElement("div",{style:{flex:1}},
+              React.createElement("div",{style:s({fontSize:12.5,fontWeight:600,color:D.text})},n),
+              React.createElement("div",{style:s({fontSize:10.5,color:D.textLight,marginTop:1})},tier)
+            ),
+            React.createElement("div",{style:{width:90}},React.createElement(Bar,{value:f,color:c,height:4})),
+            React.createElement("span",{style:s({fontWeight:700,color:c,fontFamily:mono,fontSize:12.5,width:34,textAlign:"right"})},`${f}%`)
+          ))
+        )
+      )
+    ),
+    // Right
+    React.createElement("div",{style:s({width:220,flexShrink:0})},
+      React.createElement(Fade,{delay:30},
+        React.createElement(Card,{style:{padding:"15px 17px",marginBottom:13}},
+          React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7,marginBottom:11})},
+            React.createElement(Diamond,{color:D.teal,opacity:0.5}),
+            React.createElement("span",{style:s({fontWeight:600,fontSize:12,color:D.text})},"Upcoming actions")
+          ),
+          [{a:"Follow up: Virginia Tech",d:"Mar 25",c:D.amber},
+           {a:"Campus visit: Towson",d:"Apr 3",c:D.teal},
+           {a:"Mexican Championship",d:"Apr 12",c:D.gold},
+           {a:"SAT exam",d:"May 3",c:D.red}
+          ].map(({a,d,c})=>React.createElement("div",{key:a,style:s({display:"flex",gap:9,alignItems:"flex-start",padding:"6px 0",borderBottom:`1px solid ${D.border}`})},
+            React.createElement("div",{style:{width:3,height:32,borderRadius:2,background:c,flexShrink:0,marginTop:2}}),
+            React.createElement("div",null,
+              React.createElement("div",{style:s({fontSize:11.5,fontWeight:500,color:D.text})},a),
+              React.createElement("div",{style:s({fontSize:10,color:D.textLight})},d)
+            )
+          ))
+        ),
+        React.createElement("div",{style:s({background:D.navy,borderRadius:D.r,padding:"15px 17px",position:"relative",overflow:"hidden"})},
+          React.createElement(GeoPattern,{width:220,height:80,opacity:0.07}),
+          React.createElement("div",{style:s({color:D.teal,fontWeight:700,fontSize:10.5,letterSpacing:0.4,marginBottom:3})},"Profile Visibility"),
+          React.createElement("div",{style:s({color:D.white,fontWeight:800,fontSize:18,marginBottom:2,fontFamily:mono})},"130+ coaches"),
+          React.createElement("div",{style:s({color:"rgba(255,255,255,0.32)",fontSize:10.5,lineHeight:1.5})},"saw your profile this month.")
+        )
+      )
+    )
+  );
+}
+
+// ── Intelligence ─────────────────────────────────────────────────
+function Intelligence(){
+  const [ae,setAe]=useState(0);
+  const ev=EVENTS[ae];
+  return React.createElement("div",{style:s({display:"flex",gap:20})},
+    React.createElement("div",{style:s({flex:1,minWidth:0})},
+      React.createElement(Fade,null,
+        React.createElement("div",{style:s({marginBottom:16})},
+          React.createElement("div",{style:s({fontWeight:800,fontSize:20,color:D.text,letterSpacing:-0.5,marginBottom:2})},"XIMO Intelligence"),
+          React.createElement("div",{style:s({fontSize:12.5,color:D.textLight})},"Your cinematic athlete intelligence system.")
+        )
+      ),
+      // Big score hero
+      React.createElement(Fade,{delay:20},
+        React.createElement("div",{style:s({background:`linear-gradient(150deg,${D.navy},${D.navyLight})`,borderRadius:D.rLg,padding:"26px 30px",marginBottom:16,position:"relative",overflow:"hidden"})},
+          React.createElement(GeoPattern,{width:700,height:200,color:D.teal,opacity:0.05}),
+          React.createElement(Corner,{size:18,color:D.teal,opacity:0.2,style:{position:"absolute",top:9,left:9}}),
+          React.createElement(Corner,{size:18,color:D.teal,opacity:0.2,flip:true,style:{position:"absolute",top:9,right:9}}),
+          React.createElement("div",{style:s({display:"flex",gap:28,alignItems:"center"})},
+            React.createElement("svg",{width:"110",height:"110",viewBox:"0 0 110 110"},
+              React.createElement("circle",{cx:"55",cy:"55",r:"46",fill:"none",stroke:"rgba(255,255,255,0.05)",strokeWidth:"7"}),
+              DIMS.map((d,i)=>{
+                const c=d.score>=75?D.green:d.score>=55?D.teal:D.amber;
+                const r=46-(i*6);const circ=2*Math.PI*r;
+                const rotate=-90+(i*(360/DIMS.length));
+                return React.createElement("circle",{key:d.k,cx:"55",cy:"55",r,fill:"none",stroke:c,strokeWidth:"3.5",strokeDasharray:`${circ*d.score/100*0.14} ${circ*(1-d.score/100*0.14)}`,strokeLinecap:"round",transform:`rotate(${rotate} 55 55)`,opacity:0.75});
+              }),
+              React.createElement("text",{x:"55",y:"52",textAnchor:"middle",fontSize:"20",fontWeight:"800",fill:D.white,fontFamily:font},"71"),
+              React.createElement("text",{x:"55",y:"64",textAnchor:"middle",fontSize:"6.5",fill:D.teal,fontFamily:font,letterSpacing:"0.8"},"XIMO SCORE")
+            ),
+            React.createElement("div",{style:{flex:1}},
+              React.createElement("div",{style:s({color:"rgba(255,255,255,0.3)",fontSize:8.5,letterSpacing:2,textTransform:"uppercase",fontWeight:700,marginBottom:7})},"Athlete Intelligence Index"),
+              React.createElement("div",{style:s({color:D.white,fontWeight:800,fontSize:20,letterSpacing:-0.5,marginBottom:5})},"D1 Mid-Tier Candidate"),
+              React.createElement("div",{style:s({color:"rgba(255,255,255,0.45)",fontSize:12.5,lineHeight:1.7,marginBottom:11})},
+                "Trajectory ranks in the ",React.createElement("span",{style:{color:D.teal,fontWeight:600}},"top 22%"),
+                " of Mexican sprinters. Projected D1 competitive times by ",React.createElement("span",{style:{color:D.gold,fontWeight:600}},"September 2025"),"."
+              ),
+              React.createElement("div",{style:s({display:"flex",gap:7,flexWrap:"wrap"})},
+                ["Sprint Specialist","High Relay Value","Strong Improver"].map(t=>
+                  React.createElement("span",{key:t,style:s({background:"rgba(27,138,143,0.17)",color:D.teal,border:"1px solid rgba(27,138,143,0.28)",borderRadius:20,padding:"3px 9px",fontSize:10,fontWeight:600})},t)
+                )
+              )
+            )
+          )
+        )
+      ),
+      // Dimensions
+      React.createElement(Fade,{delay:40},
+        React.createElement(Card,{style:{padding:"18px 22px",marginBottom:16}},
+          React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7,marginBottom:14})},
+            React.createElement(Diamond,{color:D.teal,opacity:0.6}),
+            React.createElement("span",{style:s({fontWeight:700,fontSize:13.5,color:D.text})},"Intelligence Dimensions")
+          ),
+          React.createElement("div",{style:s({display:"flex",flexDirection:"column",gap:13})},
+            DIMS.map(({k,label,score,desc})=>{
+              const c=score>=75?D.green:score>=55?D.teal:D.amber;
+              return React.createElement("div",{key:k},
+                React.createElement("div",{style:s({display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:5})},
+                  React.createElement("div",null,
+                    React.createElement("div",{style:s({fontSize:12.5,fontWeight:600,color:D.text})},label),
+                    React.createElement("div",{style:s({fontSize:10.5,color:D.textLight,marginTop:1})},desc)
+                  ),
+                  React.createElement("div",{style:s({textAlign:"right"})},
+                    React.createElement("div",{style:s({fontSize:19,fontWeight:800,color:c,fontFamily:mono})},score),
+                    React.createElement("div",{style:s({fontSize:9,color:D.textXLight})},"/100")
+                  )
+                ),
+                React.createElement(Bar,{value:score,color:c,height:5})
+              );
+            })
+          )
+        )
+      ),
+      // Event analysis
+      React.createElement(Fade,{delay:60},
+        React.createElement(Card,{style:{padding:"18px 22px",marginBottom:16}},
+          React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7,marginBottom:13})},
+            React.createElement(Diamond,{color:D.teal,opacity:0.6}),
+            React.createElement("span",{style:s({fontWeight:700,fontSize:13.5,color:D.text})},"Event Analysis")
+          ),
+          React.createElement("div",{style:s({display:"flex",gap:5,marginBottom:14,flexWrap:"wrap"})},
+            EVENTS.map((e,i)=>React.createElement("button",{key:e.e,onClick:()=>setAe(i),
+              style:s({background:ae===i?D.teal:"transparent",color:ae===i?D.white:D.textMid,border:`1px solid ${ae===i?D.teal:D.border}`,borderRadius:D.rSm,padding:"4px 11px",fontSize:11,fontWeight:500,cursor:"pointer",transition:"all 0.13s"})
+            },e.e))
+          ),
+          React.createElement("div",{style:s({display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:13,marginBottom:16})},
+            React.createElement("div",null,
+              React.createElement("div",{style:s({fontSize:9.5,color:D.textLight,fontWeight:600,textTransform:"uppercase",letterSpacing:0.8,marginBottom:3})},"Personal Best"),
+              React.createElement("div",{style:s({fontSize:22,fontWeight:800,color:D.text,fontFamily:mono})},ev.best)
+            ),
+            React.createElement("div",null,
+              React.createElement("div",{style:s({fontSize:9.5,color:D.textLight,fontWeight:600,textTransform:"uppercase",letterSpacing:0.8,marginBottom:3})},"D1 Average"),
+              React.createElement("div",{style:s({fontSize:22,fontWeight:800,color:D.teal,fontFamily:mono})},ev.d1)
+            ),
+            React.createElement("div",null,
+              React.createElement("div",{style:s({fontSize:9.5,color:D.textLight,fontWeight:600,textTransform:"uppercase",letterSpacing:0.8,marginBottom:3})},"Monthly Velocity"),
+              React.createElement("div",{style:s({fontSize:22,fontWeight:800,color:D.green,fontFamily:mono})},`${ev.vel}s`),
+              React.createElement("div",{style:s({fontSize:9.5,color:D.textXLight})},"per month")
+            )
+          ),
+          // Bar chart
+          React.createElement("div",{style:s({marginBottom:10})},
+            React.createElement("div",{style:s({fontSize:10.5,color:D.textLight,marginBottom:5})},"Season progression"),
+            React.createElement("div",{style:s({display:"flex",alignItems:"flex-end",gap:3,height:60})},
+              ev.trend.map((v,i)=>{
+                const mn=Math.min(...ev.trend),mx=Math.max(...ev.trend);
+                const h=Math.round(((v-mn)/(mx-mn||1))*48)+8;
+                const last=i===ev.trend.length-1;
+                return React.createElement("div",{key:i,style:{flex:1,height:h,background:last?D.teal:"rgba(27,138,143,0.22)",borderRadius:3,transition:"height 0.5s",position:"relative"}},
+                  last&&React.createElement("div",{style:s({position:"absolute",top:-18,left:"50%",transform:"translateX(-50%)",fontSize:9,fontWeight:700,color:D.teal,fontFamily:mono,whiteSpace:"nowrap"})},v)
+                );
+              })
+            ),
+            React.createElement("div",{style:s({display:"flex",justifyContent:"space-between",marginTop:5})},
+              ["Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar"].map(m=>React.createElement("span",{key:m,style:s({fontSize:8.5,color:D.textXLight})},m))
+            )
+          ),
+          React.createElement(Divider,{color:D.teal,opacity:0.12,style:{margin:"10px 0 8px"}}),
+          React.createElement("div",{style:s({fontSize:11.5,color:D.textMid})},
+            "Percentile among NCAA-bound Mexican athletes: ",
+            React.createElement("strong",{style:{color:D.text}},`${ev.pct}th`)
+          )
+        )
+      ),
+      // Meet history
+      React.createElement(Fade,{delay:80},
+        React.createElement(Card,{style:{padding:"18px 22px"}},
+          React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7,marginBottom:13})},
+            React.createElement(Diamond,{color:D.teal,opacity:0.6}),
+            React.createElement("span",{style:s({fontWeight:700,fontSize:13.5,color:D.text})},"Meet History")
+          ),
+          MEETS.map((m,mi)=>React.createElement("div",{key:mi,style:s({marginBottom:13})},
+            React.createElement("div",{style:s({display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:5})},
+              React.createElement("span",{style:s({fontWeight:600,fontSize:12.5,color:D.text})},m.meet),
+              React.createElement("span",{style:s({fontSize:10.5,color:D.textXLight})},m.date)
+            ),
+            m.events.map((ev,ei)=>React.createElement("div",{key:ei,style:s({display:"flex",justifyContent:"space-between",alignItems:"center",padding:"5px 9px",background:D.bg,borderRadius:D.rSm,marginBottom:3})},
+              React.createElement("span",{style:s({fontSize:11.5,color:D.textMid})},ev.e),
+              React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7})},
+                ev.pb&&React.createElement(Badge,{text:"PB",color:D.green,bg:D.greenL}),
+                React.createElement("span",{style:s({fontWeight:700,fontFamily:mono,fontSize:12.5,color:D.text})},ev.t),
+                React.createElement("span",{style:s({fontSize:10.5,color:D.textXLight})},`#${ev.place}`)
+              )
+            ))
+          ))
+        )
+      )
+    ),
+    // Right
+    React.createElement("div",{style:s({width:220,flexShrink:0})},
+      React.createElement(Fade,{delay:20},
+        React.createElement(Card,{style:{padding:"15px 17px",marginBottom:13}},
+          React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7,marginBottom:11})},
+            React.createElement(Diamond,{color:D.teal,opacity:0.5}),
+            React.createElement("span",{style:s({fontWeight:600,fontSize:12,color:D.text})},"NCAA Division Fit")
+          ),
+          [{d:"D1 Top 25",p:8,c:D.red},{d:"D1 Mid-Tier",p:62,c:D.teal},{d:"D1 Bottom",p:81,c:D.green},{d:"D2",p:95,c:D.green},{d:"D3/NAIA",p:99,c:D.green}].map(({d,p,c})=>
+            React.createElement("div",{key:d,style:s({marginBottom:9})},
+              React.createElement("div",{style:s({display:"flex",justifyContent:"space-between",fontSize:11,marginBottom:3})},
+                React.createElement("span",{style:s({color:D.textMid})},d),
+                React.createElement("span",{style:s({fontWeight:700,color:c,fontFamily:mono})},`${p}%`)
+              ),
+              React.createElement(Bar,{value:p,color:c,height:3})
+            )
+          )
+        ),
+        React.createElement(Card,{style:{padding:"15px 17px"}},
+          React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7,marginBottom:10})},
+            React.createElement(Diamond,{color:D.gold,opacity:0.5}),
+            React.createElement("span",{style:s({fontWeight:600,fontSize:12,color:D.text})},"Improvement Velocity")
+          ),
+          React.createElement("div",{style:{display:"flex",justifyContent:"center"}},
+            React.createElement(Spark,{data:PROG.map(d=>d.v),color:D.teal,w:185,h:56})
+          ),
+          React.createElement(Divider,{color:D.teal,opacity:0.12,style:{margin:"9px 0 7px"}}),
+          React.createElement("div",{style:s({fontSize:10.5,color:D.textMid,lineHeight:1.5})},
+            "−2.1s in 7 months. ",React.createElement("strong",{style:{color:D.teal}},"Top 18%")," of improving Mexican sprinters."
+          )
+        )
+      )
+    )
+  );
+}
+
+// ── Universities ──────────────────────────────────────────────────
+function Universities(){
+  const [search,setSearch]=useState("");
+  const [conf,setConf]=useState("All");
+  const [diff,setDiff]=useState("All");
+  const [climate,setClimate]=useState("All");
+  const [maxT,setMaxT]=useState(70);
+  const [sel,setSel]=useState(null);
+
+  const confs=["All","SEC","Big Ten","ACC","Pac-12","Big 12","CAA"];
+  const diffs=["All","Elite","High","Medium","Accessible"];
+  const climates=["All","Warm","Mild","Cold"];
+
+  const filtered=UNIS.filter(u=>{
+    const ms=u.name.toLowerCase().includes(search.toLowerCase())||u.state.toLowerCase().includes(search.toLowerCase())||u.coach.toLowerCase().includes(search.toLowerCase());
+    return ms&&(conf==="All"||u.conf===conf)&&(diff==="All"||u.difficulty===diff)&&(climate==="All"||u.climate===climate)&&u.tuition<=maxT*1000;
+  });
+
+  if(sel){
+    const f=fit(sel);const fc=fitC(f);const fl=fitL(f);
+    return React.createElement("div",{style:s({display:"flex",gap:20})},
+      React.createElement("div",{style:s({flex:1,minWidth:0})},
+        React.createElement(Btn,{variant:"ghost",size:"sm",onClick:()=>setSel(null),style:{marginBottom:14}},"← All Programs"),
+        React.createElement(Fade,null,
+          React.createElement("div",{style:s({background:`linear-gradient(150deg,${D.navy},${D.navyLight})`,borderRadius:D.rLg,padding:"24px 28px",marginBottom:16,position:"relative",overflow:"hidden"})},
+            React.createElement(GeoPattern,{width:700,height:180,color:D.teal,opacity:0.05}),
+            React.createElement(Corner,{size:18,color:D.teal,opacity:0.2,style:{position:"absolute",top:9,left:9}}),
+            React.createElement(Corner,{size:18,color:D.teal,opacity:0.2,flip:true,style:{position:"absolute",top:9,right:9}}),
+            React.createElement("div",{style:s({display:"flex",justifyContent:"space-between",alignItems:"flex-start"})},
+              React.createElement("div",null,
+                React.createElement(Badge,{text:sel.difficulty,color:diffC[sel.difficulty]}),
+                React.createElement("div",{style:s({color:D.white,fontWeight:800,fontSize:24,letterSpacing:-0.7,marginTop:7})},sel.name),
+                React.createElement("div",{style:s({color:"rgba(255,255,255,0.38)",fontSize:12.5,marginTop:3})},`${sel.nick} · ${sel.conf} · ${sel.location} · Coach: ${sel.coach}`)
+              ),
+              React.createElement("div",{style:{textAlign:"center"}},
+                React.createElement("svg",{width:"76",height:"76",viewBox:"0 0 76 76"},
+                  React.createElement("circle",{cx:"38",cy:"38",r:"30",fill:"none",stroke:"rgba(255,255,255,0.07)",strokeWidth:"7"}),
+                  React.createElement("circle",{cx:"38",cy:"38",r:"30",fill:"none",stroke:fc,strokeWidth:"7",strokeDasharray:`${2*Math.PI*30*f/100} ${2*Math.PI*30*(1-f/100)}`,strokeLinecap:"round",transform:"rotate(-90 38 38)"}),
+                  React.createElement("text",{x:"38",y:"36",textAnchor:"middle",fontSize:"16",fontWeight:"800",fill:D.white,fontFamily:font},`${f}%`),
+                  React.createElement("text",{x:"38",y:"48",textAnchor:"middle",fontSize:"6.5",fill:fc,fontFamily:font,letterSpacing:"0.4"},"TEAM FIT")
+                ),
+                React.createElement("div",{style:s({color:fc,fontSize:10,fontWeight:700,marginTop:3})},fl)
+              )
+            )
+          )
+        ),
+        React.createElement(Fade,{delay:20},
+          React.createElement("div",{style:s({display:"grid",gridTemplateColumns:"1fr 1fr",gap:13,marginBottom:13})},
+            React.createElement(Card,{style:{padding:"17px 19px"}},
+              React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7,marginBottom:11})},
+                React.createElement(Diamond,{color:D.teal,opacity:0.6}),
+                React.createElement("span",{style:s({fontWeight:600,fontSize:12.5,color:D.text})},"Times vs Your Best")
+              ),
+              [["50 free",sel.t50,"26.0"],["100 free",sel.t100,"58.0"]].map(([ev,tv,my])=>
+                React.createElement("div",{key:ev,style:s({display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${D.border}`})},
+                  React.createElement("span",{style:s({fontSize:11.5,color:D.textMid})},ev),
+                  React.createElement("div",{style:s({display:"flex",gap:9,alignItems:"center"})},
+                    React.createElement("span",{style:s({fontSize:10.5,color:D.textXLight,fontFamily:mono})},`You: ${my}`),
+                    React.createElement("span",{style:s({fontWeight:700,color:D.teal,fontSize:12.5,fontFamily:mono})},tv)
+                  )
+                )
+              )
+            ),
+            React.createElement(Card,{style:{padding:"17px 19px"}},
+              React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7,marginBottom:11})},
+                React.createElement(Diamond,{color:D.teal,opacity:0.6}),
+                React.createElement("span",{style:s({fontWeight:600,fontSize:12.5,color:D.text})},"Program Details")
+              ),
+              [["GPA",sel.gpa],["Cost/yr","$"+sel.tuition.toLocaleString()],["Scholarships",sel.scholarships],["Roster",`${sel.rosterSize} athletes`],["Climate",sel.climate]].map(([l,v])=>
+                React.createElement("div",{key:l,style:s({display:"flex",justifyContent:"space-between",padding:"5px 0",borderBottom:`1px solid ${D.border}`})},
+                  React.createElement("span",{style:s({fontSize:10.5,color:D.textLight})},l),
+                  React.createElement("span",{style:s({fontWeight:500,color:D.text,fontSize:10.5})},v)
+                )
+              )
+            )
+          )
+        ),
+        React.createElement(Fade,{delay:35},
+          React.createElement(Card,{style:{padding:"18px 22px",marginBottom:13}},
+            React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7,marginBottom:13})},
+              React.createElement(Diamond,{color:D.teal,opacity:0.6}),
+              React.createElement("span",{style:s({fontWeight:700,fontSize:13.5,color:D.text})},"Team Fit Intelligence")
+            ),
+            React.createElement("div",{style:s({display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:11})},
+              [{l:"Roster Placement",v:"~#14–18",c:D.teal,d:"Where you'd sit day 1"},
+               {l:"Scoring Potential",v:"Relay contributor",c:D.green,d:"Sprint relays"},
+               {l:"Graduation Gap",v:"2025",c:D.gold,d:"Open roster spot"},
+               {l:"Coach Interest",v:f>=70?"High":"Medium",c:f>=70?D.green:D.amber,d:"Based on event/GPA"},
+               {l:"Scholarship Est.",v:f>=70?"$8–18k/yr":"$3–8k/yr",c:D.teal,d:"Aid estimate"},
+               {l:"Conf. Rank",v:`#${sel.confRank} in ${sel.conf}`,c:D.textMid,d:"Program strength"}
+              ].map(({l,v,c,d})=>React.createElement("div",{key:l,style:s({background:D.bg,borderRadius:D.rSm,padding:"11px 13px"})},
+                React.createElement("div",{style:s({fontSize:9.5,color:D.textLight,fontWeight:600,textTransform:"uppercase",letterSpacing:0.7,marginBottom:3})},l),
+                React.createElement("div",{style:s({fontSize:13,fontWeight:700,color:c,marginBottom:2})},v),
+                React.createElement("div",{style:s({fontSize:9.5,color:D.textXLight})},d)
+              ))
+            )
+          )
+        ),
+        React.createElement(Card,{style:{padding:"17px 20px"}},
+          React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7,marginBottom:11})},
+            React.createElement(Diamond,{color:D.teal,opacity:0.6}),
+            React.createElement("span",{style:s({fontWeight:600,fontSize:12.5,color:D.text})},`Contact ${sel.coach}`)
+          ),
+          React.createElement("div",{style:s({background:D.bg,borderRadius:D.rSm,border:`1px solid ${D.border}`,padding:"9px 13px",marginBottom:11})},
+            React.createElement("div",{style:s({fontWeight:600,fontSize:12.5,color:D.text})},sel.coach),
+            React.createElement("div",{style:s({fontSize:11.5,color:D.textLight,marginTop:1,fontFamily:mono})},sel.email)
+          ),
+          React.createElement(Btn,null,"Use XIMO outreach template →")
+        )
+      ),
+      React.createElement("div",{style:s({width:220,flexShrink:0})},
+        React.createElement(Card,{style:{padding:"15px 17px"}},
+          React.createElement("div",{style:s({fontWeight:600,fontSize:12,color:D.text,marginBottom:11})},"Same conference"),
+          UNIS.filter(u=>u.id!==sel.id&&u.conf===sel.conf).slice(0,4).map(u=>
+            React.createElement("div",{key:u.id,onClick:()=>setSel(u),style:s({padding:"7px 0",borderBottom:`1px solid ${D.border}`,cursor:"pointer"})},
+              React.createElement("div",{style:s({fontSize:11.5,fontWeight:600,color:D.teal})},u.name),
+              React.createElement("div",{style:s({fontSize:10,color:D.textLight})},`${u.conf} · Fit: ${fit(u)}%`)
+            )
+          )
+        )
+      )
+    );
+  }
+
+  return React.createElement("div",{style:s({display:"flex",gap:20})},
+    React.createElement("div",{style:s({flex:1,minWidth:0})},
+      React.createElement(Fade,null,
+        React.createElement("div",{style:s({marginBottom:14})},
+          React.createElement("div",{style:s({fontWeight:800,fontSize:20,color:D.text,letterSpacing:-0.5,marginBottom:2})},"NCAA Programs"),
+          React.createElement("div",{style:s({fontSize:12.5,color:D.textLight,marginBottom:12})},"Advanced team fit intelligence. Filter by conference, climate, tuition, and more."),
+          React.createElement("input",{placeholder:"Search programs, coaches, states…",value:search,onChange:e=>setSearch(e.target.value),
+            style:s({width:"100%",border:`1px solid ${D.border}`,borderRadius:D.r,padding:"10px 15px",fontSize:12.5,background:"rgba(255,255,255,0.9)",color:D.text,outline:"none",boxSizing:"border-box",boxShadow:D.shadow}),
+            onFocus:e=>{e.target.style.borderColor=D.teal;},onBlur:e=>{e.target.style.borderColor=D.border;}
+          })
+        )
+      ),
+      React.createElement(Fade,{delay:25},
+        React.createElement("div",{style:s({marginBottom:13})},
+          React.createElement("div",{style:s({display:"flex",gap:5,marginBottom:5,flexWrap:"wrap"})},
+            confs.map(c=>React.createElement("button",{key:c,onClick:()=>setConf(c),style:s({background:conf===c?D.navy:"transparent",color:conf===c?D.white:D.textMid,border:`1px solid ${conf===c?D.navy:D.border}`,borderRadius:D.rSm,padding:"3px 10px",fontSize:10.5,fontWeight:500,cursor:"pointer"})},c))
+          ),
+          React.createElement("div",{style:s({display:"flex",gap:5,marginBottom:5,flexWrap:"wrap"})},
+            diffs.map(d=>React.createElement("button",{key:d,onClick:()=>setDiff(d),style:s({background:diff===d?(diffC[d]||D.navy):"transparent",color:diff===d?D.white:(diffC[d]||D.textMid),border:`1px solid ${diffC[d]||D.border}`,borderRadius:D.rSm,padding:"3px 10px",fontSize:10.5,fontWeight:500,cursor:"pointer"})},d))
+          ),
+          React.createElement("div",{style:s({display:"flex",gap:5,flexWrap:"wrap",alignItems:"center"})},
+            climates.map(c=>React.createElement("button",{key:c,onClick:()=>setClimate(c),style:s({background:climate===c?D.navy:"transparent",color:climate===c?D.white:D.textMid,border:`1px solid ${climate===c?D.navy:D.border}`,borderRadius:D.rSm,padding:"3px 10px",fontSize:10.5,fontWeight:500,cursor:"pointer"})},c)),
+            React.createElement("span",{style:s({fontSize:10.5,color:D.textLight,marginLeft:8})},`Max $${maxT}k/yr`),
+            React.createElement("input",{type:"range",min:20,max:70,value:maxT,onChange:e=>setMaxT(+e.target.value),style:{width:90}})
+          ),
+          React.createElement("div",{style:s({fontSize:10.5,color:D.textLight,marginTop:6})},`${filtered.length} programs found`)
+        )
+      ),
+      filtered.map((u,i)=>{
+        const f=fit(u);const fc=fitC(f);
+        return React.createElement(Fade,{key:u.id,delay:i*8},
+          React.createElement(Card,{hover:true,style:{padding:"13px 17px",marginBottom:7},onClick:()=>setSel(u)},
+            React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:11})},
+              React.createElement("div",{style:s({width:38,height:38,borderRadius:9,background:D.bg,border:`1px solid ${D.border}`,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:12,color:D.textMid,flexShrink:0})},`#${u.rank}`),
+              React.createElement("div",{style:s({flex:1,minWidth:0})},
+                React.createElement("div",{style:s({fontWeight:600,fontSize:13,color:D.text,marginBottom:2})},u.name),
+                React.createElement("div",{style:s({fontSize:10.5,color:D.textLight})},`${u.conf} · ${u.state} · ${u.coach}`),
+                React.createElement("div",{style:s({display:"flex",gap:4,marginTop:5,flexWrap:"wrap"})},
+                  React.createElement(Badge,{text:`50: ${u.t50}`,color:D.teal}),
+                  React.createElement(Badge,{text:`$${Math.round(u.tuition/1000)}k`,color:D.textMid,bg:D.bg}),
+                  React.createElement(Badge,{text:u.difficulty,color:diffC[u.difficulty]}),
+                  React.createElement(Badge,{text:u.climate,color:D.textLight,bg:D.bg})
+                )
+              ),
+              React.createElement("div",{style:{textAlign:"center",flexShrink:0}},
+                React.createElement("div",{style:s({fontSize:16,fontWeight:800,color:fc,fontFamily:mono})},`${f}%`),
+                React.createElement("div",{style:s({fontSize:9,color:D.textXLight})},"Team Fit"),
+                React.createElement("div",{style:{width:44,marginTop:3}},React.createElement(Bar,{value:f,color:fc,height:3}))
+              )
+            )
+          )
+        );
+      })
+    ),
+    React.createElement("div",{style:s({width:220,flexShrink:0})},
+      React.createElement(Card,{style:{padding:"15px 17px",marginBottom:13}},
+        React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7,marginBottom:9})},
+          React.createElement(Diamond,{color:D.teal,opacity:0.5}),
+          React.createElement("span",{style:s({fontWeight:600,fontSize:12,color:D.text})},"Your Best Fits")
+        ),
+        React.createElement("div",{style:s({fontSize:10.5,color:D.textLight,marginBottom:9})},"Based on 50 libre 26.0s LC"),
+        UNIS.slice(0,6).map(u=>{
+          const f=fit(u);const c=fitC(f);
+          return React.createElement("div",{key:u.id,style:s({marginBottom:9,cursor:"pointer"}),onClick:()=>setSel(u)},
+            React.createElement("div",{style:s({display:"flex",justifyContent:"space-between",fontSize:11,marginBottom:3})},
+              React.createElement("span",{style:s({color:D.text,fontWeight:500})},u.name),
+              React.createElement("span",{style:s({color:c,fontWeight:700,fontFamily:mono})},`${f}%`)
+            ),
+            React.createElement(Bar,{value:f,color:c,height:3})
+          );
+        })
+      ),
+      React.createElement("div",{style:s({background:D.navy,borderRadius:D.r,padding:"15px 17px",position:"relative",overflow:"hidden"})},
+        React.createElement(GeoPattern,{width:220,height:80,opacity:0.07}),
+        React.createElement("div",{style:s({color:D.teal,fontWeight:700,fontSize:10.5,marginBottom:3})},"Conference Intelligence"),
+        React.createElement("div",{style:s({color:"rgba(255,255,255,0.5)",fontSize:11,lineHeight:1.6})},"Filter by SEC, Big Ten, ACC, Pac-12 and compare program depths.")
+      )
+    )
+  );
+}
+
+// ── Analytics ────────────────────────────────────────────────────
+function Analytics(){
+  const [tab,setTab]=useState("overview");
+  const [times,setTimes]=useState({"50 libre":"26.0","100 libre":"58.0","200 libre":"2:06.0","100 fly":"63.0","100 back":"65.0"});
+  const [saved,setSaved]=useState(false);
+  const [cev,setCev]=useState("50 libre");
+
+  return React.createElement("div",{style:s({display:"flex",gap:20})},
+    React.createElement("div",{style:s({flex:1,minWidth:0})},
+      React.createElement(Fade,null,
+        React.createElement("div",{style:s({marginBottom:15})},
+          React.createElement("div",{style:s({fontWeight:800,fontSize:20,color:D.text,letterSpacing:-0.5,marginBottom:2})},"Swim Analytics"),
+          React.createElement("div",{style:s({fontSize:12.5,color:D.textLight,marginBottom:12})},"Track performance. See where you stand against NCAA standards."),
+          React.createElement("div",{style:s({display:"flex",gap:5,flexWrap:"wrap"})},
+            ["overview","my times","progression","projections","compare"].map(t=>
+              React.createElement("button",{key:t,onClick:()=>setTab(t),
+                style:s({background:tab===t?D.navy:"transparent",color:tab===t?D.white:D.textMid,border:`1px solid ${tab===t?D.navy:D.border}`,borderRadius:D.rSm,padding:"5px 13px",fontSize:11,fontWeight:500,cursor:"pointer",textTransform:"capitalize"})
+              },t)
+            )
+          )
+        )
+      ),
+      tab==="overview"&&React.createElement(Fade,null,
+        React.createElement("div",{style:s({display:"flex",flexDirection:"column",gap:13})},
+          React.createElement("div",{style:s({display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:9})},
+            [{l:"D1 Readiness",v:"62%",c:D.teal},{l:"Best Event",v:"50 libre",c:D.text},{l:"Trend (30d)",v:"−0.3s",c:D.green}].map(({l,v,c})=>
+              React.createElement(Card,{key:l,style:{padding:"13px 15px"}},
+                React.createElement("div",{style:s({fontSize:9.5,color:D.textLight,fontWeight:600,textTransform:"uppercase",letterSpacing:0.8,marginBottom:4})},l),
+                React.createElement("div",{style:s({fontSize:20,fontWeight:800,color:c,fontFamily:mono})},v)
+              )
+            )
+          ),
+          React.createElement(Card,{style:{padding:"18px 22px"}},
+            React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7,marginBottom:13})},
+              React.createElement(Diamond,{color:D.teal,opacity:0.6}),
+              React.createElement("span",{style:s({fontWeight:600,fontSize:13.5,color:D.text})},"D1 Standard Comparison")
+            ),
+            EVENTS.map(({e,pct,best,d1})=>
+              React.createElement("div",{key:e,style:s({marginBottom:11})},
+                React.createElement("div",{style:s({display:"flex",justifyContent:"space-between",fontSize:11.5,marginBottom:3})},
+                  React.createElement("span",{style:s({color:D.textMid})},e),
+                  React.createElement("div",{style:s({display:"flex",gap:10})},
+                    React.createElement("span",{style:s({color:D.textXLight,fontFamily:mono})},`PB: ${best}`),
+                    React.createElement("span",{style:s({color:D.teal,fontFamily:mono})},`D1: ${d1}`),
+                    React.createElement("span",{style:s({fontWeight:700,color:D.teal,fontFamily:mono})},`${pct}%`)
+                  )
+                ),
+                React.createElement(Bar,{value:pct,color:pct>=70?D.green:pct>=50?D.teal:D.amber})
+              )
+            ),
+            React.createElement(Divider,{color:D.teal,opacity:0.12,style:{margin:"10px 0 8px"}}),
+            React.createElement("div",{style:s({fontSize:11.5,color:D.textMid,lineHeight:1.6})},"Best stroke: ",React.createElement("strong",{style:{color:D.text}},"short-course freestyle.")," ~1.8s from D1 average. Projected window: 8–12 months.")
+          )
+        )
+      ),
+      tab==="my times"&&React.createElement(Fade,null,
+        React.createElement(Card,{style:{padding:"20px 22px"}},
+          React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7,marginBottom:14})},
+            React.createElement(Diamond,{color:D.teal,opacity:0.6}),
+            React.createElement("span",{style:s({fontWeight:600,fontSize:13.5,color:D.text})},"Personal Bests")
+          ),
+          React.createElement("div",{style:s({display:"grid",gridTemplateColumns:"1fr 1fr",gap:11})},
+            Object.keys(times).map(ev=>
+              React.createElement("div",{key:ev},
+                React.createElement("label",{style:s({fontSize:9.5,fontWeight:700,color:D.textLight,display:"block",marginBottom:3,textTransform:"uppercase",letterSpacing:0.9})},ev),
+                React.createElement("input",{value:times[ev],onChange:e=>setTimes(t=>({...t,[ev]:e.target.value})),
+                  style:s({width:"100%",border:`1px solid ${D.border}`,borderRadius:D.rSm,padding:"8px 12px",fontSize:14,background:"rgba(255,255,255,0.9)",color:D.text,boxSizing:"border-box",outline:"none",fontFamily:mono}),
+                  onFocus:e=>{e.target.style.borderColor=D.teal;},onBlur:e=>{e.target.style.borderColor=D.border;}
+                })
+              )
+            )
+          ),
+          React.createElement(Btn,{onClick:()=>{setSaved(true);setTimeout(()=>setSaved(false),2000);},style:{marginTop:16}},saved?"Saved ✓":"Save times")
+        )
+      ),
+      tab==="progression"&&React.createElement(Fade,null,
+        React.createElement(Card,{style:{padding:"20px 22px"}},
+          React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7,marginBottom:13})},
+            React.createElement(Diamond,{color:D.teal,opacity:0.6}),
+            React.createElement("span",{style:s({fontWeight:600,fontSize:13.5,color:D.text})},"50 libre — Season Progression")
+          ),
+          React.createElement("svg",{width:"100%",height:"170",viewBox:"0 0 620 170",style:{overflow:"visible"}},
+            React.createElement("defs",null,
+              React.createElement("linearGradient",{id:"lg1",x1:"0",y1:"0",x2:"1",y2:"0"},
+                React.createElement("stop",{offset:"0%",stopColor:D.teal}),
+                React.createElement("stop",{offset:"100%",stopColor:D.gold})
+              )
+            ),
+            [25.5,26,26.5,27,27.5,28].map(v=>{
+              const y=155-((v-25.5)/(28.5-25.5))*135;
+              return React.createElement("line",{key:v,x1:"20",y1:y,x2:"610",y2:y,stroke:D.border,strokeWidth:"0.8"});
+            }),
+            PROG.map((d,i)=>{
+              if(!i)return null;
+              const prev=PROG[i-1];
+              const x1=((i-1)/(PROG.length-1))*580+30,y1=155-((prev.v-25.5)/(28.5-25.5))*135;
+              const x2=(i/(PROG.length-1))*580+30,y2=155-((d.v-25.5)/(28.5-25.5))*135;
+              return React.createElement("line",{key:i,x1,y1,x2,y2,stroke:"url(#lg1)",strokeWidth:"2.5",strokeLinecap:"round"});
+            }),
+            PROG.map((d,i)=>{
+              const x=(i/(PROG.length-1))*580+30,y=155-((d.v-25.5)/(28.5-25.5))*135;
+              const last=i===PROG.length-1;
+              return React.createElement("g",{key:i},
+                React.createElement("circle",{cx:x,cy:y,r:last?5.5:3.5,fill:last?D.gold:D.teal}),
+                last&&React.createElement("text",{x,y:y-12,textAnchor:"middle",fontSize:"10",fill:D.gold,fontWeight:"800",fontFamily:font},`${d.v}s`),
+                React.createElement("text",{x,y:"167",textAnchor:"middle",fontSize:"8.5",fill:D.textXLight,fontFamily:font},d.m)
+              );
+            })
+          ),
+          React.createElement(Divider,{color:D.teal,opacity:0.12,style:{margin:"9px 0 8px"}}),
+          React.createElement("div",{style:s({fontSize:11.5,color:D.textMid})},
+            "Total: ",React.createElement("strong",{style:{color:D.text}},"−2.1s")," over 7 months · Velocity: ",
+            React.createElement("strong",{style:{color:D.green}},"−0.3s/month")," · Peak projection: ",
+            React.createElement("strong",{style:{color:D.teal}},"25.2s")
+          )
+        )
+      ),
+      tab==="projections"&&React.createElement(Fade,null,
+        React.createElement("div",{style:s({display:"flex",flexDirection:"column",gap:13})},
+          React.createElement("div",{style:s({background:`linear-gradient(150deg,${D.navy},${D.navyLight})`,borderRadius:D.r,padding:"20px 22px",position:"relative",overflow:"hidden"})},
+            React.createElement(GeoPattern,{width:600,height:130,color:D.teal,opacity:0.05}),
+            React.createElement("div",{style:s({color:"rgba(255,255,255,0.32)",fontSize:9,fontWeight:700,letterSpacing:1.5,textTransform:"uppercase",marginBottom:7})},"XIMO AI Projection"),
+            React.createElement("div",{style:s({color:D.white,fontSize:12.5,lineHeight:1.7})},
+              "Based on your improvement rate and academic profile, optimal recruiting window: ",
+              React.createElement("strong",{style:{color:D.gold}},"September–December 2025"),"."
+            )
+          ),
+          React.createElement(Card,{style:{padding:"18px 22px"}},
+            React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7,marginBottom:11})},
+              React.createElement(Diamond,{color:D.teal,opacity:0.6}),
+              React.createElement("span",{style:s({fontWeight:600,fontSize:13.5,color:D.text})},"Scenario Projections")
+            ),
+            [{sc:"Maintain current pace",m:8,t:"25.0s",u:"D1 accessible (Towson, UAB)",c:D.teal},
+             {sc:"Increase intensity +20%",m:5,t:"24.8s",u:"D1 competitive (Minnesota, UNC)",c:D.green},
+             {sc:"Peak taper cycle",m:10,t:"24.5s",u:"High-level D1 (Georgia, Indiana)",c:D.gold}
+            ].map(({sc,m,t,u,c})=>
+              React.createElement("div",{key:sc,style:s({padding:"11px 0",borderBottom:`1px solid ${D.border}`})},
+                React.createElement("div",{style:s({fontWeight:600,fontSize:12.5,color:D.text})},sc),
+                React.createElement("div",{style:s({fontSize:11.5,color:D.textMid,marginTop:2})},
+                  "→ ",React.createElement("span",{style:s({fontFamily:mono,fontWeight:700,color:c})},t),` in ~${m} months · ${u}`
+                )
+              )
+            )
+          )
+        )
+      ),
+      tab==="compare"&&React.createElement(Fade,null,
+        React.createElement(Card,{style:{padding:"18px 22px"}},
+          React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7,marginBottom:13})},
+            React.createElement(Diamond,{color:D.teal,opacity:0.6}),
+            React.createElement("span",{style:s({fontWeight:600,fontSize:13.5,color:D.text})},"Athlete Comparison — National Pool")
+          ),
+          React.createElement("div",{style:s({display:"flex",gap:5,marginBottom:15,flexWrap:"wrap"})},
+            ["50 libre","100 libre","200 libre","100 fly","100 back"].map(e=>
+              React.createElement("button",{key:e,onClick:()=>setCev(e),
+                style:s({background:cev===e?D.teal:"transparent",color:cev===e?D.white:D.textMid,border:`1px solid ${cev===e?D.teal:D.border}`,borderRadius:D.rSm,padding:"3px 10px",fontSize:10.5,fontWeight:500,cursor:"pointer"})
+              },e)
+            )
+          ),
+          [{rank:1,name:"Carlos M.",time:"23.8",club:"Club Tiburones",lv:"Top 5 Nat'l"},
+           {rank:4,name:"Diego R.",time:"24.9",club:"Alberca GDL",lv:"Top 10 Nat'l"},
+           {rank:8,name:"Andrés V.",time:"25.4",club:"CDMX Elite",lv:"Top 15 Nat'l"},
+           {rank:14,name:"YOU",time:"26.0",club:"XIMO",lv:"Top 20 Nat'l",you:true},
+           {rank:17,name:"Marco T.",time:"26.3",club:"Monterrey SC",lv:"Top 25 Nat'l"}
+          ].map(({rank,name,time,club,lv,you})=>
+            React.createElement("div",{key:rank,style:s({display:"flex",alignItems:"center",gap:11,padding:"8px 9px",borderRadius:D.rSm,background:you?"rgba(27,138,143,0.07)":D.bg,border:you?"1px solid rgba(27,138,143,0.22)":"1px solid transparent",marginBottom:4})},
+              React.createElement("div",{style:s({width:26,textAlign:"center",fontWeight:700,fontSize:12.5,color:you?D.teal:D.textXLight,fontFamily:mono})},`#${rank}`),
+              React.createElement("div",{style:s({flex:1})},
+                React.createElement("div",{style:s({fontWeight:you?700:500,fontSize:12.5,color:you?D.teal:D.text})},
+                  name," ",you&&React.createElement(Badge,{text:"YOU",color:D.teal,bg:D.tealLight})
+                ),
+                React.createElement("div",{style:s({fontSize:10.5,color:D.textLight})},`${club} · ${lv}`)
+              ),
+              React.createElement("div",{style:s({fontWeight:700,fontFamily:mono,fontSize:13.5,color:you?D.teal:D.textMid})},`${time}s`)
+            )
+          )
+        )
+      )
+    ),
+    React.createElement("div",{style:s({width:220,flexShrink:0})},
+      React.createElement(Card,{style:{padding:"15px 17px",marginBottom:13}},
+        React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7,marginBottom:11})},
+          React.createElement(Diamond,{color:D.teal,opacity:0.5}),
+          React.createElement("span",{style:s({fontWeight:600,fontSize:12,color:D.text})},"Quick Stats")
+        ),
+        [["Best 50 libre","26.0s"],["Rank Mexico","Top 15"],["D1 Readiness","62%"],["Improvement 30d","−0.3s"],["Best meet","GDL Open 2025"],["Events tracked","5"]].map(([l,v])=>
+          React.createElement("div",{key:l,style:s({display:"flex",justifyContent:"space-between",padding:"6px 0",borderBottom:`1px solid ${D.border}`})},
+            React.createElement("span",{style:s({fontSize:11,color:D.textLight})},l),
+            React.createElement("span",{style:s({fontWeight:700,color:D.teal,fontFamily:mono,fontSize:12})},v)
+          )
+        )
+      ),
+      React.createElement(Card,{style:{padding:"15px 17px"}},
+        React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7,marginBottom:9})},
+          React.createElement(Diamond,{color:D.gold,opacity:0.5}),
+          React.createElement("span",{style:s({fontWeight:600,fontSize:12,color:D.text})},"Seasonal Spark")
+        ),
+        React.createElement("div",{style:{display:"flex",justifyContent:"center"}},
+          React.createElement(Spark,{data:PROG.map(d=>d.v),color:D.teal,w:185,h:54})
+        ),
+        React.createElement("div",{style:s({fontSize:10.5,color:D.textMid,marginTop:7,lineHeight:1.5})},"50 libre Aug→Mar. Consistent downward trend — elite signal.")
+      )
+    )
+  );
+}
+
+// ── Recruitment CRM ──────────────────────────────────────────────
+function Recruitment({user}){
+  const [contacts,setContacts]=useState(INIT_CRM);
+  const [tab,setTab]=useState("pipeline");
+  const [modal,setModal]=useState(false);
+  const [form,setForm]=useState({uni:"",coach:"",email:"",status:"identified",pri:"medium",notes:"",date:""});
+  const [tpl,setTpl]=useState({event:"50 libre",time:"26.0",gpa:"3.8"});
+  const [copied,setCopied]=useState(false);
+
+  const add=()=>{
+    if(!form.uni)return;
+    setContacts(c=>[...c,{id:Date.now(),...form,last:"—",rp:30,eng:20}]);
+    setModal(false);setForm({uni:"",coach:"",email:"",status:"identified",pri:"medium",notes:"",date:""});
+  };
+  const move=(id,st)=>setContacts(cs=>cs.map(c=>c.id===id?{...c,status:st}:c));
+  const del=(id)=>setContacts(cs=>cs.filter(c=>c.id!==id));
+
+  const draft=`Dear Coach [Last Name],\n\nMy name is ${user.name} and I am a competitive swimmer from Mexico, currently ranked Top 15 nationally in the ${tpl.event} (${tpl.time}s LC).\n\nI am very interested in your swimming program. I am a Class of 2026 student-athlete with a GPA of ${tpl.gpa}, preparing for TOEFL and SAT.\n\nI would love to schedule a brief call to discuss recruiting opportunities.\n\nThank you,\n${user.name}\n${tpl.event} — ${tpl.time}s LC | Mexico\nximo.app/recruit`;
+
+  const sum=STAGES.map(s=>({...s,count:contacts.filter(c=>c.status===s.id).length}));
+
+  return React.createElement("div",{style:s({display:"flex",gap:20})},
+    React.createElement("div",{style:s({flex:1,minWidth:0})},
+      React.createElement(Fade,null,
+        React.createElement("div",{style:s({display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14})},
+          React.createElement("div",null,
+            React.createElement("div",{style:s({fontWeight:800,fontSize:20,color:D.text,letterSpacing:-0.5})},"Recruiting CRM"),
+            React.createElement("div",{style:s({fontSize:12.5,color:D.textLight,marginTop:2})},"Your NCAA recruiting command center.")
+          ),
+          React.createElement(Btn,{onClick:()=>setModal(true)},"+ Add coach")
+        ),
+        // Summary
+        React.createElement("div",{style:s({display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:7,marginBottom:14})},
+          sum.map(st=>React.createElement("div",{key:st.id,style:s({background:D.bgCard,borderRadius:D.rSm,border:`1px solid ${D.border}`,padding:"9px 11px",display:"flex",flexDirection:"column",gap:3})},
+            React.createElement("div",{style:{width:6,height:6,borderRadius:"50%",background:st.dot}}),
+            React.createElement("div",{style:s({fontSize:9.5,fontWeight:600,color:D.textLight})},st.label),
+            React.createElement("div",{style:s({fontWeight:800,fontSize:18,color:st.color,fontFamily:mono})},st.count)
+          ))
+        ),
+        React.createElement("div",{style:s({display:"flex",gap:5,marginBottom:14})},
+          ["pipeline","list","template","timeline"].map(t=>
+            React.createElement("button",{key:t,onClick:()=>setTab(t),
+              style:s({background:tab===t?D.navy:"transparent",color:tab===t?D.white:D.textMid,border:`1px solid ${tab===t?D.navy:D.border}`,borderRadius:D.rSm,padding:"5px 13px",fontSize:11,fontWeight:500,cursor:"pointer",textTransform:"capitalize"})
+            },t==="template"?"Email Template":t==="timeline"?"Timeline":t.charAt(0).toUpperCase()+t.slice(1))
+          )
+        )
+      ),
+      tab==="pipeline"&&React.createElement(Fade,null,
+        STAGES.filter(st=>contacts.some(c=>c.status===st.id)).map(stage=>
+          React.createElement("div",{key:stage.id,style:s({marginBottom:13})},
+            React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7,marginBottom:7})},
+              React.createElement("div",{style:{width:6,height:6,borderRadius:"50%",background:stage.dot}}),
+              React.createElement("span",{style:s({fontWeight:700,fontSize:10,color:D.textMid,textTransform:"uppercase",letterSpacing:0.8})},stage.label),
+              React.createElement("span",{style:s({fontSize:9.5,color:D.textXLight})},`(${contacts.filter(c=>c.status===stage.id).length})`)
+            ),
+            contacts.filter(c=>c.status===stage.id).map(c=>
+              React.createElement(Card,{key:c.id,style:{padding:"11px 14px",marginBottom:6}},
+                React.createElement("div",{style:s({display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:9})},
+                  React.createElement("div",{style:s({flex:1,minWidth:0})},
+                    React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:6,marginBottom:3})},
+                      React.createElement("span",{style:s({fontWeight:600,fontSize:12.5,color:D.text})},c.uni),
+                      React.createElement(Badge,{text:"D1"}),
+                      React.createElement(Badge,{text:c.pri,color:c.pri==="high"?D.red:c.pri==="medium"?D.amber:D.textLight})
+                    ),
+                    React.createElement("div",{style:s({fontSize:10.5,color:D.textLight})},c.coach,c.email&&` · ${c.email}`),
+                    React.createElement("div",{style:s({display:"flex",gap:11,marginTop:5})},
+                      React.createElement("div",null,
+                        React.createElement("div",{style:s({fontSize:9,color:D.textXLight})},"Response prob."),
+                        React.createElement("div",{style:s({fontSize:11.5,fontWeight:700,color:c.rp>=70?D.green:c.rp>=45?D.amber:D.textLight,fontFamily:mono})},`${c.rp}%`)
+                      ),
+                      React.createElement("div",null,
+                        React.createElement("div",{style:s({fontSize:9,color:D.textXLight})},"Engagement"),
+                        React.createElement("div",{style:s({fontSize:11.5,fontWeight:700,color:D.teal,fontFamily:mono})},`${c.eng}/100`)
+                      ),
+                      React.createElement("div",null,
+                        React.createElement("div",{style:s({fontSize:9,color:D.textXLight})},"Last contact"),
+                        React.createElement("div",{style:s({fontSize:11.5,fontWeight:600,color:D.textMid})},c.last)
+                      )
+                    ),
+                    c.notes&&React.createElement("div",{style:s({fontSize:10.5,color:D.textMid,marginTop:5,background:D.bg,borderRadius:D.rSm,padding:"3px 8px",lineHeight:1.45})},c.notes)
+                  ),
+                  React.createElement("div",{style:s({display:"flex",gap:4,flexShrink:0,flexWrap:"wrap",justifyContent:"flex-end"})},
+                    STAGES.filter(s=>s.id!==stage.id).slice(0,2).map(ns=>
+                      React.createElement("button",{key:ns.id,onClick:()=>move(c.id,ns.id),
+                        style:s({fontSize:9.5,background:`${ns.dot}16`,color:ns.dot,border:`1px solid ${ns.dot}28`,borderRadius:6,padding:"2px 6px",cursor:"pointer",fontWeight:600})
+                      },`→ ${ns.label}`)
+                    ),
+                    React.createElement("button",{onClick:()=>del(c.id),style:s({fontSize:9.5,background:D.redL,color:D.red,border:"none",borderRadius:6,padding:"2px 6px",cursor:"pointer"})},"✕")
+                  )
+                )
+              )
+            )
+          )
+        )
+      ),
+      tab==="list"&&React.createElement(Fade,null,
+        React.createElement(Card,{style:{padding:"17px 20px"}},
+          React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7,marginBottom:11})},
+            React.createElement(Diamond,{color:D.teal,opacity:0.6}),
+            React.createElement("span",{style:s({fontWeight:600,fontSize:13.5,color:D.text})},`All contacts (${contacts.length})`)
+          ),
+          contacts.map(c=>{
+            const st=STAGES.find(s=>s.id===c.status);
+            return React.createElement("div",{key:c.id,style:s({display:"flex",gap:11,alignItems:"flex-start",padding:"9px 0",borderBottom:`1px solid ${D.border}`})},
+              React.createElement("div",{style:{width:6,height:6,borderRadius:"50%",background:st?.dot||D.textXLight,marginTop:5,flexShrink:0}}),
+              React.createElement("div",{style:s({flex:1,minWidth:0})},
+                React.createElement("div",{style:s({fontWeight:600,fontSize:12.5,color:D.text})},c.uni),
+                React.createElement("div",{style:s({fontSize:10.5,color:D.textLight,marginTop:1})},`${c.coach} · ${c.email}`),
+                c.notes&&React.createElement("div",{style:s({fontSize:10.5,color:D.textMid,marginTop:2})},c.notes)
+              ),
+              React.createElement("div",{style:s({display:"flex",gap:5,alignItems:"center",flexShrink:0})},
+                React.createElement("div",{style:{textAlign:"right"}},
+                  React.createElement("div",{style:s({fontSize:9,color:D.textXLight})},"Resp. prob."),
+                  React.createElement("div",{style:s({fontWeight:700,color:c.rp>=70?D.green:c.rp>=45?D.amber:D.textLight,fontFamily:mono,fontSize:11.5})},`${c.rp}%`)
+                ),
+                React.createElement(Badge,{text:st?.label||c.status,color:st?.color||D.textMid}),
+                React.createElement(Badge,{text:c.pri,color:c.pri==="high"?D.red:c.pri==="medium"?D.amber:D.textLight}),
+                React.createElement("span",{style:s({fontSize:9.5,color:D.textXLight})},c.date)
+              )
+            );
+          })
+        )
+      ),
+      tab==="template"&&React.createElement(Fade,null,
+        React.createElement("div",{style:s({display:"flex",flexDirection:"column",gap:13})},
+          React.createElement(Card,{style:{padding:"17px 20px"}},
+            React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7,marginBottom:11})},
+              React.createElement(Diamond,{color:D.teal,opacity:0.6}),
+              React.createElement("span",{style:s({fontWeight:600,fontSize:13.5,color:D.text})},"Personalize template")
+            ),
+            React.createElement("div",{style:s({display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:9})},
+              React.createElement(Inp,{label:"Main event",value:tpl.event,onChange:e=>setTpl(t=>({...t,event:e.target.value}))}),
+              React.createElement(Inp,{label:"Best time",value:tpl.time,onChange:e=>setTpl(t=>({...t,time:e.target.value}))}),
+              React.createElement(Inp,{label:"GPA",value:tpl.gpa,onChange:e=>setTpl(t=>({...t,gpa:e.target.value}))})
+            )
+          ),
+          React.createElement(Card,{style:{padding:"17px 20px"}},
+            React.createElement("div",{style:s({display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:9})},
+              React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7})},
+                React.createElement(Diamond,{color:D.teal,opacity:0.6}),
+                React.createElement("span",{style:s({fontWeight:600,fontSize:13.5,color:D.text})},"Generated email")
+              ),
+              React.createElement(Btn,{variant:"secondary",size:"sm",onClick:()=>{navigator.clipboard?.writeText(draft);setCopied(true);setTimeout(()=>setCopied(false),2000);}},copied?"Copied ✓":"Copy")
+            ),
+            React.createElement("pre",{style:s({background:D.bg,border:`1px solid ${D.border}`,borderRadius:D.rSm,padding:"11px 13px",fontSize:11,color:D.textMid,lineHeight:1.75,whiteSpace:"pre-wrap",overflowY:"auto",maxHeight:260,fontFamily:mono,margin:0})},draft)
+          )
+        )
+      ),
+      tab==="timeline"&&React.createElement(Fade,null,
+        React.createElement(Card,{style:{padding:"18px 22px"}},
+          React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7,marginBottom:13})},
+            React.createElement(Diamond,{color:D.teal,opacity:0.6}),
+            React.createElement("span",{style:s({fontWeight:700,fontSize:13.5,color:D.text})},"Recruiting Timeline")
+          ),
+          [{phase:"Awareness",period:"Now – Jun 2025",action:"Build profile, enter times, get XIMO score",c:D.teal,done:true},
+           {phase:"Initial Contact",period:"Jun – Sep 2025",action:"Send outreach emails to 15+ coaches",c:D.teal,done:true},
+           {phase:"Active Recruiting",period:"Sep – Dec 2025",action:"Follow-ups, campus visits, calls with coaches",c:D.gold,done:false},
+           {phase:"Official Visits",period:"Jan – Mar 2026",action:"Confirm campus visits, meet teams",c:D.amber,done:false},
+           {phase:"Decision",period:"Mar – Apr 2026",action:"Evaluate offers, commit, sign NLI",c:D.green,done:false}
+          ].map(({phase,period,action,c,done},i)=>
+            React.createElement("div",{key:phase,style:s({display:"flex",gap:13,marginBottom:14})},
+              React.createElement("div",{style:{display:"flex",flexDirection:"column",alignItems:"center"}},
+                React.createElement("div",{style:{width:9,height:9,borderRadius:"50%",background:done?c:"rgba(0,0,0,0.08)",border:`2px solid ${c}`,flexShrink:0,marginTop:2}}),
+                i<4&&React.createElement("div",{style:{flex:1,width:1.5,background:`${c}28`,margin:"4px 0"}})
+              ),
+              React.createElement("div",{style:{paddingBottom:4}},
+                React.createElement("div",{style:s({fontWeight:600,fontSize:12.5,color:D.text})},phase),
+                React.createElement("div",{style:s({fontSize:10,color:c,fontWeight:600,marginTop:1})},period),
+                React.createElement("div",{style:s({fontSize:11.5,color:D.textMid,marginTop:3})},action)
+              )
+            )
+          )
+        )
+      ),
+      // Modal
+      modal&&React.createElement("div",{style:s({position:"fixed",inset:0,background:"rgba(9,24,42,0.68)",backdropFilter:"blur(10px)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:9999})},
+        React.createElement(Card,{style:{width:420,padding:"26px 30px",position:"relative",overflow:"visible"}},
+          React.createElement(Corner,{size:14,color:D.teal,opacity:0.2,style:{position:"absolute",top:7,left:7}}),
+          React.createElement("div",{style:s({fontWeight:700,fontSize:16,color:D.text,marginBottom:14})},"Add coach"),
+          React.createElement("div",{style:s({display:"flex",flexDirection:"column",gap:9})},
+            React.createElement(Inp,{label:"University",value:form.uni,onChange:e=>setForm(f=>({...f,uni:e.target.value}))}),
+            React.createElement("div",{style:s({display:"grid",gridTemplateColumns:"1fr 1fr",gap:9})},
+              React.createElement(Inp,{label:"Coach name",value:form.coach,onChange:e=>setForm(f=>({...f,coach:e.target.value}))}),
+              React.createElement(Inp,{label:"Email",value:form.email,onChange:e=>setForm(f=>({...f,email:e.target.value})),type:"email"})
+            ),
+            React.createElement("div",{style:s({display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:9})},
+              React.createElement(Sel,{label:"Status",value:form.status,onChange:e=>setForm(f=>({...f,status:e.target.value})),options:STAGES.map(s=>({value:s.id,label:s.label}))}),
+              React.createElement(Sel,{label:"Priority",value:form.pri,onChange:e=>setForm(f=>({...f,pri:e.target.value})),options:["high","medium","low"]}),
+              React.createElement(Inp,{label:"Date",value:form.date,onChange:e=>setForm(f=>({...f,date:e.target.value})),placeholder:"Mar 25"})
+            ),
+            React.createElement("div",null,
+              React.createElement("label",{style:s({fontSize:9.5,fontWeight:700,color:D.textLight,display:"block",marginBottom:3,textTransform:"uppercase",letterSpacing:0.9})},"Notes"),
+              React.createElement("textarea",{value:form.notes,onChange:e=>setForm(f=>({...f,notes:e.target.value})),rows:2,
+                style:s({width:"100%",border:`1px solid ${D.border}`,borderRadius:D.rSm,padding:"7px 11px",fontSize:12,background:"rgba(255,255,255,0.9)",color:D.text,resize:"none",outline:"none",boxSizing:"border-box",fontFamily:font})
+              })
+            )
+          ),
+          React.createElement("div",{style:s({display:"flex",gap:9,marginTop:14})},
+            React.createElement(Btn,{onClick:add},"Save"),
+            React.createElement(Btn,{variant:"ghost",onClick:()=>setModal(false)},"Cancel")
+          )
+        )
+      )
+    ),
+    React.createElement("div",{style:s({width:220,flexShrink:0})},
+      React.createElement(Fade,null,
+        React.createElement(Card,{style:{padding:"15px 17px",marginBottom:13}},
+          React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7,marginBottom:11})},
+            React.createElement(Diamond,{color:D.teal,opacity:0.5}),
+            React.createElement("span",{style:s({fontWeight:600,fontSize:12,color:D.text})},"Recruiting Intelligence")
+          ),
+          [["Level match","D1 mid-tier",D.teal],["Best conferences","Big Ten, ACC",D.text],["Schools in range","8 programs",D.green],["Reach schools","3 programs",D.amber],["Coaches notified","5",D.teal]].map(([l,v,c])=>
+            React.createElement("div",{key:l,style:s({display:"flex",justifyContent:"space-between",padding:"6px 0",borderBottom:`1px solid ${D.border}`})},
+              React.createElement("span",{style:s({fontSize:10.5,color:D.textLight})},l),
+              React.createElement("span",{style:s({fontWeight:600,color:c,fontSize:11.5})},v)
+            )
+          )
+        ),
+        React.createElement("div",{style:s({background:D.navy,borderRadius:D.r,padding:"14px 16px",position:"relative",overflow:"hidden"})},
+          React.createElement(GeoPattern,{width:220,height:75,opacity:0.07}),
+          React.createElement("div",{style:s({color:D.teal,fontWeight:700,fontSize:10.5,marginBottom:3})},"Outreach tip"),
+          React.createElement("div",{style:s({color:"rgba(255,255,255,0.45)",fontSize:10.5,lineHeight:1.6})},"Coaches respond 2.4× more to emails sent Tue–Thu, 9–11 AM local time.")
+        )
+      )
+    )
+  );
+}
+
+// ── Community ────────────────────────────────────────────────────
+function Community({user}){
+  const [feed,setFeed]=useState(POSTS);
+  const [text,setText]=useState("");
+  const [tag,setTag]=useState("Progress");
+  const [filter,setFilter]=useState("All");
+  const [com,setCom]=useState(null);
+  const [ct,setCt]=useState("");
+  const TAGS=["Progress","Achievement","Question","Tip","Meet"];
+  const FILTERS=["All",...TAGS];
+
+  const post=()=>{
+    if(!text.trim())return;
+    setFeed(f=>[{id:Date.now(),user:user.name,tag,text,media:null,likes:0,comments:0,liked:false,verified:false,time:"now"},...f]);
+    setText("");
+  };
+  const like=id=>setFeed(f=>f.map(p=>p.id===id?{...p,liked:!p.liked,likes:p.liked?p.likes-1:p.likes+1}:p));
+  const addC=id=>{if(!ct.trim())return;setFeed(f=>f.map(p=>p.id===id?{...p,comments:p.comments+1}:p));setCt("");setCom(null);};
+  const shown=filter==="All"?feed:feed.filter(p=>p.tag===filter);
+
+  return React.createElement("div",{style:s({display:"flex",gap:20})},
+    React.createElement("div",{style:s({flex:1,minWidth:0})},
+      React.createElement(Fade,null,
+        React.createElement("div",{style:s({marginBottom:14})},
+          React.createElement("div",{style:s({fontWeight:800,fontSize:20,color:D.text,letterSpacing:-0.5,marginBottom:2})},"Community"),
+          React.createElement("div",{style:s({fontSize:12.5,color:D.textLight})},"Share your journey. Learn from elite athletes. Build connections that matter."),
+          React.createElement(Divider,{color:D.teal,opacity:0.18,style:{margin:"11px 0 0"}})
+        )
+      ),
+      React.createElement(Fade,{delay:25},
+        React.createElement("div",{style:s({display:"flex",gap:5,marginBottom:13,flexWrap:"wrap"})},
+          FILTERS.map(f=>React.createElement("button",{key:f,onClick:()=>setFilter(f),
+            style:s({background:filter===f?D.navy:"transparent",color:filter===f?D.white:D.textLight,border:`1px solid ${filter===f?D.navy:D.border}`,borderRadius:D.rSm,padding:"4px 12px",fontSize:10.5,fontWeight:500,cursor:"pointer"})
+          },f))
+        )
+      ),
+      React.createElement(Fade,{delay:45},
+        React.createElement(Card,{style:{padding:"14px 17px",marginBottom:13}},
+          React.createElement("div",{style:s({display:"flex",gap:9})},
+            React.createElement("div",{style:s({width:30,height:30,borderRadius:7,background:D.tealLight,border:`1px solid ${D.tealBorder}`,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:12,color:D.teal,flexShrink:0})},user.name[0]),
+            React.createElement("div",{style:s({flex:1})},
+              React.createElement("textarea",{placeholder:"Share your progress, ask a question, celebrate a win…",value:text,onChange:e=>setText(e.target.value),rows:2,
+                style:s({width:"100%",border:`1px solid ${D.border}`,borderRadius:D.rSm,padding:"8px 11px",fontSize:12,background:"rgba(255,255,255,0.7)",color:D.text,boxSizing:"border-box",outline:"none",resize:"none",fontFamily:font,lineHeight:1.55}),
+                onFocus:e=>{e.target.style.borderColor=D.teal;},onBlur:e=>{e.target.style.borderColor=D.border;}
+              }),
+              React.createElement("div",{style:s({display:"flex",gap:4,marginTop:6,alignItems:"center",flexWrap:"wrap"})},
+                React.createElement("span",{style:s({fontSize:9,color:D.textLight,fontWeight:700,letterSpacing:0.8})},"TAG:"),
+                TAGS.map(tg=>React.createElement("button",{key:tg,onClick:()=>setTag(tg),
+                  style:s({background:tag===tg?D.navy:"transparent",color:tag===tg?D.white:D.textLight,border:`1px solid ${tag===tg?D.navy:D.border}`,borderRadius:20,padding:"2px 9px",fontSize:10,fontWeight:500,cursor:"pointer"})
+                },tg)),
+                React.createElement(Btn,{onClick:post,size:"sm",style:{marginLeft:"auto"}},"Post")
+              )
+            )
+          )
+        )
+      ),
+      shown.map((p,idx)=>
+        React.createElement(Fade,{key:p.id,delay:idx*12},
+          React.createElement(Card,{style:{padding:"14px 17px",marginBottom:9}},
+            React.createElement("div",{style:s({display:"flex",gap:9})},
+              React.createElement("div",{style:s({width:30,height:30,borderRadius:7,background:p.verified?D.navy:D.bg,border:`1px solid ${p.verified?D.tealBorder:D.border}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11.5,color:p.verified?D.teal:D.textLight,flexShrink:0,fontWeight:800})},p.verified?"X":p.user[0]),
+              React.createElement("div",{style:s({flex:1})},
+                React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:5,flexWrap:"wrap",marginBottom:4})},
+                  React.createElement("span",{style:s({fontWeight:700,fontSize:12.5,color:D.text})},p.user),
+                  p.verified&&React.createElement("span",{style:s({background:D.tealLight,color:D.teal,borderRadius:5,padding:"1px 6px",fontSize:9,fontWeight:700,border:`1px solid ${D.tealBorder}`})},"XIMO"),
+                  React.createElement(Badge,{text:p.tag,color:tagC[p.tag]||D.teal}),
+                  React.createElement("span",{style:s({fontSize:10,color:D.textXLight,marginLeft:"auto"})},p.time)
+                ),
+                React.createElement("p",{style:s({fontSize:12,color:D.textMid,lineHeight:1.65,margin:"0 0 7px"})},p.text),
+                p.media&&React.createElement("div",{style:s({background:D.bg,border:`1px solid ${D.border}`,borderRadius:D.rSm,padding:"5px 11px",fontSize:11,fontWeight:600,color:D.textMid,marginBottom:7})},p.media),
+                React.createElement("div",{style:s({display:"flex",gap:13,alignItems:"center"})},
+                  React.createElement("button",{onClick:()=>like(p.id),style:s({background:"none",border:"none",cursor:"pointer",fontSize:11.5,color:p.liked?D.red:D.textLight,fontWeight:500,padding:0})},`${p.liked?"♥":"♡"} ${p.likes}`),
+                  React.createElement("button",{onClick:()=>setCom(com===p.id?null:p.id),style:s({background:"none",border:"none",cursor:"pointer",fontSize:11.5,color:D.textLight,padding:0})},`◎ ${p.comments}`),
+                  React.createElement("button",{style:s({background:"none",border:"none",cursor:"pointer",fontSize:11.5,color:D.textLight,padding:0})},"↗ Share")
+                ),
+                com===p.id&&React.createElement("div",{style:s({marginTop:7,display:"flex",gap:6})},
+                  React.createElement("input",{value:ct,onChange:e=>setCt(e.target.value),placeholder:"Write a comment…",
+                    style:s({flex:1,border:`1px solid ${D.border}`,borderRadius:D.rSm,padding:"5px 10px",fontSize:11.5,background:"rgba(255,255,255,0.8)",color:D.text,outline:"none"})
+                  }),
+                  React.createElement(Btn,{size:"sm",onClick:()=>addC(p.id)},"Send")
+                )
+              )
+            )
+          )
+        )
+      )
+    ),
+    React.createElement("div",{style:s({width:220,flexShrink:0})},
+      React.createElement(Card,{style:{padding:"15px 17px",marginBottom:13}},
+        React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7,marginBottom:11})},
+          React.createElement(Diamond,{color:D.teal,opacity:0.5}),
+          React.createElement("span",{style:s({fontWeight:600,fontSize:12,color:D.text})},"Top this month")
+        ),
+        [{u:"AlejandroR_Swim",a:"Accepted — UC San Diego D1"},{u:"FerSwim_GDL",a:"−2.1s on 100 libre"},{u:"ValSwim_CDMX",a:"3 coaches replied in 1 week"}].map(({u,a})=>
+          React.createElement("div",{key:u,style:s({padding:"6px 0",borderBottom:`1px solid ${D.border}`})},
+            React.createElement("div",{style:s({fontSize:11.5,fontWeight:600,color:D.text})},u),
+            React.createElement("div",{style:s({fontSize:10,color:D.textLight,marginTop:1})},a)
+          )
+        )
+      ),
+      React.createElement("div",{style:s({background:D.navy,borderRadius:D.r,padding:"15px 17px",position:"relative",overflow:"hidden"})},
+        React.createElement(GeoPattern,{width:220,height:85,opacity:0.07}),
+        React.createElement("div",{style:s({color:D.teal,fontWeight:700,fontSize:10.5,marginBottom:3})},"Join the movement"),
+        React.createElement("div",{style:s({color:D.white,fontWeight:700,fontSize:16,marginBottom:3,fontFamily:mono})},"1,240+"),
+        React.createElement("div",{style:s({color:"rgba(255,255,255,0.32)",fontSize:10.5,lineHeight:1.5})},"Latin American athletes using XIMO to reach NCAA.")
+      )
+    )
+  );
+}
+
+// ── Media ────────────────────────────────────────────────────────
+function Media(){
+  const items=[
+    {title:"Race replay — 50 libre 26.0s",sub:"Guadalajara Open · Mar 2025",icon:"🏊",views:342,coaches:8},
+    {title:"Underwater start technique",sub:"Uploaded by coach · Feb 2025",icon:"🎬",views:124,coaches:3},
+    {title:"Season progression montage",sub:"Aug 2024 → Mar 2025",icon:"📈",views:89,coaches:2},
+  ];
+  return React.createElement("div",{style:s({display:"flex",gap:20})},
+    React.createElement("div",{style:s({flex:1,minWidth:0})},
+      React.createElement(Fade,null,
+        React.createElement("div",{style:s({marginBottom:14})},
+          React.createElement("div",{style:s({fontWeight:800,fontSize:20,color:D.text,letterSpacing:-0.5,marginBottom:2})},"Reels & Media"),
+          React.createElement("div",{style:s({fontSize:12.5,color:D.textLight})},"Your premium sports portfolio. Race replays, technique breakdowns, progress clips.")
+        )
+      ),
+      React.createElement(Fade,{delay:20},
+        React.createElement(Card,{style:{padding:"18px 22px",marginBottom:16}},
+          React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7,marginBottom:13})},
+            React.createElement(Diamond,{color:D.teal,opacity:0.6}),
+            React.createElement("span",{style:s({fontWeight:600,fontSize:13.5,color:D.text})},"Upload media")
+          ),
+          React.createElement("div",{style:s({display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:9})},
+            [{t:"Race Replay",d:"Full race video or clip",icon:"▷"},{t:"Technique",d:"Underwater, start, turn",icon:"⬡"},{t:"Progress Reel",d:"Season highlight clips",icon:"◑"}].map(({t,d,icon})=>
+              React.createElement("div",{key:t,
+                style:s({background:D.bg,border:`2px dashed ${D.border}`,borderRadius:D.r,padding:"18px 13px",textAlign:"center",cursor:"pointer",transition:"all 0.15s"}),
+                onMouseEnter:e=>{e.currentTarget.style.borderColor=D.teal;e.currentTarget.style.background=D.tealLight;},
+                onMouseLeave:e=>{e.currentTarget.style.borderColor=D.border;e.currentTarget.style.background=D.bg;}
+              },
+                React.createElement("div",{style:s({fontSize:22,marginBottom:7})},icon),
+                React.createElement("div",{style:s({fontWeight:600,fontSize:12,color:D.text,marginBottom:2})},t),
+                React.createElement("div",{style:s({fontSize:10.5,color:D.textLight})},d)
+              )
+            )
+          )
+        )
+      ),
+      items.map((item,i)=>
+        React.createElement(Fade,{key:i,delay:i*18},
+          React.createElement(Card,{style:{padding:"14px 18px",marginBottom:9}},
+            React.createElement("div",{style:s({display:"flex",gap:13,alignItems:"center"})},
+              React.createElement("div",{style:s({width:52,height:52,borderRadius:11,background:`linear-gradient(135deg,${D.navyMid},${D.navy})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0,border:"1px solid rgba(27,138,143,0.18)"})} ,item.icon),
+              React.createElement("div",{style:s({flex:1})},
+                React.createElement("div",{style:s({fontWeight:600,fontSize:13,color:D.text,marginBottom:2})},item.title),
+                React.createElement("div",{style:s({fontSize:10.5,color:D.textLight,marginBottom:7})},item.sub),
+                React.createElement("div",{style:s({display:"flex",gap:13})},
+                  React.createElement("span",{style:s({fontSize:11,color:D.textMid})},React.createElement("strong",{style:{color:D.text}},item.views)," views"),
+                  React.createElement("span",{style:s({fontSize:11,color:D.teal})},React.createElement("strong",null,item.coaches)," coaches watched")
+                )
+              ),
+              React.createElement("div",{style:s({display:"flex",gap:6})},
+                React.createElement(Btn,{size:"sm",variant:"secondary"},"Share →"),
+                React.createElement(Btn,{size:"sm",variant:"ghost"},"Edit")
+              )
+            )
+          )
+        )
+      )
+    ),
+    React.createElement("div",{style:s({width:220,flexShrink:0})},
+      React.createElement(Fade,null,
+        React.createElement("div",{style:s({background:D.navy,borderRadius:D.r,padding:"15px 17px",position:"relative",overflow:"hidden",marginBottom:13})},
+          React.createElement(GeoPattern,{width:220,height:85,opacity:0.07}),
+          React.createElement("div",{style:s({color:D.teal,fontWeight:700,fontSize:10.5,marginBottom:3})},"Coach-shareable profile"),
+          React.createElement("div",{style:s({color:D.white,fontSize:12,fontWeight:600,marginBottom:5})},"One link. Everything coaches need."),
+          React.createElement("div",{style:s({color:"rgba(255,255,255,0.32)",fontSize:10.5,lineHeight:1.5})},"Times, video, academics, meet history — all in one premium page."),
+          React.createElement(Btn,{variant:"gold",size:"sm",style:{marginTop:11}},"Copy profile link")
+        ),
+        React.createElement(Card,{style:{padding:"15px 17px"}},
+          React.createElement("div",{style:s({fontWeight:600,fontSize:12,color:D.text,marginBottom:9})},"Profile analytics"),
+          [["Coach profile views","18"],["Countries reached","4"],["Video plays","555"],["Avg watch time","2:14"]].map(([l,v])=>
+            React.createElement("div",{key:l,style:s({display:"flex",justifyContent:"space-between",padding:"6px 0",borderBottom:`1px solid ${D.border}`})},
+              React.createElement("span",{style:s({fontSize:10.5,color:D.textLight})},l),
+              React.createElement("span",{style:s({fontWeight:700,color:D.teal,fontFamily:mono,fontSize:12})},v)
+            )
+          )
+        )
+      )
+    )
+  );
+}
+
+// ── Academy ──────────────────────────────────────────────────────
+function Academy(){
+  const courses=[
+    {t:"NCAA Recruiting 101",d:"Understand the full recruiting process, contact rules, and timelines.",progress:75,lessons:12,badge:D.teal},
+    {t:"TOEFL Mastery for Athletes",d:"Test strategies tailored for swimming-focused students.",progress:40,lessons:8,badge:D.gold},
+    {t:"Writing the Perfect Coach Email",d:"Real templates, psychology, and personalization strategies.",progress:100,lessons:5,badge:D.green},
+    {t:"Understanding Scholarships",d:"Equivalency vs. headcount, D1/D2 differences, financial aid.",progress:20,lessons:10,badge:D.amber},
+    {t:"Visa & International Student Guide",d:"F-1 visa, I-20, and life as an international NCAA athlete.",progress:0,lessons:7,badge:D.textMid},
+  ];
+  return React.createElement("div",{style:s({display:"flex",gap:20})},
+    React.createElement("div",{style:s({flex:1,minWidth:0})},
+      React.createElement(Fade,null,
+        React.createElement("div",{style:s({marginBottom:14})},
+          React.createElement("div",{style:s({fontWeight:800,fontSize:20,color:D.text,letterSpacing:-0.5,marginBottom:2})},"XIMO Academy"),
+          React.createElement("div",{style:s({fontSize:12.5,color:D.textLight})},"Expert-built courses for the elite international athlete navigating NCAA recruitment.")
+        )
+      ),
+      courses.map((c,i)=>
+        React.createElement(Fade,{key:i,delay:i*13},
+          React.createElement(Card,{hover:true,style:{padding:"14px 18px",marginBottom:9,cursor:"pointer"}},
+            React.createElement("div",{style:s({display:"flex",gap:11,alignItems:"center"})},
+              React.createElement("div",{style:{width:7,height:42,borderRadius:3.5,background:c.badge,flexShrink:0}}),
+              React.createElement("div",{style:s({flex:1})},
+                React.createElement("div",{style:s({fontWeight:600,fontSize:13,color:D.text,marginBottom:2})},c.t),
+                React.createElement("div",{style:s({fontSize:11,color:D.textLight,marginBottom:7})},c.d),
+                React.createElement("div",{style:s({display:"flex",gap:11,alignItems:"center"})},
+                  React.createElement("div",{style:{flex:1,maxWidth:190}},React.createElement(Bar,{value:c.progress,color:c.badge,height:3})),
+                  React.createElement("span",{style:s({fontSize:10.5,color:D.textXLight})},`${c.progress}% · ${c.lessons} lessons`),
+                  c.progress===100&&React.createElement(Badge,{text:"Complete",color:D.green,bg:D.greenL})
+                )
+              ),
+              React.createElement("span",{style:s({color:D.textXLight,fontSize:16})},"›")
+            )
+          )
+        )
+      )
+    ),
+    React.createElement("div",{style:s({width:220,flexShrink:0})},
+      React.createElement(Fade,null,
+        React.createElement(Card,{style:{padding:"15px 17px",marginBottom:13}},
+          React.createElement("div",{style:s({fontWeight:600,fontSize:12,color:D.text,marginBottom:9})},"Your progress"),
+          React.createElement("div",{style:s({fontSize:22,fontWeight:800,color:D.teal,fontFamily:mono})},"1/5"),
+          React.createElement("div",{style:s({fontSize:10.5,color:D.textLight})},"courses complete"),
+          React.createElement("div",{style:{marginTop:7}},React.createElement(Bar,{value:20,color:D.teal,height:4}))
+        ),
+        React.createElement("div",{style:s({background:D.navy,borderRadius:D.r,padding:"14px 16px",position:"relative",overflow:"hidden"})},
+          React.createElement(GeoPattern,{width:220,height:75,opacity:0.07}),
+          React.createElement("div",{style:s({color:D.teal,fontWeight:700,fontSize:10.5,marginBottom:3})},"Pro tip"),
+          React.createElement("div",{style:s({color:"rgba(255,255,255,0.45)",fontSize:10.5,lineHeight:1.6})},"Athletes who complete the recruiting course increase coach replies by 3×.")
+        )
+      )
+    )
+  );
+}
+
+// ── Profile ──────────────────────────────────────────────────────
+function Profile({user}){
+  const [form,setForm]=useState({name:user.name||"Alejandro Ramírez",age:"17",gradYear:"2026",country:"Mexico",event:"50 libre",height:"182",weight:"72",gpa:"3.8",sat:"1340",toefl:"95",club:"Club Tiburones GDL",coach:"Juan Hernández",bio:"Sprint freestyle specialist from Guadalajara, Mexico. Nationally ranked Top 15. Looking for NCAA D1/D2 opportunities. GPA 3.8 · TOEFL 95."});
+  const set=(k,v)=>setForm(f=>({...f,[k]:v}));
+  const [saved,setSaved]=useState(false);
+
+  return React.createElement("div",{style:s({display:"flex",gap:20})},
+    React.createElement("div",{style:s({flex:1,minWidth:0})},
+      React.createElement(Fade,null,
+        React.createElement("div",{style:s({background:`linear-gradient(150deg,${D.navy},${D.navyLight})`,borderRadius:D.rLg,padding:"22px 26px",marginBottom:15,position:"relative",overflow:"hidden"})},
+          React.createElement(GeoPattern,{width:700,height:170,color:D.teal,opacity:0.05}),
+          React.createElement(Corner,{size:18,color:D.teal,opacity:0.2,style:{position:"absolute",top:9,left:9}}),
+          React.createElement(Corner,{size:18,color:D.teal,opacity:0.2,flip:true,style:{position:"absolute",top:9,right:9}}),
+          React.createElement("div",{style:s({display:"flex",gap:14,alignItems:"center"})},
+            React.createElement("div",{style:s({width:54,height:54,borderRadius:13,background:"rgba(27,138,143,0.18)",border:"2px solid rgba(27,138,143,0.32)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,color:D.teal,fontWeight:800})},form.name[0]),
+            React.createElement("div",null,
+              React.createElement("div",{style:s({color:D.white,fontWeight:800,fontSize:20,letterSpacing:-0.5})},form.name),
+              React.createElement("div",{style:s({color:"rgba(255,255,255,0.38)",fontSize:12.5,marginTop:2})},`${form.country} · ${form.event} · Class of ${form.gradYear}`),
+              React.createElement("div",{style:s({display:"flex",gap:5,marginTop:7})},
+                React.createElement(Badge,{text:"Top 15 Mexico",color:"rgba(255,255,255,0.65)",bg:"rgba(255,255,255,0.07)"}),
+                React.createElement(Badge,{text:"Open to recruit",color:D.teal,bg:"rgba(27,138,143,0.14)"})
+              )
+            )
+          ),
+          React.createElement(Divider,{color:D.teal,opacity:0.13,style:{margin:"13px 0 9px"}}),
+          React.createElement("div",{style:s({fontSize:12,color:"rgba(255,255,255,0.38)",lineHeight:1.6,fontStyle:"italic"})},form.bio)
+        )
+      ),
+      React.createElement(Fade,{delay:35},
+        React.createElement("div",{style:s({display:"grid",gridTemplateColumns:"1fr 1fr",gap:13})},
+          React.createElement(Card,{style:{padding:"17px 19px"}},
+            React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7,marginBottom:11})},
+              React.createElement(Diamond,{color:D.teal,opacity:0.6}),
+              React.createElement("span",{style:s({fontWeight:600,fontSize:12.5,color:D.text})},"Personal info")
+            ),
+            React.createElement("div",{style:s({display:"flex",flexDirection:"column",gap:9})},
+              React.createElement(Inp,{label:"Full name",value:form.name,onChange:e=>set("name",e.target.value)}),
+              React.createElement("div",{style:s({display:"grid",gridTemplateColumns:"1fr 1fr",gap:8})},
+                React.createElement(Inp,{label:"Age",value:form.age,onChange:e=>set("age",e.target.value),type:"number"}),
+                React.createElement(Inp,{label:"Grad year",value:form.gradYear,onChange:e=>set("gradYear",e.target.value)})
+              ),
+              React.createElement("div",{style:s({display:"grid",gridTemplateColumns:"1fr 1fr",gap:8})},
+                React.createElement(Inp,{label:"Country",value:form.country,onChange:e=>set("country",e.target.value)}),
+                React.createElement(Sel,{label:"Main event",value:form.event,onChange:e=>set("event",e.target.value),options:["50 libre","100 libre","200 libre","100 fly","200 fly","100 back","200 breast","200 IM","400 IM"]})
+              ),
+              React.createElement("div",{style:s({display:"grid",gridTemplateColumns:"1fr 1fr",gap:8})},
+                React.createElement(Inp,{label:"Height (cm)",value:form.height,onChange:e=>set("height",e.target.value)}),
+                React.createElement(Inp,{label:"Weight (kg)",value:form.weight,onChange:e=>set("weight",e.target.value)})
+              )
+            )
+          ),
+          React.createElement(Card,{style:{padding:"17px 19px"}},
+            React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7,marginBottom:11})},
+              React.createElement(Diamond,{color:D.teal,opacity:0.6}),
+              React.createElement("span",{style:s({fontWeight:600,fontSize:12.5,color:D.text})},"Academic & athletic")
+            ),
+            React.createElement("div",{style:s({display:"flex",flexDirection:"column",gap:9})},
+              React.createElement(Inp,{label:"GPA",value:form.gpa,onChange:e=>set("gpa",e.target.value)}),
+              React.createElement(Inp,{label:"SAT score",value:form.sat,onChange:e=>set("sat",e.target.value),placeholder:"e.g. 1340"}),
+              React.createElement(Inp,{label:"TOEFL score",value:form.toefl,onChange:e=>set("toefl",e.target.value),placeholder:"e.g. 95"}),
+              React.createElement(Inp,{label:"Club / team",value:form.club,onChange:e=>set("club",e.target.value)}),
+              React.createElement(Inp,{label:"Current coach",value:form.coach,onChange:e=>set("coach",e.target.value)})
+            )
+          ),
+          React.createElement(Card,{style:{padding:"17px 19px",gridColumn:"1/-1"}},
+            React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7,marginBottom:7})},
+              React.createElement(Diamond,{color:D.teal,opacity:0.6}),
+              React.createElement("span",{style:s({fontWeight:600,fontSize:12.5,color:D.text})},"Public bio")
+            ),
+            React.createElement("textarea",{value:form.bio,onChange:e=>set("bio",e.target.value),rows:3,
+              style:s({width:"100%",border:`1px solid ${D.border}`,borderRadius:D.rSm,padding:"8px 11px",fontSize:12,background:"rgba(255,255,255,0.85)",color:D.text,resize:"none",outline:"none",boxSizing:"border-box",fontFamily:font,lineHeight:1.6}),
+              onFocus:e=>{e.target.style.borderColor=D.teal;},onBlur:e=>{e.target.style.borderColor=D.border;}
+            }),
+            React.createElement(Btn,{onClick:()=>{setSaved(true);setTimeout(()=>setSaved(false),2000);},style:{marginTop:11}},saved?"Saved ✓":"Save profile")
+          )
+        )
+      )
+    ),
+    React.createElement("div",{style:s({width:220,flexShrink:0})},
+      React.createElement(Fade,{delay:50},
+        React.createElement(Card,{style:{padding:"15px 17px",marginBottom:12}},
+          React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7,marginBottom:9})},
+            React.createElement(Diamond,{color:D.teal,opacity:0.5}),
+            React.createElement("span",{style:s({fontWeight:600,fontSize:12,color:D.text})},"Recruit profile")
+          ),
+          [["GPA",form.gpa,!!form.gpa],["SAT",form.sat||"Not set",!!form.sat],["TOEFL",form.toefl||"Not set",!!form.toefl],["Times","Set in Analytics",true],["Media","3 clips",true],["Status","Open to recruit",true]].map(([l,v,ok])=>
+            React.createElement("div",{key:l,style:s({display:"flex",justifyContent:"space-between",alignItems:"center",padding:"5px 0",borderBottom:`1px solid ${D.border}`})},
+              React.createElement("span",{style:s({fontSize:10.5,color:D.textLight})},l),
+              React.createElement("span",{style:s({fontWeight:500,color:ok?D.text:D.textXLight,fontSize:11})},v)
+            )
+          ),
+          React.createElement(Divider,{color:D.teal,opacity:0.11,style:{margin:"7px 0 5px"}}),
+          React.createElement("div",{style:s({fontSize:10,color:D.textMid,lineHeight:1.5})},"Add SAT and TOEFL to maximize coach visibility.")
+        ),
+        React.createElement("div",{style:s({background:D.navy,borderRadius:D.r,padding:"13px 15px",position:"relative",overflow:"hidden"})},
+          React.createElement(GeoPattern,{width:220,height:75,opacity:0.07}),
+          React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7})},
+            React.createElement(Logo,{size:22}),
+            React.createElement("div",null,
+              React.createElement("div",{style:s({color:D.teal,fontWeight:700,fontSize:10.5,letterSpacing:0.3})},"XIMO Profile"),
+              React.createElement("div",{style:s({color:"rgba(255,255,255,0.28)",fontSize:9,marginTop:1})},"Visible to 130+ coaches")
+            )
+          )
+        )
+      )
+    )
+  );
+}
+
+// ── Root App ──────────────────────────────────────────────────────
+function App(){
+  const [screen,setScreen]=useState("landing");
+  const [authMode,setAuthMode]=useState("login");
+  const [user,setUser]=useState(null);
+  const [tab,setTab]=useState("dashboard");
+  const auth=u=>{setUser(u);setScreen("app");};
+
+  if(screen==="landing") return React.createElement(Landing,{onLogin:()=>{setAuthMode("login");setScreen("auth");},onRegister:()=>{setAuthMode("register");setScreen("auth");}});
+  if(screen==="auth") return React.createElement(Auth,{mode:authMode,onAuth:auth,onSwitch:()=>setAuthMode(m=>m==="login"?"register":"login"),onBack:()=>setScreen("landing")});
+
+  const screens={
+    dashboard:React.createElement(Dashboard,{user}),
+    intelligence:React.createElement(Intelligence),
+    universities:React.createElement(Universities),
+    analytics:React.createElement(Analytics),
+    recruitment:React.createElement(Recruitment,{user}),
+    community:React.createElement(Community,{user}),
+    media:React.createElement(Media),
+    courses:React.createElement(Academy),
+    profile:React.createElement(Profile,{user}),
+  };
+
+  return React.createElement("div",{style:s({display:"flex",minHeight:"100vh",background:D.bg})},
+    React.createElement(Sidebar,{active:tab,setActive:setTab,user}),
+    React.createElement("main",{style:s({flex:1,padding:"22px 28px",overflowY:"auto",maxHeight:"100vh"})},
+      // Top bar
+      React.createElement("div",{style:s({display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20})},
+        React.createElement("div",{style:s({display:"flex",alignItems:"center",gap:7})},
+          React.createElement(Diamond,{color:D.teal,opacity:0.6}),
+          React.createElement("span",{style:s({fontWeight:700,fontSize:14,color:D.text,letterSpacing:-0.2})},NAV.find(n=>n.id===tab)?.label)
+        ),
+        React.createElement("div",{style:s({display:"flex",gap:7,alignItems:"center"})},
+          React.createElement("span",{style:s({fontSize:10.5,color:D.textLight})},"Season 2024–25"),
+          React.createElement("div",{style:s({width:28,height:28,borderRadius:7,background:D.navy,border:"1px solid rgba(27,138,143,0.22)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11.5,color:D.teal,fontWeight:800,cursor:"pointer"})},user.name[0])
+        )
+      ),
+      screens[tab]
+    )
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+</script>
+</body>
+</html>
