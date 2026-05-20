@@ -57,28 +57,43 @@ export default function Home() {
       </section>
 
       <section id="waitlist" className="bg-[#0B1F33] px-6 py-24 text-white">
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="text-sm font-bold tracking-[0.25em] text-[#C9A84C]">
-            WAITLIST
-          </p>
+  <div className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-3xl text-center">
+      <p className="text-sm font-bold tracking-[0.25em] text-[#C9A84C]">
+        ACCESO TEMPRANO
+      </p>
 
-          <h2 className="mt-4 text-4xl font-black tracking-tight">
-            Be one of the first athletes to test XIMO.
-          </h2>
+      <h2 className="mt-4 text-4xl font-black tracking-tight md:text-5xl">
+        Únete a la primera generación de atletas ximo.
+      </h2>
 
-          <p className="mt-4 text-white/60">
-            For now, the waitlist can be connected to Tally or Google Forms.
-          </p>
+      <p className="mt-5 text-lg leading-8 text-white/65">
+        Ximo nace para atletas mexicanos que quieren llevar su deporte más lejos.
+        Una plataforma para organizar universidades, coaches, becas, correos,
+        documentos, progreso deportivo y oportunidades reales en un solo lugar.
+      </p>
 
-          <a
-            href="https://forms.gle/"
-            target="_blank"
-            className="mt-8 inline-flex rounded-xl bg-white px-8 py-4 text-sm font-bold text-[#0B1F33]"
-          >
-            Join waitlist
-          </a>
-        </div>
-      </section>
+      <p className="mt-4 text-base leading-7 text-white/55">
+        Creemos que el talento mexicano puede llegar más lejos cuando tiene
+        claridad, acompañamiento y un sistema que convierte la disciplina en
+        oportunidades reales.
+      </p>
+    </div>
+
+    <div className="mt-12 overflow-hidden rounded-3xl border border-[#C9A84C]/20 bg-[#F5F5F0] p-2 shadow-2xl">
+      <iframe
+        src="https://tally.so/embed/NpbZyO?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1"
+        width="100%"
+        height="900"
+        frameBorder="0"
+        marginHeight={0}
+        marginWidth={0}
+        title="Lista de espera ximo"
+        className="rounded-2xl bg-[#F5F5F0]"
+      />
+    </div>
+  </div>
+</section>
     </main>
   );
 }
