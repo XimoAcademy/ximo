@@ -1,60 +1,68 @@
 export default function Home() {
   return (
     <main className="min-h-screen bg-[#F5F5F0] text-[#0B1F33]">
-      <section className="mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center px-6 py-20 text-center">
-        <div className="mb-6 rounded-2xl border border-[#C9A84C]/30 bg-white/70 px-5 py-2 text-sm font-semibold tracking-[0.25em] text-[#C9A84C]">
-          XIMO ACADEMY
+    <section className="mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center px-6 py-20 text-center">
+      <div className="mb-6 rounded-2xl border border-[#C9A84C]/30 bg-white/70 px-5 py-2 text-sm font-semibold tracking-[0.25em] text-[#C9A84C]">
+        ximo Academy
+      </div>
+  
+      <h1 className="max-w-4xl text-5xl font-black tracking-tight md:text-7xl">
+        Convierte tu camino deportivo en una oportunidad real.
+      </h1>
+  
+      <p className="mt-6 max-w-2xl text-lg leading-8 text-[#5E7080]">
+        ximo ayuda a atletas mexicanos a organizar universidades, coaches,
+        becas, correos, documentos, progreso deportivo y próximos pasos en un
+        solo lugar.
+      </p>
+  
+      <p className="mt-4 max-w-2xl text-lg leading-8 text-[#5E7080]">
+        Para quienes sueñan con llevar su deporte más lejos, competir en otro
+        nivel y abrir puertas que antes parecían imposibles.
+      </p>
+  
+      <div className="mt-10 flex flex-col gap-4 sm:flex-row">
+        <a
+          href="#waitlist"
+          className="rounded-xl bg-[#0B1F33] px-8 py-4 text-sm font-bold text-white shadow-lg"
+        >
+          Unirme a la primera generación
+        </a>
+  
+        <a
+          href="/build-log"
+          className="rounded-xl border border-[#0B1F33]/10 bg-white px-8 py-4 text-sm font-bold text-[#0B1F33]"
+        >
+          Ver cómo nace ximo
+        </a>
+      </div>
+  
+      <div className="mt-16 grid w-full gap-4 md:grid-cols-3">
+        <div className="rounded-2xl border border-black/5 bg-white p-6 text-left shadow-sm">
+          <h3 className="font-bold">Tu proceso en orden</h3>
+          <p className="mt-2 text-sm leading-6 text-[#5E7080]">
+            Organiza universidades, coaches, respuestas, llamadas, documentos
+            y próximos pasos sin perder oportunidades importantes.
+          </p>
         </div>
-
-        <h1 className="max-w-4xl text-5xl font-black tracking-tight md:text-7xl">
-          The platform for student-athletes building their path to college.
-        </h1>
-
-        <p className="mt-6 max-w-2xl text-lg leading-8 text-[#5E7080]">
-          Organize your schools, coaches, emails, progress, documents, and next
-          steps in one place.
-        </p>
-
-        <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-          <a
-            href="#waitlist"
-            className="rounded-xl bg-[#0B1F33] px-8 py-4 text-sm font-bold text-white shadow-lg"
-          >
-            Join the waitlist
-          </a>
-
-          <a
-            href="/build-log"
-            className="rounded-xl border border-[#0B1F33]/10 bg-white px-8 py-4 text-sm font-bold text-[#0B1F33]"
-          >
-            Follow the build
-          </a>
+  
+        <div className="rounded-2xl border border-black/5 bg-white p-6 text-left shadow-sm">
+          <h3 className="font-bold">Creado desde una historia real</h3>
+          <p className="mt-2 text-sm leading-6 text-[#5E7080]">
+            ximo nace del camino de un nadador mexicano buscando oportunidades
+            universitarias, becas y crecimiento deportivo fuera de México.
+          </p>
         </div>
-
-        <div className="mt-16 grid w-full gap-4 md:grid-cols-3">
-          <div className="rounded-2xl border border-black/5 bg-white p-6 text-left shadow-sm">
-            <h3 className="font-bold">Recruiting organized</h3>
-            <p className="mt-2 text-sm leading-6 text-[#5E7080]">
-              Track universities, coaches, replies, calls, and next actions.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-black/5 bg-white p-6 text-left shadow-sm">
-            <h3 className="font-bold">Built by an athlete</h3>
-            <p className="mt-2 text-sm leading-6 text-[#5E7080]">
-              XIMO is being created from the real journey of a Mexican swimmer
-              pursuing college opportunities.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-black/5 bg-white p-6 text-left shadow-sm">
-            <h3 className="font-bold">Public build log</h3>
-            <p className="mt-2 text-sm leading-6 text-[#5E7080]">
-              Follow every step as the platform goes from idea to real product.
-            </p>
-          </div>
+  
+        <div className="rounded-2xl border border-black/5 bg-white p-6 text-left shadow-sm">
+          <h3 className="font-bold">Una comunidad con visión</h3>
+          <p className="mt-2 text-sm leading-6 text-[#5E7080]">
+            Sigue el proceso, aprende del camino y forma parte de una nueva
+            generación de atletas que quiere vivir su deporte de otra manera.
+          </p>
         </div>
-      </section>
+      </div>
+    </section>
 
       <section id="waitlist" className="bg-[#0B1F33] px-6 py-24 text-white">
   <div className="mx-auto max-w-5xl">
