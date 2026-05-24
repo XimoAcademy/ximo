@@ -12,6 +12,7 @@ const navGroups = [
       { href: "/app", label: "Inicio", icon: "◆" },
       { href: "/app/comunidad", label: "Comunidad", icon: "◉" },
       { href: "/app/marcas", label: "Marcas", icon: "◈" },
+      { href: "/app/tareas", label: "Tareas", icon: "✅" },
     ],
   },
   {
