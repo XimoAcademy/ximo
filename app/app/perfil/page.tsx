@@ -196,6 +196,19 @@ export default function PerfilPage() {
               Acceso privado →
             </Link>
           </Card>
+
+          <Card className="p-4">
+            <SectionHeader title="Marcas y promociones" />
+            <p className="text-xs text-[#5E7080] leading-relaxed">
+              Si representas una marca alineada con atletas, puedes solicitar aparecer dentro de la comunidad ximo.
+            </p>
+            <Link
+              href="/app/promocionar"
+              className="mt-3 block w-full rounded-xl border border-[#0B1F33]/12 bg-[#F5F5F0] py-2.5 text-center text-xs font-bold text-[#0B1F33] hover:bg-[#0B1F33] hover:text-white transition-colors"
+            >
+              Solicitar promoción →
+            </Link>
+          </Card>
         </div>
       </div>
     </>
