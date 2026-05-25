@@ -45,6 +45,7 @@ interface BrandCard {
   brand: string;
   logo: string;
   category: string;
+  format: "Foto" | "Video" | "Oferta" | "Producto";
   headline: string;
   description: string;
   cta: string;
@@ -183,6 +184,7 @@ const brandCards: BrandCard[] = [
     brand: "Aquasport MX",
     logo: "🏊",
     category: "Equipo deportivo",
+    format: "Oferta",
     headline: "Trajes de competencia para atletas en proceso de recruiting",
     description: "Descuento exclusivo para atletas ximo. Trajes técnicos de alto rendimiento para meets universitarios.",
     cta: "Ver oportunidad",
@@ -192,6 +194,7 @@ const brandCards: BrandCard[] = [
     brand: "GNC Sport",
     logo: "💊",
     category: "Suplementos y recuperación",
+    format: "Producto",
     headline: "Protocolo de recuperación para atletas de alto rendimiento",
     description: "Suplementos validados para nadadores. Sin sustancias prohibidas. Envío a toda la república.",
     cta: "Ver oportunidad",
@@ -201,6 +204,7 @@ const brandCards: BrandCard[] = [
     brand: "Arena México",
     logo: "⚡",
     category: "Equipo deportivo",
+    format: "Foto",
     headline: "Lentes y gorras de competencia — temporada 2025",
     description: "Arena busca atletas ximo para probar su nueva línea de competencia antes del lanzamiento.",
     cta: "Ver oportunidad",
@@ -210,6 +214,7 @@ const brandCards: BrandCard[] = [
     brand: "Recov+",
     logo: "🧊",
     category: "Recuperación",
+    format: "Video",
     headline: "Herramientas de recuperación activa para nadadores",
     description: "Compresión, foam rolling y protocolos de baño de contraste. Guía gratuita para atletas.",
     cta: "Ver oportunidad",
@@ -266,7 +271,6 @@ function PostCard({ post, likes, setLikes }: { post: Post; likes: number; setLik
           {post.initials}
         </div>
         <div className="flex-1 min-w-0">
-          {/* Header */}
           <div className="flex flex-wrap items-center gap-1.5 mb-1">
             <p className="text-sm font-bold text-[#0B1F33]">{post.user}</p>
             {post.official && (
@@ -281,10 +285,8 @@ function PostCard({ post, likes, setLikes }: { post: Post; likes: number; setLik
             <span className="text-[10px] text-[#5E7080] ml-auto">{post.time}</span>
           </div>
 
-          {/* Text */}
           <p className="text-sm text-[#0D1B2A] leading-relaxed">{post.text}</p>
 
-          {/* Media placeholder */}
           {post.mediaPlaceholder && (
             <div className="mt-2.5 rounded-xl border border-[#0B1F33]/8 bg-[#F5F5F0] px-4 py-3 text-xs text-[#5E7080] flex items-center gap-2">
               <span className="text-base">{post.mediaPlaceholder.split(" ")[0]}</span>
@@ -292,7 +294,6 @@ function PostCard({ post, likes, setLikes }: { post: Post; likes: number; setLik
             </div>
           )}
 
-          {/* Actions */}
           <div className="mt-3 flex items-center gap-1 flex-wrap">
             <button
               type="button"
@@ -321,7 +322,6 @@ function PostCard({ post, likes, setLikes }: { post: Post; likes: number; setLik
             )}
           </div>
 
-          {/* Replies */}
           {open && post.replies && post.replies.length > 0 && (
             <div className="mt-3 space-y-2 border-l-2 border-[#0B1F33]/8 pl-3">
               {post.replies.map((reply) => (
@@ -335,7 +335,6 @@ function PostCard({ post, likes, setLikes }: { post: Post; likes: number; setLik
                   </div>
                 </div>
               ))}
-              {/* Reply composer */}
               <div className="flex gap-2 mt-2">
                 <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[#C9A84C]/20 text-[9px] font-black text-[#7a5f1f]">MZ</div>
                 <div className="flex-1 rounded-lg border border-[#0B1F33]/10 bg-[#F5F5F0] px-3 py-1.5 text-[11px] text-[#5E7080] cursor-text">
@@ -353,14 +352,16 @@ function PostCard({ post, likes, setLikes }: { post: Post; likes: number; setLik
 function BrandCardFeed({ brand }: { brand: BrandCard }) {
   return (
     <div className="rounded-2xl border border-[#1D4ED8]/15 bg-white/95 shadow-[0_1px_14px_rgba(11,31,51,0.06)] p-4 sm:p-5">
+      {/* Trust header */}
       <div className="flex items-center gap-2 mb-3">
         <span className="text-[9px] font-bold tracking-widest text-[#5E7080] uppercase">
-          Anuncio filtrado para atletas ximo
+          Promoción revisada por ximo
         </span>
-        <span className="ml-auto rounded-full border border-[#1D4ED8]/20 bg-[#1D4ED8]/6 px-2 py-0.5 text-[9px] font-bold text-[#1D4ED8]">
-          ✓ Marca verificada
+        <span className="ml-auto rounded-full border border-[#059669]/25 bg-[#059669]/8 px-2 py-0.5 text-[9px] font-bold text-[#059669]">
+          Campaña activa
         </span>
       </div>
+
       <div className="flex gap-3">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#1D4ED8]/8 text-xl">
           {brand.logo}
@@ -370,6 +371,9 @@ function BrandCardFeed({ brand }: { brand: BrandCard }) {
             <p className="text-sm font-bold text-[#0B1F33]">{brand.brand}</p>
             <span className="rounded-full border border-[#0B1F33]/10 bg-[#F5F5F0] px-2 py-0.5 text-[10px] font-semibold text-[#5E7080]">
               {brand.category}
+            </span>
+            <span className="rounded-full border border-[#1D4ED8]/15 bg-[#1D4ED8]/6 px-2 py-0.5 text-[10px] font-semibold text-[#1D4ED8]">
+              {brand.format}
             </span>
           </div>
           <p className="text-sm font-semibold text-[#0D1B2A] leading-snug mb-1">
@@ -385,7 +389,7 @@ function BrandCardFeed({ brand }: { brand: BrandCard }) {
             >
               {brand.cta} →
             </button>
-            <span className="text-[10px] text-[#5E7080]">Revisado por ximo</span>
+            <span className="text-[10px] text-[#5E7080]">Anuncio filtrado para atletas ximo</span>
           </div>
         </div>
       </div>
@@ -421,7 +425,6 @@ export default function ComunidadPage() {
     <div className="grid gap-5 xl:grid-cols-[1fr_272px]">
       {/* ── Left: feed ── */}
       <div className="space-y-4 min-w-0">
-        {/* Header */}
         <div>
           <h1 className="text-xl font-black tracking-tight text-[#0B1F33] sm:text-2xl">
             Comunidad
@@ -481,7 +484,7 @@ export default function ComunidadPage() {
         </div>
 
         {/* Feed */}
-        {visibleFeed.map((item, i) =>
+        {visibleFeed.map((item) =>
           item.kind === "post" ? (
             <PostCard
               key={`post-${item.data.id}`}
@@ -507,7 +510,6 @@ export default function ComunidadPage() {
 
       {/* ── Right: sidebar ── */}
       <div className="space-y-4">
-        {/* Temas activos */}
         <Card className="p-4">
           <SectionHeader title="Temas activos" subtitle="Más discutidos esta semana" />
           <div className="space-y-1.5">
@@ -528,7 +530,6 @@ export default function ComunidadPage() {
           </div>
         </Card>
 
-        {/* Atletas destacados / ranking */}
         <Card className="p-4">
           <SectionHeader title="Ranking positivo" subtitle="Racha más larga esta semana" />
           <div className="space-y-1.5">
@@ -562,7 +563,6 @@ export default function ComunidadPage() {
           </div>
         </Card>
 
-        {/* Racha comunitaria */}
         <Card className="overflow-hidden">
           <div className="bg-gradient-to-br from-[#0B1F33] to-[#112538] p-4">
             <p className="text-xs font-black text-white">🔥 Racha comunitaria</p>
@@ -572,7 +572,7 @@ export default function ComunidadPage() {
           </div>
           <div className="p-4">
             <p className="text-[11px] text-[#5E7080] leading-relaxed">
-              "Pequeñas acciones diarias crean oportunidades reales."
+              &ldquo;Pequeñas acciones diarias crean oportunidades reales.&rdquo;
             </p>
             <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-[#0B1F33]/8">
               <div className="h-full w-[23%] rounded-full bg-gradient-to-r from-[#C9A84C] to-[#e8c76a]" />
@@ -581,10 +581,9 @@ export default function ComunidadPage() {
           </div>
         </Card>
 
-        {/* Soy una marca CTA */}
         <Card className="p-4">
           <div className="text-center">
-            <p className="text-base mb-1">🏷</p>
+            <p className="text-base mb-1">◈</p>
             <p className="text-xs font-black text-[#0B1F33]">¿Representas una marca?</p>
             <p className="mt-1 text-[10px] text-[#5E7080] leading-relaxed">
               Conecta con atletas de forma curada y alineada al deporte.
@@ -593,7 +592,7 @@ export default function ComunidadPage() {
               href="/app/promocionar"
               className="mt-3 inline-flex items-center justify-center w-full rounded-xl border border-[#0B1F33]/12 bg-[#F5F5F0] px-4 py-2 text-xs font-bold text-[#0B1F33] hover:bg-[#0B1F33] hover:text-white transition-colors"
             >
-              Soy una marca →
+              Promocionar con ximo →
             </Link>
           </div>
         </Card>

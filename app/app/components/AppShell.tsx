@@ -12,7 +12,7 @@ const navGroups = [
     items: [
       { href: "/app", label: "Inicio", icon: "◆" },
       { href: "/app/comunidad", label: "Comunidad", icon: "◉", badge: "3" },
-      { href: "/app/tareas", label: "Tareas", icon: "✅" },
+      { href: "/app/tareas", label: "Tareas", icon: "☐" },
     ],
   },
   {
@@ -30,7 +30,6 @@ const navGroups = [
       { href: "/app/progreso", label: "Progreso", icon: "◑" },
       { href: "/app/cursos", label: "Cursos", icon: "◳" },
       { href: "/app/sat-toefl", label: "SAT / TOEFL", icon: "◇" },
-      { href: "/app/perfil", label: "Perfil", icon: "◷" },
     ],
   },
   {
@@ -62,7 +61,8 @@ export default function AppShell({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen bg-[#F5F5F0] text-[#0D1B2A]">
       {/* ── Desktop sidebar ── */}
       <aside className="hidden w-[220px] shrink-0 flex-col bg-[#0A1C2E] lg:flex overflow-y-auto">
-        {/* Logo */}
+
+        {/* Logo + Beta badge */}
         <div className="border-b border-white/8 px-5 py-4 shrink-0">
           <Link href="/app" className="block">
             <Image
@@ -84,7 +84,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
 
-        {/* Profile block — moved up, right after logo */}
+        {/* Profile block */}
         <div className="border-b border-white/8 px-3 py-3 shrink-0">
           <Link
             href="/app/perfil"
@@ -102,7 +102,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
           </Link>
         </div>
 
-        {/* Streak — moved up, right after profile */}
+        {/* Daily streak */}
         <div className="border-b border-white/8 px-3 py-3 shrink-0">
           <div className="rounded-xl bg-white/5 border border-white/8 px-3 py-2.5">
             <div className="flex items-center justify-between mb-1.5">
@@ -126,7 +126,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
         </div>
 
         {/* Nav groups — collapsible */}
-        <nav className="flex-1 px-3 py-3 space-y-1">
+        <nav className="flex-1 px-3 py-3 space-y-1 overflow-y-auto">
           {navGroups.map((group) => {
             const isOpen = !collapsed[group.label];
             return (
@@ -148,7 +148,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
                         <Link
                           key={item.href}
                           href={item.href}
-                          className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-[13px] font-medium transition-all duration-150 ${
+                          className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-[13px] font-medium transition-all duration-150 ${
                             active
                               ? "border-l-2 border-[#C9A84C] bg-white/10 text-white"
                               : "border-l-2 border-transparent text-white/40 hover:bg-white/5 hover:text-white/80"

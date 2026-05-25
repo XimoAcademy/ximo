@@ -197,16 +197,22 @@ export default function PerfilPage() {
             </Link>
           </Card>
 
+          {/* Brand CTA */}
           <Card className="p-4">
-            <SectionHeader title="Marcas y promociones" />
-            <p className="text-xs text-[#5E7080] leading-relaxed">
-              Si representas una marca alineada con atletas, puedes solicitar aparecer dentro de la comunidad ximo.
-            </p>
+            <div className="flex items-start gap-3 mb-3">
+              <span className="text-lg mt-0.5">◈</span>
+              <div>
+                <p className="text-xs font-black text-[#0B1F33]">¿Representas una marca?</p>
+                <p className="mt-1 text-[11px] text-[#5E7080] leading-relaxed">
+                  Solicita revisión para promocionar productos, descuentos, patrocinios o campañas dentro de la comunidad ximo.
+                </p>
+              </div>
+            </div>
             <Link
               href="/app/promocionar"
-              className="mt-3 block w-full rounded-xl border border-[#0B1F33]/12 bg-[#F5F5F0] py-2.5 text-center text-xs font-bold text-[#0B1F33] hover:bg-[#0B1F33] hover:text-white transition-colors"
+              className="block w-full rounded-xl bg-[#0B1F33] py-2.5 text-center text-xs font-bold text-white hover:bg-[#112538] transition-colors"
             >
-              Solicitar promoción →
+              Promocionar con ximo →
             </Link>
           </Card>
         </div>
