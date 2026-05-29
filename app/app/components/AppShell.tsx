@@ -39,12 +39,6 @@ const navGroups = [
       { href: "/app/promocionar", label: "Promocionar marca", icon: "◈" },
     ],
   },
-  {
-    label: "Cuenta",
-    items: [
-      { href: "/app/perfil",    label: "Perfil",        icon: "◐" },
-    ],
-  },
 ];
 
 const allItems = navGroups.flatMap((g) => g.items);

@@ -139,7 +139,7 @@ export default function SettingsPage() {
                     <p className="text-sm font-black" style={{ color:"var(--text)" }}>{t.label}</p>
                     {active && (
                       <span className="rounded-full px-1.5 py-0.5 text-[9px] font-bold"
-                        style={{ background:"var(--teal)", color:"#07131F" }}>
+                        style={{ background:"#1ECECE", color:"#07131F" }}>
                         Activo
                       </span>
                     )}
@@ -164,7 +164,7 @@ export default function SettingsPage() {
             type="button"
             onClick={handleSave}
             className="ximo-btn-press shrink-0 rounded-xl px-5 py-2.5 text-xs font-black transition-opacity hover:opacity-90"
-            style={{ background:"var(--teal)", color:"#07131F" }}
+            style={{ background:"#1ECECE", color:"#07131F" }}
           >
             {saved ? "Cambios guardados" : "Guardar cambios"}
           </button>

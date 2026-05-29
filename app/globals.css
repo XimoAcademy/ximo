@@ -67,6 +67,11 @@
   --priority-low:    var(--teal);
   --priority-low-bg: var(--teal-bg);
 
+  /* ── Hero banner (dark cinematic in dark mode) ── */
+  --hero-bg:       linear-gradient(135deg, #07131F 0%, #112538 50%, #1F5F66 100%);
+  --hero-panel:    rgba(255,255,255,0.07);
+  --hero-panel-bd: rgba(30,206,206,0.22);
+
   /* ── Typography ──
      Argent CF is the brand display serif. Fraunces covers any glyphs the
      Argent demo lacks (accented Spanish chars). Georgia is the final fallback. */
@@ -136,6 +141,11 @@
   --priority-med-bg: rgba(251, 191, 36, 0.16);
   --priority-low:    var(--teal);
   --priority-low-bg: var(--teal-bg);
+
+  /* Hero banner in light mode: soft brand-tinted gradient so normal dark text reads */
+  --hero-bg:       linear-gradient(135deg, #CDE9E4 0%, #DCEFCD 55%, #F0E7BC 100%);
+  --hero-panel:    rgba(255,255,255,0.55);
+  --hero-panel-bd: rgba(18,138,150,0.22);
 
   --background: var(--bg);
   --foreground: var(--text);

@@ -71,10 +71,24 @@ function InfoGrid({ items }: { items: string[][] }) {
 export default function PerfilPage() {
   return (
     <>
-      <PageHeader
-        title="Perfil del atleta"
-        subtitle="Tu información deportiva, académica y personal organizada para recruiting."
-      />
+      <div className="mb-5 flex items-start justify-between gap-3">
+        <PageHeader
+          title="Perfil del atleta"
+          subtitle="Tu información deportiva, académica y personal organizada para recruiting."
+        />
+        <Link
+          href="/app/settings"
+          aria-label="Configuración"
+          title="Configuración"
+          className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-all duration-200 hover:opacity-80"
+          style={{ background: "var(--teal-bg)", border: "1px solid var(--teal-border)", color: "var(--teal)" }}
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+            <circle cx="8" cy="8" r="2.5" />
+            <path d="M8 1v1.5M8 13.5V15M1 8h1.5M13.5 8H15M2.93 2.93l1.06 1.06M12.01 12.01l1.06 1.06M2.93 13.07l1.06-1.06M12.01 3.99l1.06-1.06" />
+          </svg>
+        </Link>
+      </div>
 
       <div className="grid gap-5 lg:grid-cols-[1fr_288px]">
 
@@ -255,31 +269,6 @@ export default function PerfilPage() {
         </div>
       </div>
 
-      {/* Settings access — at the bottom of the profile page */}
-      <ScrollReveal delay={120}>
-      <div className="mt-5 rounded-2xl p-5 ximo-card-3d" style={CARD}>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
-              style={{ background: "var(--teal-bg)", border: "1px solid var(--teal-border)", color: "var(--teal)" }}>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                <circle cx="8" cy="8" r="2.5" />
-                <path d="M8 1v1.5M8 13.5V15M1 8h1.5M13.5 8H15M2.93 2.93l1.06 1.06M12.01 12.01l1.06 1.06M2.93 13.07l1.06-1.06M12.01 3.99l1.06-1.06" />
-              </svg>
-            </span>
-            <div>
-              <p className="text-sm font-black" style={{ color: "var(--text)" }}>Configuración</p>
-              <p className="text-[11px]" style={{ color: "var(--text-label)" }}>Tema, cuenta y preferencias de la app</p>
-            </div>
-          </div>
-          <Link href="/app/settings"
-            className="ximo-btn-press rounded-xl px-5 py-2.5 text-xs font-bold transition-opacity hover:opacity-90"
-            style={{ background: "var(--teal-bg)", border: "1px solid var(--teal-border)", color: "var(--teal)" }}>
-            Abrir configuración →
-          </Link>
-        </div>
-      </div>
-      </ScrollReveal>
     </>
   );
 }

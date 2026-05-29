@@ -68,21 +68,21 @@ export default function PromocionarPage() {
     <div className="mx-auto max-w-3xl space-y-8">
       {/* Hero */}
       <div className="relative overflow-hidden rounded-2xl p-6 sm:p-8 ximo-fade-up"
-        style={{ background:"linear-gradient(135deg,#07131F,#112538,#1F5F66)", border:"1px solid var(--border-strong)", boxShadow:"0 0 60px var(--border),0 8px 32px rgba(0,0,0,0.5)" }}>
+        style={{ background:"var(--hero-bg)", border:"1px solid var(--border-strong)", boxShadow:"0 8px 32px rgba(0,0,0,0.18)" }}>
         <div className="absolute top-0 right-0 h-48 w-48 rounded-full blur-3xl pointer-events-none ximo-glow-pulse"
           style={{ background:"radial-gradient(circle,var(--border-strong) 0%,transparent 70%)" }} />
         <div className="relative flex items-start gap-4">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-2xl font-black ximo-float"
-            style={{ background:"rgba(255,255,255,0.08)", border:"1px solid rgba(30,206,206,0.25)", color:"#E8CE4E" }}>◈</div>
+            style={{ background:"var(--hero-panel)", border:"1px solid var(--hero-panel-bd)", color:"var(--gold)" }}>◈</div>
           <div>
-            <h1 className="text-2xl font-black text-on-dark sm:text-3xl" style={{ textShadow:"0 2px 20px rgba(47,127,134,0.4)" }}>Promociona con Ximo</h1>
-            <p className="mt-2 text-sm leading-relaxed max-w-lg" style={{ color:"rgba(255,255,255,0.6)" }}>
+            <h1 className="text-2xl font-black sm:text-3xl" style={{ color:"var(--text)" }}>Promociona con Ximo</h1>
+            <p className="mt-2 text-sm leading-relaxed max-w-lg" style={{ color:"var(--text-2)" }}>
               Envía tu anuncio a revisión y conecta con atletas de forma limpia, útil y alineada al deporte.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               {["Revisión garantizada","Sin spam","Solo marcas deportivas","Comunidad real"].map(tag => (
                 <span key={tag} className="rounded-full px-3 py-1 text-[10px] font-bold"
-                  style={{ border:"1px solid rgba(30,206,206,0.2)", background:"rgba(255,255,255,0.06)", color:"rgba(255,255,255,0.6)" }}>
+                  style={{ border:"1px solid var(--hero-panel-bd)", background:"var(--hero-panel)", color:"var(--text-label)" }}>
                   {tag}
                 </span>
               ))}

@@ -109,25 +109,25 @@ export default function RecruitingPage() {
     <div className="space-y-5">
       {/* Hero */}
       <div className="relative overflow-hidden rounded-2xl p-6 sm:p-8 ximo-fade-up"
-        style={{ background:"linear-gradient(135deg,#07131F,#112538,#1F5F66)", border:"1px solid var(--border-strong)", boxShadow:"0 0 60px var(--border),0 8px 32px rgba(0,0,0,0.5)" }}>
+        style={{ background:"var(--hero-bg)", border:"1px solid var(--border-strong)", boxShadow:"0 8px 32px rgba(0,0,0,0.18)" }}>
         <div className="absolute top-0 right-0 h-48 w-48 rounded-full blur-3xl pointer-events-none ximo-glow-pulse"
           style={{ background:"radial-gradient(circle,rgba(47,127,134,0.3) 0%,transparent 70%)" }} />
         <div className="relative">
           <div className="mb-3 flex flex-wrap gap-2">
-            <Badge className="border" style={{ borderColor:"rgba(47,127,134,0.3)", background:"var(--border)", color:"var(--teal)" }}>Recruiting</Badge>
-            <Badge className="border" style={{ borderColor:"rgba(255,255,255,0.08)", background:"rgba(255,255,255,0.04)", color:"rgba(255,255,255,0.4)" }}>Clase 2027 · MX</Badge>
+            <Badge className="border" style={{ borderColor:"var(--teal-border)", background:"var(--teal-bg)", color:"var(--teal)" }}>Recruiting</Badge>
+            <Badge className="border" style={{ borderColor:"var(--border)", background:"var(--surface-hover)", color:"var(--text-label)" }}>Clase 2027 · MX</Badge>
           </div>
-          <h1 className="text-2xl font-black text-on-dark sm:text-3xl" style={{ textShadow:"0 2px 20px rgba(47,127,134,0.4)" }}>Recruiting</h1>
-          <p className="mt-1.5 max-w-lg text-sm leading-relaxed" style={{ color:"rgba(255,255,255,0.6)" }}>
+          <h1 className="text-2xl font-black sm:text-3xl" style={{ color:"var(--text)" }}>Recruiting</h1>
+          <p className="mt-1.5 max-w-lg text-sm leading-relaxed" style={{ color:"var(--text-2)" }}>
             Visualiza tu proceso completo: universidades, coaches, respuestas, llamadas, becas, documentos y próximas decisiones.
           </p>
         </div>
-        {/* Stats — on the always-dark hero, keep light text */}
+        {/* Stats */}
         <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-5">
           {stats.map(s => (
-            <div key={s.label} className="rounded-xl p-3 text-center" style={{ background:"rgba(255,255,255,0.06)", border:"1px solid rgba(30,206,206,0.18)" }}>
-              <p className="text-xl font-black text-on-dark">{s.value}</p>
-              <p className="text-[10px] font-bold" style={{ color:"rgba(255,255,255,0.5)" }}>{s.label}</p>
+            <div key={s.label} className="rounded-xl p-3 text-center" style={{ background:"var(--hero-panel)", border:"1px solid var(--hero-panel-bd)" }}>
+              <p className="text-xl font-black" style={{ color:"var(--text)" }}>{s.value}</p>
+              <p className="text-[10px] font-bold" style={{ color:"var(--text-label)" }}>{s.label}</p>
             </div>
           ))}
         </div>

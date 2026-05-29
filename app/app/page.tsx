@@ -75,9 +75,9 @@ export default function DashboardPage() {
       {/* ── Hero ── */}
       <section className="relative mb-5 overflow-hidden rounded-2xl p-6 sm:p-8 ximo-fade-up"
         style={{
-          background: "linear-gradient(135deg, #07131F 0%, #112538 50%, #1F5F66 100%)",
+          background: "var(--hero-bg)",
           border: "1px solid var(--border-strong)",
-          boxShadow: "0 0 60px var(--border), 0 8px 32px rgba(0,0,0,0.5)",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
         }}>
         {/* Glow orbs */}
         <div className="absolute top-0 right-0 h-64 w-64 rounded-full blur-3xl pointer-events-none ximo-glow-pulse"
@@ -88,13 +88,13 @@ export default function DashboardPage() {
         <div className="relative flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
           <div className="ximo-fade-up">
             <div className="mb-3 flex flex-wrap gap-2">
-              <Badge className="border" style={{ borderColor: "rgba(201,168,76,0.25)", background: "rgba(201,168,76,0.1)", color: "var(--gold)" }}>Suscripción activa</Badge>
-              <Badge className="border" style={{ borderColor: "rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.4)" }}>Atleta fundador</Badge>
+              <Badge className="border" style={{ borderColor: "var(--gold-border)", background: "var(--gold-bg)", color: "var(--gold)" }}>Suscripción activa</Badge>
+              <Badge className="border" style={{ borderColor: "var(--border)", background: "var(--surface-hover)", color: "var(--text-label)" }}>Atleta fundador</Badge>
             </div>
-            <h1 className="text-2xl font-black text-on-dark sm:text-3xl" style={{ textShadow: "0 2px 20px rgba(47,127,134,0.4)" }}>
+            <h1 className="text-2xl font-black sm:text-3xl" style={{ color: "var(--text)" }}>
               Tu centro de mando deportivo.
             </h1>
-            <p className="mt-2 max-w-lg text-sm leading-relaxed" style={{ color: "rgba(127,175,178,0.7)" }}>
+            <p className="mt-2 max-w-lg text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>
               Convierte correos, dudas, tiempos y oportunidades en un camino claro.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
@@ -111,17 +111,17 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Streak — lives on the always-dark hero, so text stays light */}
+          {/* Streak */}
           <div className="shrink-0 rounded-2xl p-4 ximo-glow-teal ximo-fade-up delay-200"
-            style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(30,206,206,0.25)", minWidth: 164 }}>
-            <p className="text-[9px] font-bold uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.5)" }}>Racha diaria</p>
-            <p className="text-4xl font-black" style={{ color: "#E8CE4E" }}>{STREAK.current}</p>
-            <p className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.5)" }}>días consecutivos</p>
-            <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full" style={{ background: "rgba(255,255,255,0.1)" }}>
+            style={{ background: "var(--hero-panel)", border: "1px solid var(--hero-panel-bd)", minWidth: 164 }}>
+            <p className="text-[9px] font-bold uppercase tracking-widest mb-1" style={{ color: "var(--text-label)" }}>Racha diaria</p>
+            <p className="text-4xl font-black" style={{ color: "var(--gold)" }}>{STREAK.current}</p>
+            <p className="text-[10px] mt-0.5" style={{ color: "var(--text-label)" }}>días consecutivos</p>
+            <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full" style={{ background: "var(--border-subtle)" }}>
               <div className="h-full rounded-full ximo-progress-bar"
-                style={{ width: `${streakPct}%`, background: "linear-gradient(90deg,#1ECECE,#E8CE4E)", "--progress-width": `${streakPct}%` } as React.CSSProperties} />
+                style={{ width: `${streakPct}%`, background: "linear-gradient(90deg,var(--teal),var(--gold))", "--progress-width": `${streakPct}%` } as React.CSSProperties} />
             </div>
-            <p className="mt-1 text-[9px]" style={{ color: "rgba(255,255,255,0.4)" }}>Meta: {STREAK.goal} días</p>
+            <p className="mt-1 text-[9px]" style={{ color: "var(--text-label)" }}>Meta: {STREAK.goal} días</p>
           </div>
         </div>
       </section>

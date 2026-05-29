@@ -196,7 +196,7 @@ function Composer({ onPost }: { onPost: (text: string, tag: Tag, imageName?: str
               <button type="button" onClick={submit}
                 disabled={!text.trim() || text.length > 280}
                 className="ximo-btn-press rounded-xl px-4 py-2 text-xs font-black transition-opacity hover:opacity-90 disabled:opacity-35 disabled:cursor-not-allowed"
-                style={{ background:"var(--teal)", color:"#07131F" }}>
+                style={{ background:"#1ECECE", color:"#07131F" }}>
                 Publicar
               </button>
             </div>
