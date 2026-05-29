@@ -254,7 +254,7 @@ function PostCard({
           </div>
 
           {/* Text */}
-          <p className="text-sm leading-relaxed" style={{ color:"rgba(245,245,240,0.8)" }}>
+          <p className="text-sm leading-relaxed" style={{ color:"var(--text-2)" }}>
             {post.text}
           </p>
 

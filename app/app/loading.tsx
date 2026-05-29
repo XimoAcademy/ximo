@@ -37,8 +37,8 @@ export default function AppLoading() {
         </div>
       </div>
 
-      <p className="text-sm font-bold" style={{ color: "#F5F5F0" }}>Cargando Ximo</p>
-      <p className="mt-1.5 text-xs" style={{ color: "rgba(245,245,240,0.45)" }}>
+      <p className="text-sm font-bold" style={{ color: "var(--text)" }}>Cargando Ximo</p>
+      <p className="mt-1.5 text-xs" style={{ color: "var(--text-2)" }}>
         Preparando tu centro de mando deportivo
       </p>
     </div>

@@ -43,7 +43,6 @@ const navGroups = [
     label: "Cuenta",
     items: [
       { href: "/app/perfil",    label: "Perfil",        icon: "◐" },
-      { href: "/app/settings",  label: "Configuración", icon: "⚙" },
     ],
   },
 ];
@@ -227,7 +226,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
               Ximo active
             </span>
           </div>
-          <p className="text-center text-[9px] font-medium tracking-wide" style={{ color: "rgba(255,255,255,0.1)" }}>
+          <p className="text-center text-[9px] font-medium tracking-wide" style={{ color: "var(--text-3)" }}>
             Ximo · México primero
           </p>
         </div>

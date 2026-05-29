@@ -169,6 +169,13 @@ h1, h2, h3, .font-display {
 /* Opt a specific element back to sans when a heading tag is used for UI chrome */
 .font-sans-ui { font-family: var(--font-geist-sans, system-ui, sans-serif) !important; letter-spacing: normal; }
 
+/* ── Text helpers ──
+   .text-brand  → themed primary text (dark in light mode, light in dark mode)
+   .text-on-dark → always light; use ONLY on permanently-dark surfaces
+                   (hero banners with hardcoded dark gradients, colored buttons) */
+.text-brand   { color: var(--text); }
+.text-on-dark { color: #F2F6F4 !important; }
+
 /* ── Ximo brand gradient (Image 2: cyan → green → lime → gold) ── */
 .ximo-brand-gradient {
   background: linear-gradient(120deg,

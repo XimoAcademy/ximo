@@ -91,7 +91,7 @@ export default function DashboardPage() {
               <Badge className="border" style={{ borderColor: "rgba(201,168,76,0.25)", background: "rgba(201,168,76,0.1)", color: "var(--gold)" }}>Suscripción activa</Badge>
               <Badge className="border" style={{ borderColor: "rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.4)" }}>Atleta fundador</Badge>
             </div>
-            <h1 className="text-2xl font-black text-white sm:text-3xl" style={{ textShadow: "0 2px 20px rgba(47,127,134,0.4)" }}>
+            <h1 className="text-2xl font-black text-on-dark sm:text-3xl" style={{ textShadow: "0 2px 20px rgba(47,127,134,0.4)" }}>
               Tu centro de mando deportivo.
             </h1>
             <p className="mt-2 max-w-lg text-sm leading-relaxed" style={{ color: "rgba(127,175,178,0.7)" }}>
@@ -134,7 +134,7 @@ export default function DashboardPage() {
             <DarkCard className="p-4 ximo-lift h-full">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-[10px] font-bold uppercase tracking-wide" style={{ color: "var(--text-label)" }}>{s.label}</p>
-                <span className="text-[11px] opacity-30 text-white">{s.icon}</span>
+                <span className="text-[11px] opacity-30 text-brand">{s.icon}</span>
               </div>
               <p className="text-2xl font-black" style={{ color: s.color }}>{s.value}</p>
               <p className="mt-0.5 text-[11px]" style={{ color: "var(--text-label)" }}>{s.sub}</p>
@@ -171,7 +171,7 @@ export default function DashboardPage() {
               {pipeline.map((stage) => (
                 <div key={stage.label} className="rounded-xl p-3 text-center transition-all duration-200 hover:scale-105"
                   style={{ background: "var(--surface-hover)", border: "1px solid var(--border-subtle)" }}>
-                  <p className="text-xl font-black text-white">{stage.count}</p>
+                  <p className="text-xl font-black text-brand">{stage.count}</p>
                   <p className="mt-0.5 text-[9px] font-bold leading-tight" style={{ color: "var(--teal)" }}>{stage.label}</p>
                   <div className="mt-2 h-0.5 w-full rounded-full" style={{ background: "var(--border)" }}>
                     <div className="h-full rounded-full ximo-progress-bar"
@@ -192,7 +192,7 @@ export default function DashboardPage() {
                     style={{ background: "var(--surface-hover)", border: "1px solid var(--border-subtle)" }}>
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2 mb-0.5">
-                        <h3 className="text-sm font-bold text-white truncate">{uni.name}</h3>
+                        <h3 className="text-sm font-bold text-brand truncate">{uni.name}</h3>
                         <span className="rounded-full px-2 py-0.5 text-[9px] font-bold"
                           style={{ background: uni.sc, color: uni.tc }}>{uni.status}</span>
                       </div>
@@ -210,7 +210,7 @@ export default function DashboardPage() {
                 {swimEvents.map((ev) => (
                   <div key={ev.event}>
                     <div className="mb-1.5 flex justify-between">
-                      <span className="text-xs font-bold text-white">{ev.event}</span>
+                      <span className="text-xs font-bold text-brand">{ev.event}</span>
                       <span className="font-mono text-[10px]" style={{ color: "var(--text-label)" }}>{ev.current}→{ev.target}s</span>
                     </div>
                     <div className="h-1.5 w-full overflow-hidden rounded-full" style={{ background: "var(--border-subtle)" }}>
@@ -236,7 +236,7 @@ export default function DashboardPage() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <p className="text-[11px] font-bold text-white">{post.user}</p>
+                      <p className="text-[11px] font-bold text-brand">{post.user}</p>
                       <span className="rounded-full px-2 py-0.5 text-[9px] font-bold"
                         style={{ background: post.tagC, color: post.tagT }}>{post.tag}</span>
                     </div>
@@ -270,7 +270,7 @@ export default function DashboardPage() {
                     {i + 1}
                   </span>
                   <div>
-                    <p className="text-[11px] font-bold leading-snug text-white">{task.title}</p>
+                    <p className="text-[11px] font-bold leading-snug text-brand">{task.title}</p>
                     <p className="mt-0.5 text-[10px] font-semibold" style={{ color: "var(--teal-muted)" }}>{task.date}</p>
                   </div>
                 </li>
@@ -286,7 +286,7 @@ export default function DashboardPage() {
                   style={r.you ? { background: "rgba(201,168,76,0.1)", border: "1px solid rgba(201,168,76,0.2)" } : { border: "1px solid var(--border-subtle)" }}>
                   <span className="w-4 text-center text-[10px] font-black" style={{ color: "var(--text-label)" }}>#{r.rank}</span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[11px] font-bold text-white truncate">
+                    <p className="text-[11px] font-bold text-brand truncate">
                       {r.name} {r.you && <span style={{ color: "var(--gold)" }}>(tú)</span>}
                     </p>
                     <p className="text-[10px]" style={{ color: "var(--text-label)" }}>{r.metric}</p>
@@ -299,14 +299,14 @@ export default function DashboardPage() {
           {/* Brands */}
           <DarkCard className="overflow-hidden ximo-fade-up delay-300">
             <div className="p-4" style={{ background: "linear-gradient(135deg,var(--border),transparent)" }}>
-              <p className="text-xs font-black text-white">Marcas y oportunidades</p>
+              <p className="text-xs font-black text-brand">Marcas y oportunidades</p>
               <p className="mt-0.5 text-[10px]" style={{ color: "var(--text-label)" }}>Curadas para atletas ximo</p>
             </div>
             <div className="p-4 space-y-1.5">
               {["Speedo","Arena","GNC","Aquasport"].map((brand) => (
                 <div key={brand} className="flex items-center justify-between rounded-lg px-3 py-2"
                   style={{ border: "1px solid var(--border-subtle)" }}>
-                  <p className="text-xs font-bold text-white">{brand}</p>
+                  <p className="text-xs font-bold text-brand">{brand}</p>
                   <span className="text-[9px] rounded-full px-2 py-0.5 font-bold"
                     style={{ border: "1px solid var(--border-strong)", color: "var(--teal-muted)", background: "var(--border-subtle)" }}>Activa</span>
                 </div>
@@ -329,7 +329,7 @@ export default function DashboardPage() {
                 { label: "SAT/TOEFL",   href: "/app/sat-toefl" },
               ].map((link) => (
                 <Link key={link.href} href={link.href}
-                  className="rounded-xl px-3 py-2.5 text-center text-[11px] font-bold text-white transition-all duration-200 hover:scale-105"
+                  className="rounded-xl px-3 py-2.5 text-center text-[11px] font-bold text-brand transition-all duration-200 hover:scale-105"
                   style={{ background: "var(--surface-hover)", border: "1px solid var(--border-subtle)", color: "var(--text-2)" }}>
                   {link.label}
                 </Link>

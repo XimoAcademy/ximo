@@ -88,17 +88,9 @@ export default function IntroPage() {
           - Live the Dream -
         </p>
 
-        {/* Secondary line (Spanish positioning) */}
-        <p
-          className="ximo-fade-up mt-10 max-w-xs text-sm font-medium leading-relaxed delay-500"
-          style={{ color: "rgba(255,255,255,0.78)" }}
-        >
-          Tu camino deportivo, organizado.
-        </p>
-
         {/* Touch hint — not a button */}
         <p
-          className="ximo-fade-up mt-16 text-[10px] font-semibold uppercase tracking-[0.4em] delay-700"
+          className="ximo-fade-up mt-16 text-[10px] font-semibold uppercase tracking-[0.4em] delay-500"
           style={{ color: "rgba(255,255,255,0.55)" }}
         >
           Toca para continuar

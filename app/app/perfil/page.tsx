@@ -50,8 +50,8 @@ const upcomingUpdates = [
 ];
 
 const CARD = {
-  background: "rgba(17,37,56,0.7)",
-  border: "1px solid rgba(47,127,134,0.14)",
+  background: "var(--surface)",
+  border: "1px solid var(--border)",
 } as const;
 
 function InfoGrid({ items }: { items: string[][] }) {
@@ -59,9 +59,9 @@ function InfoGrid({ items }: { items: string[][] }) {
     <div className="grid gap-2 sm:grid-cols-2">
       {items.map(([label, value]) => (
         <div key={label} className="rounded-xl px-3.5 py-2.5"
-          style={{ background: "rgba(47,127,134,0.06)", border: "1px solid rgba(47,127,134,0.1)" }}>
-          <p className="text-[9px] font-bold uppercase tracking-widest" style={{ color: "rgba(127,175,178,0.45)" }}>{label}</p>
-          <p className="mt-0.5 text-sm font-semibold" style={{ color: "#F5F5F0" }}>{value}</p>
+          style={{ background: "var(--surface-hover)", border: "1px solid var(--border-subtle)" }}>
+          <p className="text-[9px] font-bold uppercase tracking-widest" style={{ color: "var(--text-label)" }}>{label}</p>
+          <p className="mt-0.5 text-sm font-semibold" style={{ color: "var(--text)" }}>{value}</p>
         </div>
       ))}
     </div>
@@ -71,24 +71,10 @@ function InfoGrid({ items }: { items: string[][] }) {
 export default function PerfilPage() {
   return (
     <>
-      {/* Header with settings icon */}
-      <div className="mb-5 flex items-start justify-between">
-        <PageHeader
-          title="Perfil del atleta"
-          subtitle="Tu información deportiva, académica y personal organizada para recruiting."
-        />
-        <Link
-          href="/app/settings"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-all duration-200 hover:opacity-80"
-          style={{ background:"rgba(47,127,134,0.1)", border:"1px solid rgba(47,127,134,0.2)", color:"#7FAFB2" }}
-          title="Configuración"
-        >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-            <circle cx="8" cy="8" r="2.5" />
-            <path d="M8 1v1.5M8 13.5V15M1 8h1.5M13.5 8H15M2.93 2.93l1.06 1.06M12.01 12.01l1.06 1.06M2.93 13.07l1.06-1.06M12.01 3.99l1.06-1.06" />
-          </svg>
-        </Link>
-      </div>
+      <PageHeader
+        title="Perfil del atleta"
+        subtitle="Tu información deportiva, académica y personal organizada para recruiting."
+      />
 
       <div className="grid gap-5 lg:grid-cols-[1fr_288px]">
 
@@ -99,27 +85,27 @@ export default function PerfilPage() {
           {/* Profile hero */}
           <div className="overflow-hidden rounded-2xl ximo-card-3d" style={CARD}>
             <div className="relative p-6"
-              style={{ background: "linear-gradient(135deg, rgba(47,127,134,0.12) 0%, transparent 60%)" }}>
+              style={{ background: "linear-gradient(135deg, var(--border) 0%, transparent 60%)" }}>
               <div className="absolute top-0 right-0 h-40 w-40 rounded-full"
                 style={{ background: "radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%)", filter: "blur(30px)" }} />
               <div className="flex items-start gap-4">
                 <div className="flex h-16 w-16 items-center justify-center rounded-2xl text-xl font-black"
-                  style={{ background: "linear-gradient(135deg, rgba(201,168,76,0.2), rgba(201,168,76,0.08))", color: "#C9A84C", border: "1px solid rgba(201,168,76,0.2)" }}>
+                  style={{ background: "linear-gradient(135deg, rgba(201,168,76,0.2), rgba(201,168,76,0.08))", color: "var(--gold)", border: "1px solid rgba(201,168,76,0.2)" }}>
                   MZ
                 </div>
                 <div>
-                  <h2 className="text-xl font-black" style={{ color: "#F5F5F0" }}>{profile.name}</h2>
-                  <p className="mt-1 text-sm" style={{ color: "rgba(245,245,240,0.5)" }}>
+                  <h2 className="text-xl font-black" style={{ color: "var(--text)" }}>{profile.name}</h2>
+                  <p className="mt-1 text-sm" style={{ color: "var(--text-2)" }}>
                     {profile.sport} · {profile.country}
                   </p>
                   <span className="mt-2 inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold"
-                    style={{ background: "rgba(47,127,134,0.15)", border: "1px solid rgba(47,127,134,0.3)", color: "#7FAFB2" }}>
+                    style={{ background: "var(--border)", border: "1px solid var(--border-strong)", color: "var(--teal)" }}>
                     {profile.recruitingStatus}
                   </span>
                 </div>
               </div>
-              <p className="mt-4 text-sm" style={{ color: "rgba(245,245,240,0.4)" }}>
-                Objetivo: <span className="font-semibold" style={{ color: "#C9A84C" }}>{profile.goal}</span>
+              <p className="mt-4 text-sm" style={{ color: "var(--text-3)" }}>
+                Objetivo: <span className="font-semibold" style={{ color: "var(--gold)" }}>{profile.goal}</span>
               </p>
             </div>
           </div>
@@ -128,7 +114,7 @@ export default function PerfilPage() {
           <ScrollReveal delay={60}>
           {/* Deportiva */}
           <div className="rounded-2xl p-5 ximo-card-3d" style={CARD}>
-            <p className="mb-4 text-[10px] font-bold uppercase tracking-widest" style={{ color: "rgba(127,175,178,0.5)" }}>Información deportiva</p>
+            <p className="mb-4 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-label)" }}>Información deportiva</p>
             <InfoGrid items={athleticInfo} />
           </div>
           </ScrollReveal>
@@ -136,7 +122,7 @@ export default function PerfilPage() {
           <ScrollReveal delay={100}>
           {/* Académica */}
           <div className="rounded-2xl p-5 ximo-card-3d" style={CARD}>
-            <p className="mb-4 text-[10px] font-bold uppercase tracking-widest" style={{ color: "rgba(127,175,178,0.5)" }}>Información académica</p>
+            <p className="mb-4 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-label)" }}>Información académica</p>
             <InfoGrid items={academicInfo} />
           </div>
           </ScrollReveal>
@@ -144,12 +130,12 @@ export default function PerfilPage() {
           <ScrollReveal delay={140}>
           {/* Objetivos */}
           <div className="rounded-2xl p-5 ximo-card-3d" style={CARD}>
-            <p className="mb-4 text-[10px] font-bold uppercase tracking-widest" style={{ color: "rgba(127,175,178,0.5)" }}>Objetivos</p>
+            <p className="mb-4 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-label)" }}>Objetivos</p>
             <ul className="space-y-2.5">
               {goals.map((goal) => (
                 <li key={goal} className="flex items-start gap-2.5">
-                  <span className="mt-2 h-1 w-1 shrink-0 rounded-full" style={{ background: "#C9A84C" }} />
-                  <span className="text-sm" style={{ color: "rgba(245,245,240,0.65)" }}>{goal}</span>
+                  <span className="mt-2 h-1 w-1 shrink-0 rounded-full" style={{ background: "var(--gold)" }} />
+                  <span className="text-sm" style={{ color: "var(--text-2)" }}>{goal}</span>
                 </li>
               ))}
             </ul>
@@ -159,13 +145,13 @@ export default function PerfilPage() {
           <ScrollReveal delay={160}>
           {/* Redes */}
           <div className="rounded-2xl p-5 ximo-card-3d" style={CARD}>
-            <p className="mb-4 text-[10px] font-bold uppercase tracking-widest" style={{ color: "rgba(127,175,178,0.5)" }}>Redes sociales</p>
+            <p className="mb-4 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-label)" }}>Redes sociales</p>
             <div className="space-y-2">
               {social.map(([platform, handle]) => (
                 <div key={platform} className="flex items-center justify-between rounded-xl px-3.5 py-2.5"
-                  style={{ background: "rgba(47,127,134,0.05)", border: "1px solid rgba(47,127,134,0.1)" }}>
-                  <span className="text-sm font-semibold" style={{ color: "rgba(245,245,240,0.5)" }}>{platform}</span>
-                  <span className="text-sm font-semibold" style={{ color: "#7FAFB2" }}>{handle}</span>
+                  style={{ background: "var(--surface-hover)", border: "1px solid var(--border-subtle)" }}>
+                  <span className="text-sm font-semibold" style={{ color: "var(--text-2)" }}>{platform}</span>
+                  <span className="text-sm font-semibold" style={{ color: "var(--teal)" }}>{handle}</span>
                 </div>
               ))}
             </div>
@@ -178,10 +164,10 @@ export default function PerfilPage() {
 
           <ScrollReveal delay={80}>
           {/* Subscription status */}
-          <div className="rounded-2xl p-5 ximo-card-3d" style={{ ...CARD, border: "1px solid rgba(47,127,134,0.28)" }}>
+          <div className="rounded-2xl p-5 ximo-card-3d" style={{ ...CARD, border: "1px solid var(--border-strong)" }}>
             <div className="flex items-center gap-2 mb-4">
-              <div className="h-2 w-2 rounded-full ximo-glow-pulse" style={{ background: "#2F7F86" }} />
-              <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "rgba(127,175,178,0.6)" }}>
+              <div className="h-2 w-2 rounded-full ximo-glow-pulse" style={{ background: "var(--teal-muted)" }} />
+              <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-label)" }}>
                 Estado de suscripción
               </p>
             </div>
@@ -193,21 +179,21 @@ export default function PerfilPage() {
                 ["Estado", "Activo"],
               ].map(([k, v]) => (
                 <div key={k} className="flex items-center justify-between">
-                  <span className="text-xs" style={{ color: "rgba(245,245,240,0.4)" }}>{k}</span>
-                  <span className="text-xs font-bold" style={{ color: k === "Estado" ? "#6ee7b7" : "#F5F5F0" }}>{v}</span>
+                  <span className="text-xs" style={{ color: "var(--text-3)" }}>{k}</span>
+                  <span className="text-xs font-bold" style={{ color: k === "Estado" ? "#6ee7b7" : "var(--text)" }}>{v}</span>
                 </div>
               ))}
             </div>
             <div className="mt-4 flex gap-2">
               <button type="button"
                 className="ximo-btn-press flex-1 rounded-xl py-2.5 text-xs font-bold transition-all duration-200 hover:opacity-80"
-                style={{ background: "rgba(47,127,134,0.15)", border: "1px solid rgba(47,127,134,0.3)", color: "#7FAFB2" }}>
+                style={{ background: "var(--border)", border: "1px solid var(--border-strong)", color: "var(--teal)" }}>
                 Gestionar plan
               </button>
               <Link href="/subscribe" className="flex-1">
                 <button type="button"
                   className="ximo-btn-press w-full rounded-xl py-2.5 text-xs font-bold transition-all duration-200 hover:opacity-80"
-                  style={{ background: "transparent", border: "1px solid rgba(47,127,134,0.15)", color: "rgba(245,245,240,0.45)" }}>
+                  style={{ background: "transparent", border: "1px solid var(--border)", color: "var(--text-3)" }}>
                   Ver planes
                 </button>
               </Link>
@@ -218,13 +204,13 @@ export default function PerfilPage() {
           <ScrollReveal delay={120}>
           {/* Next updates */}
           <div className="rounded-2xl p-5 ximo-card-3d" style={CARD}>
-            <p className="mb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "rgba(127,175,178,0.5)" }}>Próximas actualizaciones</p>
-            <p className="mb-4 text-[10px]" style={{ color: "rgba(245,245,240,0.3)" }}>Para completar tu perfil</p>
+            <p className="mb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-label)" }}>Próximas actualizaciones</p>
+            <p className="mb-4 text-[10px]" style={{ color: "var(--text-3)" }}>Para completar tu perfil</p>
             <ul className="space-y-2">
               {upcomingUpdates.map((item) => (
                 <li key={item} className="flex items-start gap-2.5">
                   <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full" style={{ background: "rgba(201,168,76,0.5)" }} />
-                  <span className="text-xs" style={{ color: "rgba(245,245,240,0.45)" }}>{item}</span>
+                  <span className="text-xs" style={{ color: "var(--text-3)" }}>{item}</span>
                 </li>
               ))}
             </ul>
@@ -234,12 +220,12 @@ export default function PerfilPage() {
           <ScrollReveal delay={150}>
           {/* Visibility */}
           <div className="rounded-2xl p-5 ximo-card-3d" style={CARD}>
-            <p className="mb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "rgba(127,175,178,0.5)" }}>Visibilidad</p>
-            <p className="mt-3 text-3xl font-black" style={{ color: "#2F7F86" }}>12</p>
-            <p className="text-xs" style={{ color: "rgba(245,245,240,0.4)" }}>universidades con perfil activo</p>
+            <p className="mb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-label)" }}>Visibilidad</p>
+            <p className="mt-3 text-3xl font-black" style={{ color: "var(--teal-muted)" }}>12</p>
+            <p className="text-xs" style={{ color: "var(--text-3)" }}>universidades con perfil activo</p>
             <button type="button"
               className="ximo-btn-press mt-4 w-full rounded-xl py-2.5 text-xs font-bold transition-all duration-200 hover:opacity-80"
-              style={{ background: "rgba(47,127,134,0.08)", border: "1px solid rgba(47,127,134,0.2)", color: "rgba(127,175,178,0.7)" }}>
+              style={{ background: "var(--border-subtle)", border: "1px solid var(--border-strong)", color: "rgba(127,175,178,0.7)" }}>
               Copiar link de perfil
             </button>
           </div>
@@ -249,10 +235,10 @@ export default function PerfilPage() {
           {/* Brand CTA */}
           <div className="rounded-2xl p-5 ximo-card-3d" style={{ ...CARD, border: "1px solid rgba(201,168,76,0.15)" }}>
             <div className="flex items-start gap-3 mb-4">
-              <span className="text-base mt-0.5 shrink-0" style={{ color: "#C9A84C" }}>◈</span>
+              <span className="text-base mt-0.5 shrink-0" style={{ color: "var(--gold)" }}>◈</span>
               <div>
-                <p className="text-xs font-black" style={{ color: "#F5F5F0" }}>¿Representas una marca?</p>
-                <p className="mt-1 text-[11px] leading-relaxed" style={{ color: "rgba(245,245,240,0.4)" }}>
+                <p className="text-xs font-black" style={{ color: "var(--text)" }}>¿Representas una marca?</p>
+                <p className="mt-1 text-[11px] leading-relaxed" style={{ color: "var(--text-3)" }}>
                   Solicita revisión para promocionar productos, descuentos, patrocinios o campañas dentro de la comunidad Ximo.
                 </p>
               </div>
@@ -260,7 +246,7 @@ export default function PerfilPage() {
             <Link href="/app/promocionar">
               <button type="button"
                 className="ximo-btn-press w-full rounded-xl py-2.5 text-xs font-bold transition-all duration-200 hover:opacity-90"
-                style={{ background: "rgba(201,168,76,0.12)", border: "1px solid rgba(201,168,76,0.25)", color: "#C9A84C" }}>
+                style={{ background: "rgba(201,168,76,0.12)", border: "1px solid rgba(201,168,76,0.25)", color: "var(--gold)" }}>
                 Promocionar con Ximo →
               </button>
             </Link>
@@ -268,6 +254,32 @@ export default function PerfilPage() {
           </ScrollReveal>
         </div>
       </div>
+
+      {/* Settings access — at the bottom of the profile page */}
+      <ScrollReveal delay={120}>
+      <div className="mt-5 rounded-2xl p-5 ximo-card-3d" style={CARD}>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+              style={{ background: "var(--teal-bg)", border: "1px solid var(--teal-border)", color: "var(--teal)" }}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                <circle cx="8" cy="8" r="2.5" />
+                <path d="M8 1v1.5M8 13.5V15M1 8h1.5M13.5 8H15M2.93 2.93l1.06 1.06M12.01 12.01l1.06 1.06M2.93 13.07l1.06-1.06M12.01 3.99l1.06-1.06" />
+              </svg>
+            </span>
+            <div>
+              <p className="text-sm font-black" style={{ color: "var(--text)" }}>Configuración</p>
+              <p className="text-[11px]" style={{ color: "var(--text-label)" }}>Tema, cuenta y preferencias de la app</p>
+            </div>
+          </div>
+          <Link href="/app/settings"
+            className="ximo-btn-press rounded-xl px-5 py-2.5 text-xs font-bold transition-opacity hover:opacity-90"
+            style={{ background: "var(--teal-bg)", border: "1px solid var(--teal-border)", color: "var(--teal)" }}>
+            Abrir configuración →
+          </Link>
+        </div>
+      </div>
+      </ScrollReveal>
     </>
   );
 }

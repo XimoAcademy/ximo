@@ -117,7 +117,7 @@ export default function RecruitingPage() {
             <Badge className="border" style={{ borderColor:"rgba(47,127,134,0.3)", background:"var(--border)", color:"var(--teal)" }}>Recruiting</Badge>
             <Badge className="border" style={{ borderColor:"rgba(255,255,255,0.08)", background:"rgba(255,255,255,0.04)", color:"rgba(255,255,255,0.4)" }}>Clase 2027 · MX</Badge>
           </div>
-          <h1 className="text-2xl font-black text-white sm:text-3xl" style={{ textShadow:"0 2px 20px rgba(47,127,134,0.4)" }}>Recruiting</h1>
+          <h1 className="text-2xl font-black text-on-dark sm:text-3xl" style={{ textShadow:"0 2px 20px rgba(47,127,134,0.4)" }}>Recruiting</h1>
           <p className="mt-1.5 max-w-lg text-sm leading-relaxed" style={{ color:"rgba(255,255,255,0.6)" }}>
             Visualiza tu proceso completo: universidades, coaches, respuestas, llamadas, becas, documentos y próximas decisiones.
           </p>
@@ -126,7 +126,7 @@ export default function RecruitingPage() {
         <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-5">
           {stats.map(s => (
             <div key={s.label} className="rounded-xl p-3 text-center" style={{ background:"rgba(255,255,255,0.06)", border:"1px solid rgba(30,206,206,0.18)" }}>
-              <p className="text-xl font-black text-white">{s.value}</p>
+              <p className="text-xl font-black text-on-dark">{s.value}</p>
               <p className="text-[10px] font-bold" style={{ color:"rgba(255,255,255,0.5)" }}>{s.label}</p>
             </div>
           ))}
@@ -146,7 +146,7 @@ export default function RecruitingPage() {
                 style={{ background:"var(--surface-hover)", border:"1px solid var(--border-subtle)" }}>
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <div>
-                    <p className="text-sm font-black text-white leading-tight">{uni.name}</p>
+                    <p className="text-sm font-black text-brand leading-tight">{uni.name}</p>
                     <p className="text-[10px] mt-0.5" style={{ color:"var(--text-label)" }}>{uni.div} · {uni.loc} · {uni.coach}</p>
                   </div>
                   <Pill label={uni.stage} bg={sc.bg} color={sc.color} />
@@ -175,7 +175,7 @@ export default function RecruitingPage() {
                 style={{ background:"var(--surface-hover)", border:"1px solid var(--border-subtle)" }}>
                 <div className="mt-0.5 h-2 w-2 shrink-0 rounded-full" style={{ background:PRIORITY_C[p.urgency as Priority] }} />
                 <div className="flex-1 min-w-0">
-                  <p className="text-[11px] font-bold text-white leading-snug">{p.task}</p>
+                  <p className="text-[11px] font-bold text-brand leading-snug">{p.task}</p>
                   <div className="mt-1 flex gap-2">
                     <span className="text-[9px] font-bold uppercase" style={{ color:"var(--text-label)" }}>{p.school}</span>
                     <span className="text-[9px] font-bold" style={{ color:"var(--teal-muted)" }}>{p.deadline}</span>
@@ -198,7 +198,7 @@ export default function RecruitingPage() {
                   style={{ border:"1px solid var(--border-subtle)" }}>
                   <Pill label={s} bg={c.bg} color={c.color} />
                   <p className="flex-1 text-[10px] truncate" style={{ color:"var(--text-label)" }}>{names.join(", ") || "—"}</p>
-                  <span className="text-xs font-black text-white">{names.length}</span>
+                  <span className="text-xs font-black text-brand">{names.length}</span>
                 </div>
               );
             })}
@@ -219,7 +219,7 @@ export default function RecruitingPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-sm font-bold text-white">{c.name}</p>
+                  <p className="text-sm font-bold text-brand">{c.name}</p>
                   <span className="text-[10px]" style={{ color:"var(--text-label)" }}>{c.school}</span>
                   <Pill label={c.status}
                     bg={c.status==="Activo"?"rgba(5,150,105,0.12)":c.status==="Llamada"?"var(--border)":"rgba(94,112,128,0.1)"}
@@ -259,7 +259,7 @@ export default function RecruitingPage() {
                 </tr>
               ))}
               <tr style={{ borderTop:"2px solid var(--border-strong)" }}>
-                <td className="py-2.5 pr-4 text-[11px] font-black text-white">Total</td>
+                <td className="py-2.5 pr-4 text-[11px] font-black text-brand">Total</td>
                 {matrixSchools.map((_, i) => {
                   const t = matrixRows.reduce((s, r) => s + r.scores[i], 0);
                   return <td key={i} className="py-2.5 text-center">
@@ -284,7 +284,7 @@ export default function RecruitingPage() {
                 {i + 1}
               </span>
               <div>
-                <p className="text-[11px] font-bold text-white leading-snug">{step.task}</p>
+                <p className="text-[11px] font-bold text-brand leading-snug">{step.task}</p>
                 <p className="mt-0.5 text-[10px] font-semibold" style={{ color:"var(--teal-muted)" }}>{step.by}</p>
               </div>
             </div>
