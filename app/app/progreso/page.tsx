@@ -79,6 +79,47 @@ function fmtDate(iso: string): string {
   return d.toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "2-digit" });
 }
 
+// ── Themed dropdown (readable in both themes, rounded, on-brand) ──
+function ThemedSelect({ value, options, onChange }: { value: string; options: string[]; onChange: (v: string) => void }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="relative">
+      <button type="button" onClick={() => setOpen(o => !o)}
+        className="flex w-full items-center justify-between gap-2 rounded-2xl px-3.5 py-2.5 text-sm outline-none transition-colors"
+        style={{ background: "var(--surface-hover)", border: "1px solid var(--border)", color: "var(--text)" }}>
+        <span className="truncate">{value}</span>
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--text-label)" strokeWidth="1.6"
+          strokeLinecap="round" strokeLinejoin="round"
+          style={{ transform: open ? "rotate(180deg)" : "none", transition: "transform 0.2s ease" }}>
+          <path d="M2.5 4.5L6 8l3.5-3.5" />
+        </svg>
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <ul className="absolute left-0 right-0 z-50 mt-2 overflow-hidden rounded-2xl p-1.5"
+            style={{ background: "var(--bg-surf)", border: "1px solid var(--border)", boxShadow: "0 16px 40px rgba(0,0,0,0.35)" }}>
+            {options.map((o) => {
+              const sel = o === value;
+              return (
+                <li key={o}>
+                  <button type="button" onClick={() => { onChange(o); setOpen(false); }}
+                    className="w-full rounded-xl px-3 py-2 text-left text-sm transition-colors hover:bg-[var(--surface-hover)]"
+                    style={sel
+                      ? { background: "var(--teal-bg)", color: "var(--teal)", fontWeight: 600 }
+                      : { color: "var(--text-2)" }}>
+                    {o}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      )}
+    </div>
+  );
+}
+
 // ── Progression chart (SVG, no library) with interactive hover ──
 function ProgressionChart({ swims, target }: { swims: Swim[]; target?: number }) {
   const [hover, setHover] = useState<number | null>(null);
@@ -428,8 +469,7 @@ export default function ProgresoPage() {
           ))}
         </div>
         <button type="button" onClick={() => setShowForm(v => !v)}
-          className="ximo-btn-press rounded-xl px-4 py-2 text-xs font-bold transition-opacity hover:opacity-90"
-          style={{ background: "#1ECECE", color: "#07131F" }}>
+          className="ximo-glass-btn teal text-xs">
           {showForm ? "Cerrar" : "+ Agregar marca"}
         </button>
       </div>
@@ -442,43 +482,33 @@ export default function ProgresoPage() {
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             <div>
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--text-label)" }}>Evento</label>
-              <select value={fEvent} onChange={e => setFEvent(e.target.value)}
-                className="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
-                style={{ background: "var(--surface-hover)", border: "1px solid var(--border)", color: "var(--text)" }}>
-                {EVENTS.map(ev => <option key={ev} value={ev}>{ev}</option>)}
-              </select>
+              <ThemedSelect value={fEvent} options={EVENTS} onChange={setFEvent} />
             </div>
             <div>
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--text-label)" }}>Curso</label>
-              <select value={fCourse} onChange={e => setFCourse(e.target.value as Course)}
-                className="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
-                style={{ background: "var(--surface-hover)", border: "1px solid var(--border)", color: "var(--text)" }}>
-                {COURSES.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
+              <ThemedSelect value={fCourse} options={COURSES} onChange={(v) => setFCourse(v as Course)} />
             </div>
             <div>
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--text-label)" }}>Tiempo</label>
               <input value={fTime} onChange={e => setFTime(e.target.value)} placeholder="26.04 o 1:02.45"
-                className="w-full rounded-xl px-3 py-2.5 text-sm outline-none font-mono"
+                className="w-full rounded-2xl px-3.5 py-2.5 text-sm outline-none font-mono"
                 style={{ background: "var(--surface-hover)", border: "1px solid var(--border)", color: "var(--text)" }} />
             </div>
             <div>
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--text-label)" }}>Fecha</label>
               <input type="date" value={fDate} onChange={e => setFDate(e.target.value)}
-                className="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
+                className="w-full rounded-2xl px-3.5 py-2.5 text-sm outline-none"
                 style={{ background: "var(--surface-hover)", border: "1px solid var(--border)", color: "var(--text)" }} />
             </div>
             <div>
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--text-label)" }}>Competencia</label>
               <input value={fMeet} onChange={e => setFMeet(e.target.value)} placeholder="Nombre del meet"
-                className="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
+                className="w-full rounded-2xl px-3.5 py-2.5 text-sm outline-none"
                 style={{ background: "var(--surface-hover)", border: "1px solid var(--border)", color: "var(--text)" }} />
             </div>
           </div>
           {fErr && <p className="mt-3 text-xs font-semibold" style={{ color: "var(--error)" }}>{fErr}</p>}
-          <button type="submit"
-            className="ximo-btn-press mt-4 rounded-xl px-5 py-2.5 text-xs font-bold transition-opacity hover:opacity-90"
-            style={{ background: "#1ECECE", color: "#07131F" }}>
+          <button type="submit" className="ximo-glass-btn teal mt-4 text-xs">
             Guardar marca
           </button>
         </form>

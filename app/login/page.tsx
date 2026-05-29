@@ -118,15 +118,7 @@ export default function LoginPage() {
           {/* Buttons */}
           <div className="ximo-fade-up delay-200 mt-6 space-y-3">
             <Link href="/app">
-              <button
-                type="button"
-                className="ximo-btn-press w-full rounded-xl py-3.5 text-sm font-bold transition-all duration-200 hover:opacity-90"
-                style={{
-                  background: "linear-gradient(135deg, #2F7F86, #1F5F66)",
-                  color: "#F5F5F0",
-                  boxShadow: "0 4px 24px rgba(47,127,134,0.3)",
-                }}
-              >
+              <button type="button" className="ximo-glass-btn teal w-full text-sm">
                 Entrar
               </button>
             </Link>

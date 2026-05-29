@@ -163,8 +163,7 @@ export default function SettingsPage() {
           <button
             type="button"
             onClick={handleSave}
-            className="ximo-btn-press shrink-0 rounded-xl px-5 py-2.5 text-xs font-black transition-opacity hover:opacity-90"
-            style={{ background:"#1ECECE", color:"#07131F" }}
+            className="ximo-glass-btn teal shrink-0 text-xs"
           >
             {saved ? "Cambios guardados" : "Guardar cambios"}
           </button>

@@ -76,15 +76,7 @@ export default function SubscribePage() {
             </ul>
 
             <Link href="/app" className="mt-8 block">
-              <button
-                type="button"
-                className="ximo-btn-press w-full rounded-xl py-3.5 text-sm font-bold transition-all duration-200 hover:opacity-80"
-                style={{
-                  background: "rgba(47,127,134,0.15)",
-                  border: "1px solid rgba(47,127,134,0.3)",
-                  color: "#7FAFB2",
-                }}
-              >
+              <button type="button" className="ximo-glass-btn dark w-full text-sm">
                 Elegir plan mensual
               </button>
             </Link>
@@ -131,15 +123,7 @@ export default function SubscribePage() {
             </ul>
 
             <Link href="/app" className="mt-8 block">
-              <button
-                type="button"
-                className="ximo-btn-press w-full rounded-xl py-3.5 text-sm font-bold transition-all duration-200 hover:opacity-90"
-                style={{
-                  background: "linear-gradient(135deg, #2F7F86, #1F5F66)",
-                  color: "#F5F5F0",
-                  boxShadow: "0 4px 24px rgba(47,127,134,0.35)",
-                }}
-              >
+              <button type="button" className="ximo-glass-btn teal w-full text-sm">
                 Elegir plan anual
               </button>
             </Link>

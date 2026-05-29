@@ -68,18 +68,23 @@ export default function AppShell({ children }: { children: ReactNode }) {
         }}
       >
 
-        {/* Logo — emblem + Argent wordmark */}
+        {/* Logo — cropped emblem (zoomed past the image whitespace) + Argent wordmark */}
         <div className="shrink-0 border-b px-4 py-4" style={{ borderColor: "var(--border-subtle)" }}>
-          <Link href="/app" className="flex items-center gap-2.5">
-            <Image
-              src="/brand/ximo-logo.png"
-              alt="Ximo"
-              width={36}
-              height={36}
-              className="h-9 w-9 shrink-0 object-contain"
-              priority
+          <Link href="/app" className="flex items-center gap-2">
+            <div
+              aria-label="Ximo"
+              role="img"
+              className="shrink-0"
+              style={{
+                width: 60,
+                height: 60,
+                backgroundImage: "url(/brand/ximo-logo.png)",
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "center 46%",
+                backgroundSize: "480%",
+              }}
             />
-            <span className="font-display text-xl font-bold leading-none" style={{ color: "var(--text)" }}>
+            <span className="font-display text-2xl font-bold leading-none" style={{ color: "var(--text)" }}>
               Ximo
             </span>
           </Link>
