@@ -156,16 +156,10 @@ function Composer({ onPost }: { onPost: (text: string, tag: Tag, imageName?: str
             {/* Tag picker */}
             <div className="flex flex-wrap gap-1.5">
               {TAGS.map((t) => {
-                const s = TAG_STYLE[t];
                 const active = tag === t;
                 return (
                   <button key={t} type="button" onClick={() => setTag(t)}
-                    className="rounded-full px-2.5 py-0.5 text-[10px] font-bold transition-all duration-150"
-                    style={{
-                      background: active ? s.bg : "transparent",
-                      color: active ? s.color : "var(--text-label)",
-                      border: active ? `1px solid ${s.color}40` : "1px solid var(--border)",
-                    }}>
+                    className={`ximo-glass-chip rounded-full px-2.5 py-0.5 text-[10px] font-bold ${active ? "active" : ""}`}>
                     {t}
                   </button>
                 );
@@ -406,12 +400,7 @@ export default function ComunidadPage() {
             const active = filter === f;
             return (
               <button key={f} type="button" onClick={() => setFilter(f)}
-                className="shrink-0 rounded-xl px-3.5 py-2 text-xs font-bold transition-all duration-150"
-                style={{
-                  background: active ? "rgba(30,206,206,0.14)" : "var(--surface-hover)",
-                  border: active ? "1px solid rgba(30,206,206,0.35)" : "1px solid var(--border)",
-                  color: active ? "var(--teal)" : "var(--text-label)",
-                }}>
+                className={`ximo-glass-chip shrink-0 rounded-xl px-3.5 py-2 text-xs font-bold ${active ? "active" : ""}`}>
                 {f}
               </button>
             );
@@ -518,10 +507,7 @@ export default function ComunidadPage() {
                     next.has(a.name) ? next.delete(a.name) : next.add(a.name);
                     return next;
                   })}
-                  className="rounded-xl px-2.5 py-1 text-[10px] font-bold transition-all duration-150"
-                  style={following.has(a.name)
-                    ? { background:"rgba(30,206,206,0.12)", color:"var(--teal)", border:"1px solid rgba(30,206,206,0.25)" }
-                    : { background:"var(--border-subtle)", color:"var(--text-label)", border:"1px solid var(--border)" }}>
+                  className={`ximo-glass-chip rounded-xl px-2.5 py-1 text-[10px] font-bold ${following.has(a.name) ? "active" : ""}`}>
                   {following.has(a.name) ? "Siguiendo" : "Seguir"}
                 </button>
               </div>
@@ -536,9 +522,7 @@ export default function ComunidadPage() {
           <p className="text-[11px] leading-relaxed mb-3" style={{ color:"var(--text-3)" }}>
             Conecta con atletas serios en proceso de recruiting.
           </p>
-          <Link href="/app/promocionar"
-            className="block text-center rounded-xl py-2 text-xs font-bold transition-opacity hover:opacity-80"
-            style={{ background:"rgba(201,168,76,0.12)", color:"var(--gold)", border:"1px solid rgba(201,168,76,0.22)" }}>
+          <Link href="/app/promocionar" className="ximo-glass-btn gold block w-full text-center text-xs">
             Promocionar con Ximo →
           </Link>
         </div>

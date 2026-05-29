@@ -460,10 +460,7 @@ export default function ProgresoPage() {
         <div className="flex gap-1.5 rounded-xl p-1" style={INNER}>
           {COURSES.map((c) => (
             <button key={c} type="button" onClick={() => setCourse(c)}
-              className="rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all duration-150"
-              style={course === c
-                ? { background: "var(--teal-bg)", color: "var(--teal)", border: "1px solid var(--teal-border)" }
-                : { background: "transparent", color: "var(--text-label)", border: "1px solid transparent" }}>
+              className={`ximo-glass-chip rounded-lg px-3.5 py-1.5 text-xs font-bold ${course === c ? "active" : ""}`}>
               {c}
             </button>
           ))}
@@ -532,10 +529,7 @@ export default function ProgresoPage() {
               const active = selEvent === ev;
               return (
                 <button key={ev} type="button" onClick={() => setSelEvent(ev)} disabled={!has}
-                  className="rounded-lg px-2.5 py-1 text-[11px] font-bold transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed"
-                  style={active
-                    ? { background: "var(--teal-bg)", color: "var(--teal)", border: "1px solid var(--teal-border)" }
-                    : { background: "var(--surface-hover)", color: "var(--text-label)", border: "1px solid var(--border-subtle)" }}>
+                  className={`ximo-glass-chip rounded-lg px-2.5 py-1 text-[11px] font-bold ${active ? "active" : ""}`}>
                   {ev}
                 </button>
               );

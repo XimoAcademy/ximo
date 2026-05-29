@@ -177,20 +177,8 @@ export default function AppShell({ children }: { children: ReactNode }) {
                         <Link
                           key={item.href}
                           href={item.href}
-                          className="flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-[12px] font-medium transition-all duration-150 hover:bg-[var(--surface-hover)]"
-                          style={
-                            active
-                              ? {
-                                  background: "var(--teal-bg)",
-                                  color: "var(--teal)",
-                                  borderLeft: "2px solid var(--teal)",
-                                  boxShadow: "inset 0 0 12px var(--surface-hover)",
-                                }
-                              : {
-                                  color: "var(--text-2)",
-                                  borderLeft: "2px solid transparent",
-                                }
-                          }
+                          className={`flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-[12px] font-medium transition-all duration-150 ${active ? "ximo-glass-chip active" : "hover:bg-[var(--surface-hover)]"}`}
+                          style={active ? undefined : { color: "var(--text-2)" }}
                         >
                           <span className="w-3.5 shrink-0 text-center text-[10px] opacity-50">
                             {item.icon}
@@ -256,11 +244,8 @@ export default function AppShell({ children }: { children: ReactNode }) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="shrink-0 rounded-lg px-3 py-1.5 text-[11px] font-semibold whitespace-nowrap transition-colors"
-                  style={{
-                    color: active ? "var(--teal)" : "var(--text-2)",
-                    background: active ? "var(--teal-bg)" : "transparent",
-                  }}
+                  className={`shrink-0 rounded-lg px-3 py-1.5 text-[11px] font-semibold whitespace-nowrap transition-colors ${active ? "ximo-glass-chip active" : ""}`}
+                  style={active ? undefined : { color: "var(--text-2)" }}
                 >
                   {item.label}
                 </Link>

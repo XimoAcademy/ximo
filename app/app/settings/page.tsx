@@ -126,12 +126,8 @@ export default function SettingsPage() {
                 key={t.id}
                 type="button"
                 onClick={() => setTheme(t.id)}
-                className="ximo-btn-press flex flex-col gap-3 rounded-2xl p-3 text-left transition-all duration-200"
-                style={{
-                  background: active ? "var(--teal-bg)" : "rgba(47,127,134,0.04)",
-                  border: active ? "2px solid var(--teal)" : "1.5px solid var(--border)",
-                  outline: "none",
-                }}
+                className={`ximo-glass-chip flex flex-col gap-3 rounded-2xl p-3 text-left ${active ? "active" : ""}`}
+                style={{ outline: "none" }}
               >
                 {t.preview}
                 <div>
