@@ -150,8 +150,8 @@
   --hero-panel:    rgba(255,255,255,0.55);
   --hero-panel-bd: rgba(18,138,150,0.22);
 
-  /* Light-mode app background: very light diagonal — teal-blue (top-left) → gold (bottom-right) */
-  --app-bg: linear-gradient(135deg, #D6EEF3 0%, #E7F1E3 48%, #F6EDD2 100%);
+  /* Light-mode app background: very light diagonal, ONLY teal-blue (top-left) → gold (bottom-right) */
+  --app-bg: linear-gradient(135deg, #CFEAF2 0%, #F5EBCD 100%);
 
   --background: var(--bg);
   --foreground: var(--text);

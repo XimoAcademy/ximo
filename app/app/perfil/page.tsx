@@ -252,7 +252,14 @@ export default function PerfilPage() {
               </div>
             </div>
             <Link href="/app/promocionar">
-              <button type="button" className="ximo-glass-btn gold w-full text-xs">
+              <button type="button"
+                className="w-full rounded-xl py-2.5 text-xs font-bold transition-all duration-200 hover:opacity-90"
+                style={{
+                  background: "linear-gradient(180deg, #F2DD72 0%, #D8B652 50%, #C9A84C 100%)",
+                  color: "#3A2E0A",
+                  border: "1px solid rgba(255,255,255,0.35)",
+                  boxShadow: "0 4px 16px rgba(201,168,76,0.4), inset 0 1px 0 rgba(255,255,255,0.5)",
+                }}>
                 Promocionar con Ximo →
               </button>
             </Link>
