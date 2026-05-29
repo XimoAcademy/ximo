@@ -85,8 +85,8 @@ function ThemedSelect({ value, options, onChange }: { value: string; options: st
   return (
     <div className="relative">
       <button type="button" onClick={() => setOpen(o => !o)}
-        className="flex w-full items-center justify-between gap-2 rounded-2xl px-3.5 py-2.5 text-sm outline-none transition-colors"
-        style={{ background: "var(--surface-hover)", border: "1px solid var(--border)", color: "var(--text)" }}>
+        className="ximo-glass-chip flex w-full items-center justify-between gap-2 rounded-2xl px-3.5 py-2.5 text-sm outline-none"
+        style={{ color: "var(--text)" }}>
         <span className="truncate">{value}</span>
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--text-label)" strokeWidth="1.6"
           strokeLinecap="round" strokeLinejoin="round"

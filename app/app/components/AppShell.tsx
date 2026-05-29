@@ -57,7 +57,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
   const toggle = (l: string) => setCollapsed((p) => ({ ...p, [l]: !p[l] }));
 
   return (
-    <div className="flex min-h-screen" style={{ background: "var(--bg)" }}>
+    <div className="flex min-h-screen" style={{ background: "transparent" }}>
 
       {/* ── Sidebar ── */}
       <aside
@@ -254,7 +254,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
 
-        <main className="flex-1 overflow-y-auto" style={{ background: "var(--bg)" }}>
+        <main className="flex-1 overflow-y-auto" style={{ background: "transparent" }}>
           <div className="mx-auto max-w-[1400px] p-4 sm:p-5 lg:p-6">
             {children}
           </div>

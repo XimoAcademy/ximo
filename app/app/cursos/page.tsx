@@ -41,7 +41,7 @@ export default function CursosPage() {
             </div>
             <p className="mb-4 flex-1 text-sm leading-relaxed" style={{ color:"var(--text-3)" }}>{c.desc}</p>
             <p className="text-[11px]" style={{ color:"var(--text-label)" }}>{c.lessons} lecciones</p>
-            <button type="button" className="mt-3 text-left text-xs font-semibold opacity-50 cursor-not-allowed" style={{ color:"var(--teal)" }} disabled>
+            <button type="button" className="ximo-glass-chip mt-3 rounded-xl px-3 py-2 text-xs font-semibold" style={{ color:"var(--teal)" }} disabled>
               Acceso próximamente →
             </button>
           </div>

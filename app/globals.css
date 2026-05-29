@@ -72,6 +72,9 @@
   --hero-panel:    rgba(255,255,255,0.07);
   --hero-panel-bd: rgba(30,206,206,0.22);
 
+  /* ── App page background (solid in dark; diagonal gradient in light) ── */
+  --app-bg: var(--bg);
+
   /* ── Typography ──
      Argent CF is the brand display serif. Fraunces covers any glyphs the
      Argent demo lacks (accented Spanish chars). Georgia is the final fallback. */
@@ -147,6 +150,9 @@
   --hero-panel:    rgba(255,255,255,0.55);
   --hero-panel-bd: rgba(18,138,150,0.22);
 
+  /* Light-mode app background: very light diagonal — teal-blue (top-left) → gold (bottom-right) */
+  --app-bg: linear-gradient(135deg, #D6EEF3 0%, #E7F1E3 48%, #F6EDD2 100%);
+
   --background: var(--bg);
   --foreground: var(--text);
 }
@@ -161,12 +167,13 @@
 
 /* ── Base ── */
 body {
-  background: var(--bg);
+  background: var(--app-bg);
+  background-attachment: fixed;
   color: var(--text);
   font-family: var(--font-geist-sans, system-ui, Arial, sans-serif);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  transition: background 0.4s ease, color 0.4s ease;
+  transition: color 0.4s ease;
 }
 
 /* ── Display serif (Argent-style) for all headings & brand text ──

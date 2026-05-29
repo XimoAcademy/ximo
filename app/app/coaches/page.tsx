@@ -96,7 +96,7 @@ export default function CoachesPage() {
             <div key={m.coach} className="rounded-xl p-4" style={INNER}>
               <p className="text-sm font-bold" style={{ color:"var(--text)" }}>{m.coach}</p>
               <p className="mt-2 text-sm leading-relaxed" style={{ color:"var(--text-2)" }}>{m.preview}</p>
-              <button type="button" className="mt-3 text-xs font-semibold transition-opacity hover:opacity-70" style={{ color:"var(--teal)" }}>
+              <button type="button" className="ximo-glass-chip mt-3 rounded-xl px-3 py-2 text-xs font-semibold" style={{ color:"var(--teal)" }}>
                 Usar plantilla →
               </button>
             </div>

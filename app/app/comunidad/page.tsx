@@ -144,7 +144,7 @@ function Composer({ onPost }: { onPost: (text: string, tag: Tag, imageName?: str
                 {imageName}
               </span>
               <button type="button" onClick={() => setImageName(undefined)}
-                className="text-xs transition-opacity hover:opacity-60" style={{ color:"var(--text-label)" }}>
+                className="ximo-glass-chip flex h-5 w-5 items-center justify-center rounded-full text-xs leading-none">
                 ×
               </button>
             </div>
@@ -170,8 +170,8 @@ function Composer({ onPost }: { onPost: (text: string, tag: Tag, imageName?: str
               {/* Media upload */}
               <input ref={fileRef} type="file" accept="image/*,video/*" className="hidden" onChange={handleFile} />
               <button type="button" onClick={() => fileRef.current?.click()}
-                className="flex h-8 w-8 items-center justify-center rounded-xl transition-opacity hover:opacity-70"
-                style={{ background:"var(--border-subtle)", border:"1px solid var(--border)", color:"var(--teal)" }}
+                className="ximo-glass-chip flex h-8 w-8 items-center justify-center rounded-xl"
+                style={{ color:"var(--teal)" }}
                 title="Adjuntar imagen o video">
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
                   <rect x="1" y="3" width="12" height="9" rx="1.5"/>
@@ -270,8 +270,8 @@ function PostCard({
           <div className="mt-3 flex items-center gap-1" style={{ borderTop:"1px solid var(--border-subtle)", paddingTop:"10px" }}>
             {/* Like */}
             <button type="button" onClick={() => onLike(post.id)}
-              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-all duration-150 hover:bg-[rgba(248,113,113,0.08)]"
-              style={{ color: post.likedByMe ? "#f87171" : "var(--text-label)" }}>
+              className="ximo-glass-chip flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold"
+              style={post.likedByMe ? { color: "#f87171" } : undefined}>
               <svg width="13" height="13" viewBox="0 0 13 13" fill={post.likedByMe ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.5">
                 <path d="M6.5 11S1 7.5 1 4a2.5 2.5 0 0 1 5.5 0A2.5 2.5 0 0 1 12 4c0 3.5-5.5 7-5.5 7Z"/>
               </svg>
@@ -280,8 +280,7 @@ function PostCard({
 
             {/* Comment */}
             <button type="button" onClick={() => setOpen(!open)}
-              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-all duration-150 hover:bg-[rgba(30,206,206,0.06)]"
-              style={{ color:"var(--text-label)" }}>
+              className="ximo-glass-chip flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold">
               <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
                 <path d="M11 7.5A4.5 4.5 0 0 1 2 6a4.5 4.5 0 0 1 9 1.5v0A1.5 1.5 0 0 1 9.5 9L7 11.5V9H4.5"/>
               </svg>
@@ -290,8 +289,7 @@ function PostCard({
 
             {/* Share */}
             <button type="button"
-              className="ml-auto flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-all duration-150 hover:bg-[var(--border-subtle)]"
-              style={{ color:"var(--text-label)" }}>
+              className="ximo-glass-chip ml-auto flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold">
               <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
                 <path d="M8 2l3 3-3 3M11 5H5a3 3 0 0 0 0 6h1"/>
               </svg>
@@ -471,8 +469,7 @@ export default function ComunidadPage() {
           <div className="space-y-2">
             {TRENDING.map(({ label, posts: cnt }, i) => (
               <button key={label} type="button"
-                className="flex w-full items-center justify-between rounded-xl px-2.5 py-2 transition-colors hover:bg-[var(--border-subtle)]"
-                style={{ border:"1px solid transparent" }}>
+                className="ximo-glass-chip flex w-full items-center justify-between rounded-xl px-2.5 py-2">
                 <div className="flex items-center gap-2">
                   <span className="w-4 text-center text-[10px] font-black" style={{ color:"var(--text-label)" }}>
                     #{i+1}
