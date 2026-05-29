@@ -35,7 +35,7 @@ export default function MarcasPage() {
     <div className="space-y-5">
       {/* Header */}
       <div className="ximo-fade-up">
-        <h1 className="text-xl font-black tracking-tight sm:text-2xl" style={{ color:"var(--text)" }}>Marcas y oportunidades</h1>
+        <h1 className="text-2xl font-black sm:text-3xl" style={{ color:"var(--text)" }}>Marcas y oportunidades</h1>
         <p className="mt-1 max-w-xl text-sm" style={{ color:"var(--text-label)" }}>
           Un espacio para conectar atletas con marcas alineadas al deporte, rendimiento y crecimiento.
         </p>

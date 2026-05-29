@@ -66,7 +66,7 @@ export default function LoginPage() {
 
           {/* Heading */}
           <div className="ximo-fade-up mb-8">
-            <h1 className="text-2xl font-black tracking-tight" style={{ color: "#F5F5F0" }}>
+            <h1 className="text-3xl font-black" style={{ color: "#F5F5F0" }}>
               Inicia sesión en Ximo
             </h1>
             <p className="mt-2 text-sm leading-relaxed" style={{ color: "rgba(245,245,240,0.45)" }}>

@@ -170,10 +170,15 @@ body {
 }
 
 /* ── Display serif (Argent-style) for all headings & brand text ──
-   Body, labels, data stay on the sans for product legibility. */
+   Body, labels, data stay on the sans for product legibility.
+   Argent is a high-contrast serif: it needs OPEN tracking + relaxed
+   line-height to read well, especially at heading (non-hero) sizes.
+   Negative tracking made it cramped — use slightly positive instead. */
 h1, h2, h3, .font-display {
   font-family: var(--font-display);
-  letter-spacing: -0.02em;
+  letter-spacing: 0.015em;
+  line-height: 1.18;
+  word-spacing: 0.04em;
 }
 
 /* Opt a specific element back to sans when a heading tag is used for UI chrome */

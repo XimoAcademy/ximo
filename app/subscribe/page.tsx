@@ -35,7 +35,7 @@ export default function SubscribePage() {
 
         {/* Heading */}
         <div className="ximo-fade-up mb-12 text-center">
-          <h1 className="text-3xl font-black tracking-tight sm:text-4xl" style={{ color: "#F5F5F0" }}>
+          <h1 className="text-3xl font-black sm:text-4xl" style={{ color: "#F5F5F0" }}>
             Elige tu plan
           </h1>
           <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed" style={{ color: "rgba(245,245,240,0.45)" }}>

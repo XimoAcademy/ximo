@@ -42,7 +42,7 @@ export function SectionHeader({
     <div className="mb-4 flex items-start justify-between gap-3">
       <div>
         <h2
-          className="text-base font-black tracking-tight sm:text-lg"
+          className="text-lg font-black sm:text-xl"
           style={{ color: "var(--text)" }}
         >
           {title}

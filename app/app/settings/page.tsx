@@ -98,7 +98,7 @@ export default function SettingsPage() {
           ←
         </Link>
         <div>
-          <h1 className="text-xl font-black tracking-tight" style={{ color:"var(--text)" }}>
+          <h1 className="text-2xl font-black" style={{ color:"var(--text)" }}>
             Configuración
           </h1>
           <p className="text-xs" style={{ color:"var(--text-label)" }}>

@@ -105,7 +105,7 @@ function SectionTitle({ title, subtitle, count }: { title: string; subtitle?: st
   return (
     <div className="mb-4">
       <div className="flex items-baseline gap-2">
-        <h2 className="text-base font-black tracking-tight sm:text-lg" style={{ color:"var(--text)" }}>{title}</h2>
+        <h2 className="text-lg font-black sm:text-xl" style={{ color:"var(--text)" }}>{title}</h2>
         {count !== undefined && (
           <span className="rounded-full px-2 py-0.5 text-[10px] font-bold"
             style={{ background:"var(--border)", color:"rgba(127,175,178,0.7)" }}>
@@ -233,7 +233,7 @@ export default function TareasPage() {
 
       {/* ── Header ── */}
       <div className="ximo-fade-up">
-        <h1 className="text-xl font-black tracking-tight sm:text-2xl" style={{ color:"var(--text)" }}>Tareas</h1>
+        <h1 className="text-2xl font-black sm:text-3xl" style={{ color:"var(--text)" }}>Tareas</h1>
         <p className="mt-1 text-sm" style={{ color:"var(--text-label)" }}>
           Tu centro diario. Sabe qué hacer hoy y no dejes escapar oportunidades.
         </p>
