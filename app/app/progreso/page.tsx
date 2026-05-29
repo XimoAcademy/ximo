@@ -79,8 +79,9 @@ function fmtDate(iso: string): string {
   return d.toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "2-digit" });
 }
 
-// ── Progression chart (SVG, no library) ────────────────────────
+// ── Progression chart (SVG, no library) with interactive hover ──
 function ProgressionChart({ swims, target }: { swims: Swim[]; target?: number }) {
+  const [hover, setHover] = useState<number | null>(null);
   const W = 640, H = 260, padL = 52, padR = 18, padT = 20, padB = 36;
   const plotW = W - padL - padR, plotH = H - padT - padB;
 
@@ -105,21 +106,29 @@ function ProgressionChart({ swims, target }: { swims: Swim[]; target?: number })
   const t1 = new Date(pts[pts.length - 1].date).getTime();
   const span = t1 - t0 || 1;
 
-  // x by date; y inverted so slower(top) → faster(bottom): improvement trends DOWN
+  // x by date; top = slowest (hi), bottom = fastest (lo): improvement trends DOWN
   const x = (iso: string) => padL + ((new Date(iso).getTime() - t0) / span) * plotW;
-  const y = (sec: number) => padT + ((hi - sec) / (hi - lo)) * 0; // placeholder
-  // Correct: top = slowest (hi), bottom = fastest (lo)
   const yy = (sec: number) => padT + ((sec - lo) / (hi - lo)) * plotH;
 
   const linePts = pts.map(p => `${x(p.date).toFixed(1)},${yy(p.sec).toFixed(1)}`).join(" ");
   const areaPts = `${padL},${padT + plotH} ${linePts} ${(padL + plotW).toFixed(1)},${padT + plotH}`;
   const bestSec = Math.min(...secs);
 
-  // y gridlines (4)
   const gridY = [0, 0.25, 0.5, 0.75, 1].map(f => {
     const sec = hi - f * (hi - lo);
     return { yPos: padT + f * plotH, label: fmtTime(sec) };
   });
+
+  // hovered point + tooltip geometry
+  const hp = hover !== null ? pts[hover] : null;
+  const hx = hp ? x(hp.date) : 0;
+  const hyy = hp ? yy(hp.sec) : 0;
+  const tipW = 132, tipH = 48;
+  const tipX = hp ? Math.min(Math.max(hx - tipW / 2, padL), padL + plotW - tipW) : 0;
+  const tipAbove = hyy - tipH - 14 > 0;
+  const tipY = tipAbove ? hyy - tipH - 12 : hyy + 12;
+  // drop vs previous swim
+  const prevDrop = hp && hover! > 0 ? pts[hover! - 1].sec - hp.sec : null;
 
   return (
     <div className="overflow-hidden rounded-xl" style={INNER}>
@@ -160,25 +169,59 @@ function ProgressionChart({ swims, target }: { swims: Swim[]; target?: number })
         <polyline points={linePts} fill="none" stroke="var(--teal)" strokeWidth="2.5"
           strokeLinejoin="round" strokeLinecap="round" />
 
+        {/* hover guide line */}
+        {hp && (
+          <line x1={hx} y1={padT} x2={hx} y2={padT + plotH}
+            stroke="var(--teal)" strokeWidth="1" strokeDasharray="3 3" opacity="0.5" />
+        )}
+
         {/* points */}
-        {pts.map((p) => {
+        {pts.map((p, i) => {
           const isBest = p.sec === bestSec;
+          const isHover = hover === i;
           return (
-            <g key={p.id}>
-              <circle cx={x(p.date)} cy={yy(p.sec)} r={isBest ? 5.5 : 3.5}
-                fill={isBest ? "var(--gold)" : "var(--bg)"}
-                stroke={isBest ? "var(--gold)" : "var(--teal)"} strokeWidth="2">
-                <title>{fmtTime(p.sec)} · {fmtDate(p.date)} · {p.meet}</title>
-              </circle>
-              {isBest && (
-                <text x={x(p.date)} y={yy(p.sec) - 12} textAnchor="middle"
-                  fontSize="10" fontWeight="700" fill="var(--gold)">
-                  PB {fmtTime(p.sec)}
-                </text>
-              )}
-            </g>
+            <circle key={p.id} cx={x(p.date)} cy={yy(p.sec)} r={isHover ? 6 : isBest ? 5.5 : 3.5}
+              fill={isBest ? "var(--gold)" : "var(--bg)"}
+              stroke={isBest ? "var(--gold)" : "var(--teal)"} strokeWidth="2"
+              style={{ transition: "r 0.12s ease" }} />
           );
         })}
+
+        {/* PB label */}
+        {pts.map((p) => p.sec === bestSec && hover === null ? (
+          <text key={`pb${p.id}`} x={x(p.date)} y={yy(p.sec) - 12} textAnchor="middle"
+            fontSize="10" fontWeight="700" fill="var(--gold)">
+            PB {fmtTime(p.sec)}
+          </text>
+        ) : null)}
+
+        {/* invisible hit areas for hover */}
+        {pts.map((p, i) => (
+          <circle key={`hit${p.id}`} cx={x(p.date)} cy={yy(p.sec)} r={16}
+            fill="transparent" style={{ cursor: "pointer" }}
+            onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(null)} />
+        ))}
+
+        {/* hover tooltip */}
+        {hp && (
+          <g pointerEvents="none">
+            <rect x={tipX} y={tipY} width={tipW} height={tipH} rx={8}
+              fill="var(--surface-2)" stroke="var(--teal-border)" strokeWidth="1" />
+            <text x={tipX + 10} y={tipY + 17} fontSize="13" fontWeight="700"
+              fill="var(--gold)" fontFamily="var(--font-geist-mono, monospace)">
+              {fmtTime(hp.sec)}
+              {prevDrop !== null && prevDrop > 0 && (
+                <tspan fontSize="9" fontWeight="600" fill="var(--teal)" dx="6">▼ {prevDrop.toFixed(2)}s</tspan>
+              )}
+            </text>
+            <text x={tipX + 10} y={tipY + 31} fontSize="9.5" fill="var(--text)">
+              {hp.meet.length > 22 ? hp.meet.slice(0, 21) + "…" : hp.meet}
+            </text>
+            <text x={tipX + 10} y={tipY + 43} fontSize="9" fill="var(--text-label)">
+              {fmtDate(hp.date)}
+            </text>
+          </g>
+        )}
 
         {/* x labels: first & last */}
         <text x={padL} y={H - 12} textAnchor="start" fontSize="9" fill="var(--text-label)">
@@ -190,6 +233,89 @@ function ProgressionChart({ swims, target }: { swims: Swim[]; target?: number })
           </text>
         )}
       </svg>
+    </div>
+  );
+}
+
+// ── Specialty (stroke distribution) donut ──────────────────────
+type Stroke = "Libre" | "Mariposa" | "Dorso" | "Pecho" | "Combinado";
+const STROKE_COLOR: Record<Stroke, string> = {
+  Libre: "var(--teal)",
+  Mariposa: "var(--gold)",
+  Dorso: "#c4b5fd",
+  Pecho: "#6ee7b7",
+  Combinado: "#fbbf24",
+};
+function strokeOf(event: string): Stroke {
+  const e = event.toLowerCase();
+  if (e.includes("mariposa")) return "Mariposa";
+  if (e.includes("dorso")) return "Dorso";
+  if (e.includes("pecho")) return "Pecho";
+  if (e.includes("combinado") || e.includes("im")) return "Combinado";
+  return "Libre";
+}
+
+function Specialties({ swims }: { swims: Swim[] }) {
+  const counts = new Map<Stroke, number>();
+  for (const s of swims) counts.set(strokeOf(s.event), (counts.get(strokeOf(s.event)) ?? 0) + 1);
+  const total = swims.length;
+  const segs = [...counts.entries()]
+    .map(([stroke, n]) => ({ stroke, n, pct: total ? (n / total) * 100 : 0 }))
+    .sort((a, b) => b.n - a.n);
+
+  if (total === 0) {
+    return <p className="text-sm" style={{ color: "var(--text-label)" }}>Sin datos suficientes.</p>;
+  }
+
+  const R = 54, sw = 20, cx = 70, cy = 70, C = 2 * Math.PI * R;
+  let acc = 0;
+  const top = segs[0];
+
+  return (
+    <div className="flex flex-wrap items-center gap-6">
+      {/* Donut */}
+      <div className="relative shrink-0" style={{ width: 140, height: 140 }}>
+        <svg viewBox="0 0 140 140" className="w-[140px] h-[140px]" style={{ transform: "rotate(-90deg)" }}>
+          <circle cx={cx} cy={cy} r={R} fill="none" stroke="var(--border-subtle)" strokeWidth={sw} />
+          {segs.map((s) => {
+            const len = (s.pct / 100) * C;
+            const el = (
+              <circle key={s.stroke} cx={cx} cy={cy} r={R} fill="none"
+                stroke={STROKE_COLOR[s.stroke]} strokeWidth={sw}
+                strokeDasharray={`${len} ${C - len}`} strokeDashoffset={-acc}
+                strokeLinecap="butt" />
+            );
+            acc += len;
+            return el;
+          })}
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <p className="text-2xl font-black leading-none" style={{ color: STROKE_COLOR[top.stroke] }}>
+            {Math.round(top.pct)}%
+          </p>
+          <p className="text-[10px] font-semibold" style={{ color: "var(--text-label)" }}>{top.stroke}</p>
+        </div>
+      </div>
+
+      {/* Legend with bars */}
+      <div className="flex-1 min-w-[180px] space-y-2.5">
+        {segs.map((s) => (
+          <div key={s.stroke}>
+            <div className="mb-1 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="h-2.5 w-2.5 rounded-sm" style={{ background: STROKE_COLOR[s.stroke] }} />
+                <span className="text-xs font-semibold" style={{ color: "var(--text)" }}>{s.stroke}</span>
+              </div>
+              <span className="text-[11px] font-bold" style={{ color: "var(--text-label)" }}>
+                {Math.round(s.pct)}% · {s.n}
+              </span>
+            </div>
+            <div className="h-1.5 w-full overflow-hidden rounded-full" style={{ background: "var(--border-subtle)" }}>
+              <div className="h-full rounded-full" style={{ width: `${s.pct}%`, background: STROKE_COLOR[s.stroke] }} />
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -423,6 +549,17 @@ export default function ProgresoPage() {
             <p className="text-sm" style={{ color: "var(--text-label)" }}>Sin datos para este evento en {course}.</p>
           )}
         </div>
+      </div>
+      </ScrollReveal>
+
+      {/* ── Specialties ── */}
+      <ScrollReveal delay={70}>
+      <div className="mb-5 rounded-2xl p-5" style={CARD}>
+        <div className="mb-4">
+          <p className="text-sm font-black" style={{ color: "var(--text)" }}>Especialidades</p>
+          <p className="text-[11px]" style={{ color: "var(--text-label)" }}>Distribución de tus pruebas por estilo · {course}</p>
+        </div>
+        <Specialties swims={swims.filter(s => s.course === course)} />
       </div>
       </ScrollReveal>
 
