@@ -246,11 +246,9 @@ export default function DashboardPage() {
                 </div>
               ))}
               <Link href="/app/comunidad"
-                className="block w-full rounded-xl py-2.5 text-center text-xs font-bold transition-colors duration-200"
-                style={{ border: "1px dashed rgba(47,127,134,0.2)", color: "#7FAFB2" }}
-                onMouseEnter={e => (e.currentTarget.style.background = "rgba(47,127,134,0.06)")}
-                onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
-                Ver toda la comunidad {'->'}
+                className="block w-full rounded-xl py-2.5 text-center text-xs font-bold transition-all duration-200 hover:bg-[rgba(47,127,134,0.06)]"
+                style={{ border: "1px dashed rgba(47,127,134,0.2)", color: "#7FAFB2" }}>
+                Ver toda la comunidad →
               </Link>
             </div>
           </DarkCard>

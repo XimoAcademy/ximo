@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function IntroPage() {
@@ -8,57 +7,69 @@ export default function IntroPage() {
 
   return (
     <div
-      className="relative flex min-h-screen cursor-pointer items-center justify-center overflow-hidden"
+      className="relative flex min-h-screen cursor-pointer select-none items-center justify-center overflow-hidden"
       style={{ background: "#07131F" }}
       onClick={() => router.push("/loading")}
     >
-      {/* ── Ambient orbs ── */}
+      {/* ── Animated ambient orbs ── */}
       <div className="pointer-events-none absolute inset-0">
-        {/* Teal orb — top left */}
+        {/* Primary teal orb */}
         <div
           className="ximo-orb absolute"
           style={{
-            width: 700,
-            height: 700,
-            top: "-20%",
-            left: "-15%",
-            background: "radial-gradient(circle, rgba(47,127,134,0.22) 0%, transparent 70%)",
+            width: 800,
+            height: 800,
+            top: "-25%",
+            left: "-20%",
+            background: "radial-gradient(circle, rgba(30,206,206,0.16) 0%, transparent 65%)",
           }}
         />
-        {/* Gold orb — bottom right */}
+        {/* Gold orb */}
         <div
           className="ximo-orb absolute"
           style={{
-            width: 600,
-            height: 600,
-            bottom: "-18%",
-            right: "-12%",
-            background: "radial-gradient(circle, rgba(201,168,76,0.16) 0%, transparent 70%)",
+            width: 650,
+            height: 650,
+            bottom: "-20%",
+            right: "-15%",
+            background: "radial-gradient(circle, rgba(201,168,76,0.14) 0%, transparent 65%)",
             animationDelay: "-4s",
           }}
         />
-        {/* Teal center glow */}
+        {/* Center diffuse teal */}
         <div
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
           style={{
-            width: 900,
+            width: 1000,
+            height: 420,
+            background: "radial-gradient(ellipse, rgba(30,206,206,0.08) 0%, transparent 60%)",
+            filter: "blur(60px)",
+          }}
+        />
+        {/* Lime accent bottom-left */}
+        <div
+          className="ximo-orb absolute"
+          style={{
+            width: 400,
             height: 400,
-            background: "radial-gradient(ellipse, rgba(47,127,134,0.1) 0%, transparent 65%)",
-            filter: "blur(40px)",
+            bottom: "5%",
+            left: "5%",
+            background: "radial-gradient(circle, rgba(184,216,64,0.07) 0%, transparent 65%)",
+            animationDelay: "-8s",
           }}
         />
       </div>
 
-      {/* ── Soft grid ── */}
-      <div className="ximo-soft-grid pointer-events-none absolute inset-0 opacity-60" />
+      {/* Soft grid */}
+      <div className="ximo-soft-grid pointer-events-none absolute inset-0 opacity-50" />
 
-      {/* ── Main content ── */}
-      <div className="relative z-10 flex flex-col items-center px-6 text-center select-none">
+      {/* ── Content ── */}
+      <div className="relative z-10 flex flex-col items-center px-6 text-center">
 
-        {/* Tagline top */}
+        {/* Live the Dream */}
         <p
-          className="ximo-fade-up mb-8 text-[10px] font-bold uppercase tracking-[0.35em] delay-100"
-          style={{ color: "rgba(127,175,178,0.6)" }}
+          className="ximo-fade-up mb-10 text-[9px] font-bold uppercase tracking-[0.45em] delay-100"
+          style={{ color: "rgba(30,206,206,0.55)" }}
         >
           Live the Dream
         </p>
@@ -67,67 +78,47 @@ export default function IntroPage() {
         <h1
           className="ximo-zoom-enter delay-150"
           style={{
-            fontSize: "clamp(88px, 18vw, 200px)",
+            fontSize: "clamp(96px, 20vw, 220px)",
             fontWeight: 900,
             letterSpacing: "-0.04em",
             lineHeight: 1,
             color: "#F5F5F0",
             textShadow:
-              "0 0 80px rgba(47,127,134,0.35), 0 0 160px rgba(47,127,134,0.15), 0 2px 60px rgba(0,0,0,0.6)",
+              "0 0 80px rgba(30,206,206,0.3), 0 0 160px rgba(30,206,206,0.12), 0 2px 60px rgba(0,0,0,0.7)",
           }}
         >
           Ximo
         </h1>
 
-        {/* Animated teal-gold rule */}
+        {/* Gradient rule */}
         <div
-          className="ximo-fade-up mt-6 delay-300"
+          className="ximo-fade-up mt-7 delay-300"
           style={{
             width: 120,
             height: 2,
-            background: "linear-gradient(90deg, transparent, #2F7F86, #C9A84C, transparent)",
+            background: "linear-gradient(90deg, transparent, #1ECECE, #C9A84C, transparent)",
             borderRadius: 99,
           }}
         />
 
         {/* Subtitle */}
         <p
-          className="ximo-fade-up mt-8 max-w-xs text-sm font-medium leading-relaxed delay-400"
-          style={{ color: "rgba(245,245,240,0.45)" }}
+          className="ximo-fade-up mt-9 max-w-xs text-sm font-medium leading-relaxed delay-400"
+          style={{ color: "rgba(245,245,240,0.38)" }}
         >
           Tu camino deportivo, organizado.
         </p>
 
-        {/* CTA */}
-        <div className="ximo-fade-up mt-12 delay-600">
-          <Link
-            href="/loading"
-            onClick={(e) => e.stopPropagation()}
-            className="ximo-btn-press group inline-flex items-center gap-3 rounded-full px-8 py-3.5 text-sm font-bold transition-all duration-300"
-            style={{
-              background: "rgba(47,127,134,0.15)",
-              border: "1px solid rgba(47,127,134,0.35)",
-              color: "#7FAFB2",
-              backdropFilter: "blur(12px)",
-            }}
-          >
-            <span>Entrar a Ximo</span>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="transition-transform duration-200 group-hover:translate-x-1">
-              <path d="M1 7h12M8 2l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </Link>
-        </div>
-
-        {/* Click hint */}
+        {/* Touch hint — not a button */}
         <p
-          className="ximo-fade-up mt-8 text-[10px] tracking-widest delay-800"
-          style={{ color: "rgba(245,245,240,0.18)" }}
+          className="ximo-fade-up mt-16 text-[9px] font-medium uppercase tracking-[0.35em] delay-700"
+          style={{ color: "rgba(30,206,206,0.28)" }}
         >
-          Toca en cualquier lugar para continuar
+          Toca para continuar
         </p>
       </div>
 
-      {/* ── Bottom vignette ── */}
+      {/* Bottom vignette */}
       <div
         className="pointer-events-none absolute bottom-0 left-0 right-0 h-32"
         style={{ background: "linear-gradient(to top, #07131F, transparent)" }}
