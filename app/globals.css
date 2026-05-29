@@ -11,37 +11,43 @@
    ══════════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── Page & surface ── */
-  --bg:            #07131F;
-  --bg-mid:        #0B1F33;
-  --bg-surf:       #112538;
-  --surface:       rgba(17, 37, 56, 0.78);
-  --surface-2:     rgba(7, 19, 31, 0.9);
-  --surface-hover: rgba(47, 127, 134, 0.09);
+  /* ── Page & surface ── (DARK theme — lighter dark-teal base, less heavy than near-black) */
+  --bg:            #0A1E26;   /* dark teal-navy, derived from logo, lighter & warmer than old #07131F */
+  --bg-mid:        #0F2C36;
+  --bg-surf:       #143845;
+  --surface:       rgba(22, 52, 62, 0.72);
+  --surface-2:     rgba(10, 30, 38, 0.9);
+  --surface-hover: rgba(30, 206, 206, 0.09);
 
   /* ── Borders ── */
-  --border:        rgba(47, 127, 134, 0.14);
-  --border-strong: rgba(47, 127, 134, 0.32);
-  --border-subtle: rgba(47, 127, 134, 0.08);
+  --border:        rgba(46, 160, 170, 0.16);
+  --border-strong: rgba(46, 160, 170, 0.34);
+  --border-subtle: rgba(46, 160, 170, 0.09);
   --border-gold:   rgba(201, 168, 76, 0.22);
 
   /* ── Text ── */
-  --text:          #F5F5F0;
-  --text-2:        rgba(245, 245, 240, 0.60);
-  --text-3:        rgba(245, 245, 240, 0.36);
-  --text-label:    rgba(127, 175, 178, 0.60);
+  --text:          #F2F6F4;
+  --text-2:        rgba(242, 246, 244, 0.62);
+  --text-3:        rgba(242, 246, 244, 0.38);
+  --text-label:    rgba(125, 200, 200, 0.62);
 
-  /* ── Brand accents ── */
-  --teal:          #1ECECE;   /* vibrant teal — primary action/active */
+  /* ── Brand accents (from gradient image: cyan-teal → lime → gold) ── */
+  --teal:          #1ECECE;   /* primary action / active */
   --teal-dim:      rgba(30, 206, 206, 0.55);
   --teal-bg:       rgba(30, 206, 206, 0.10);
   --teal-border:   rgba(30, 206, 206, 0.28);
-  --teal-muted:    #2F7F86;   /* quieter teal for large glow areas */
-  --gold:          #C9A84C;   /* premium accent — use sparingly */
-  --gold-dim:      rgba(201, 168, 76, 0.55);
-  --gold-bg:       rgba(201, 168, 76, 0.10);
-  --gold-border:   rgba(201, 168, 76, 0.25);
-  --lime:          #B8D840;   /* from brand gradient image */
+  --teal-muted:    #2FA0AA;
+  --gold:          #E8CE4E;   /* warm gold from gradient image */
+  --gold-dim:      rgba(232, 206, 78, 0.55);
+  --gold-bg:       rgba(232, 206, 78, 0.10);
+  --gold-border:   rgba(232, 206, 78, 0.25);
+  --lime:          #A6CE5C;   /* green-lime midpoint of brand gradient */
+
+  /* ── Brand gradient stops (Image 2) ── */
+  --grad-cyan:     #2FB4CC;
+  --grad-green:    #6CC58A;
+  --grad-lime:     #B6D45A;
+  --grad-gold:     #E8CE4E;
 
   /* ── Semantic states ── */
   --success:       #6ee7b7;
@@ -53,13 +59,16 @@
   --info:          var(--teal);
   --info-bg:       var(--teal-bg);
 
-  /* ── Priority colors (for badges, indicators) ── */
+  /* ── Priority colors ── */
   --priority-high:   #f87171;
   --priority-high-bg: rgba(248, 113, 113, 0.12);
   --priority-med:    #fbbf24;
   --priority-med-bg: rgba(251, 191, 36, 0.12);
   --priority-low:    var(--teal);
   --priority-low-bg: var(--teal-bg);
+
+  /* ── Typography ── */
+  --font-display: var(--font-display, "Fraunces"), Georgia, "Times New Roman", serif;
 
   /* ── Tailwind bridge ── */
   --background:  var(--bg);
@@ -75,47 +84,54 @@
    Future settings page will toggle this.
    ────────────────────────────────────────────────────────────── */
 .theme-light {
-  --bg:            #EFF9FA;
-  --bg-mid:        #DFF2F4;
-  --bg-surf:       #D0EBEE;
-  --surface:       rgba(255, 255, 255, 0.92);
-  --surface-2:     rgba(239, 249, 250, 0.97);
-  --surface-hover: rgba(11, 138, 150, 0.06);
+  /* Premium light theme — soft mint-cream base from the brand gradient image.
+     Not generic white: tinted toward the teal/green of the palette. */
+  --bg:            #EDF4EE;   /* pale mint-cream */
+  --bg-mid:        #E2EFE6;
+  --bg-surf:       #D6E9DC;
+  --surface:       rgba(252, 254, 252, 0.86);   /* tinted off-white, never pure */
+  --surface-2:     rgba(237, 244, 238, 0.95);
+  --surface-hover: rgba(22, 138, 150, 0.07);
 
-  --border:        rgba(11, 138, 150, 0.18);
-  --border-strong: rgba(11, 138, 150, 0.38);
-  --border-subtle: rgba(11, 138, 150, 0.09);
-  --border-gold:   rgba(138, 96, 32, 0.22);
+  --border:        rgba(22, 120, 130, 0.18);
+  --border-strong: rgba(22, 120, 130, 0.38);
+  --border-subtle: rgba(22, 120, 130, 0.10);
+  --border-gold:   rgba(150, 110, 30, 0.24);
 
-  --text:          #071A1F;
-  --text-2:        rgba(7, 26, 31, 0.62);
-  --text-3:        rgba(7, 26, 31, 0.38);
-  --text-label:    rgba(11, 138, 150, 0.70);
+  --text:          #0E2A2E;   /* deep teal-ink, from logo dark, not pure black */
+  --text-2:        rgba(14, 42, 46, 0.64);
+  --text-3:        rgba(14, 42, 46, 0.40);
+  --text-label:    rgba(22, 120, 130, 0.72);
 
-  --teal:          #0B8A96;
-  --teal-dim:      rgba(11, 138, 150, 0.55);
-  --teal-bg:       rgba(11, 138, 150, 0.09);
-  --teal-border:   rgba(11, 138, 150, 0.28);
-  --teal-muted:    #0E6870;
-  --gold:          #8A6020;
-  --gold-dim:      rgba(138, 96, 32, 0.55);
-  --gold-bg:       rgba(138, 96, 32, 0.09);
-  --gold-border:   rgba(138, 96, 32, 0.25);
-  --lime:          #708A10;
+  --teal:          #128A96;   /* deep teal, readable on light */
+  --teal-dim:      rgba(18, 138, 150, 0.55);
+  --teal-bg:       rgba(18, 138, 150, 0.10);
+  --teal-border:   rgba(18, 138, 150, 0.30);
+  --teal-muted:    #0E6A72;
+  --gold:          #9A7322;   /* deep readable gold */
+  --gold-dim:      rgba(154, 115, 34, 0.55);
+  --gold-bg:       rgba(154, 115, 34, 0.10);
+  --gold-border:   rgba(154, 115, 34, 0.26);
+  --lime:          #5E8A24;
 
-  --success:       #065F46;
+  --grad-cyan:     #2FB4CC;
+  --grad-green:    #6CC58A;
+  --grad-lime:     #B6D45A;
+  --grad-gold:     #E8CE4E;
+
+  --success:       #0B7A52;
   --success-bg:    rgba(5, 150, 105, 0.10);
-  --warning:       #92400E;
-  --warning-bg:    rgba(251, 191, 36, 0.15);
-  --error:         #991B1B;
+  --warning:       #8A5A0E;
+  --warning-bg:    rgba(251, 191, 36, 0.16);
+  --error:         #A12B2B;
   --error-bg:      rgba(248, 113, 113, 0.10);
   --info:          var(--teal);
   --info-bg:       var(--teal-bg);
 
-  --priority-high:   #991B1B;
+  --priority-high:   #A12B2B;
   --priority-high-bg: rgba(248, 113, 113, 0.12);
-  --priority-med:    #92400E;
-  --priority-med-bg: rgba(251, 191, 36, 0.14);
+  --priority-med:    #8A5A0E;
+  --priority-med-bg: rgba(251, 191, 36, 0.16);
   --priority-low:    var(--teal);
   --priority-low-bg: var(--teal-bg);
 
@@ -138,6 +154,26 @@ body {
   font-family: var(--font-geist-sans, system-ui, Arial, sans-serif);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+
+/* ── Display serif (Argent-style) for all headings & brand text ──
+   Body, labels, data stay on the sans for product legibility. */
+h1, h2, h3, .font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+/* Opt a specific element back to sans when a heading tag is used for UI chrome */
+.font-sans-ui { font-family: var(--font-geist-sans, system-ui, sans-serif) !important; letter-spacing: normal; }
+
+/* ── Ximo brand gradient (Image 2: cyan → green → lime → gold) ── */
+.ximo-brand-gradient {
+  background: linear-gradient(120deg,
+    var(--grad-cyan) 0%,
+    var(--grad-green) 42%,
+    var(--grad-lime) 68%,
+    var(--grad-gold) 100%);
 }
 
 /* ── Scrollbar ── */
@@ -229,6 +265,26 @@ body {
 .ximo-ring-glow  { animation: ximo-ring-glow 2.5s ease-in-out infinite; }
 .ximo-ring-spin  { animation: ximo-ring-spin 2s linear infinite; }
 .ximo-logo-appear { animation: ximo-logo-appear 0.6s cubic-bezier(0.22,1,0.36,1) both; }
+
+/* ── Breathing brand gradient for intro hero ── */
+@keyframes ximo-breathe {
+  0%, 100% { background-position: 0% 50%; transform: scale(1); }
+  50%       { background-position: 100% 50%; transform: scale(1.06); }
+}
+.ximo-brand-gradient-live {
+  background: linear-gradient(120deg,
+    var(--grad-cyan) 0%,
+    var(--grad-green) 42%,
+    var(--grad-lime) 68%,
+    var(--grad-gold) 100%);
+  background-size: 200% 200%;
+  animation: ximo-breathe 14s ease-in-out infinite;
+}
+@keyframes ximo-intro-text {
+  from { opacity: 0; transform: translateY(14px); letter-spacing: 0.05em; }
+  to   { opacity: 1; transform: translateY(0); letter-spacing: -0.01em; }
+}
+.ximo-intro-text { animation: ximo-intro-text 1.2s cubic-bezier(0.22,1,0.36,1) both; }
 
 /* ── Shimmer (skeleton / loading states) ── */
 .ximo-shimmer {
@@ -382,7 +438,8 @@ body {
   .ximo-fade-in,
   .ximo-zoom-enter,
   .ximo-scale-in,
-  .ximo-logo-appear {
+  .ximo-logo-appear,
+  .ximo-intro-text {
     animation: ximo-fade-in 0.2s ease both;
   }
   .ximo-glow-pulse,
@@ -392,6 +449,7 @@ body {
   .ximo-ring-spin,
   .ximo-ring-glow,
   .ximo-animated-gradient,
+  .ximo-brand-gradient-live,
   .ximo-soft-grid {
     animation: none;
   }

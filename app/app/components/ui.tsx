@@ -37,20 +37,20 @@ export function SectionHeader({
   dark?: boolean;
   light?: boolean;
 }) {
-  const isLight = light || !dark;
+  void light; void dark;
   return (
     <div className="mb-4 flex items-start justify-between gap-3">
       <div>
         <h2
           className="text-base font-black tracking-tight sm:text-lg"
-          style={{ color: isLight ? "#0B1F33" : "#F5F5F0" }}
+          style={{ color: "var(--text)" }}
         >
           {title}
         </h2>
         {subtitle && (
           <p
             className="mt-0.5 text-xs sm:text-sm"
-            style={{ color: isLight ? "#5E7080" : "rgba(127,175,178,0.55)" }}
+            style={{ color: "var(--text-label)" }}
           >
             {subtitle}
           </p>
@@ -60,14 +60,14 @@ export function SectionHeader({
         <Link
           href={actionHref}
           className="shrink-0 text-xs font-semibold transition-opacity hover:opacity-70"
-          style={{ color: isLight ? "#1D4ED8" : "#7FAFB2" }}
+          style={{ color: "var(--teal)" }}
         >
           {action}
         </Link>
       ) : action ? (
         <span
           className="shrink-0 text-xs font-semibold"
-          style={{ color: isLight ? "#1D4ED8" : "#7FAFB2" }}
+          style={{ color: "var(--teal)" }}
         >
           {action}
         </span>

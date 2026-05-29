@@ -64,14 +64,14 @@ export default function AppShell({ children }: { children: ReactNode }) {
   const toggle = (l: string) => setCollapsed((p) => ({ ...p, [l]: !p[l] }));
 
   return (
-    <div className="flex min-h-screen" style={{ background: "#07131F" }}>
+    <div className="flex min-h-screen" style={{ background: "var(--bg)" }}>
 
       {/* ── Sidebar ── */}
       <aside
         className="hidden w-[216px] shrink-0 flex-col lg:flex overflow-y-auto"
         style={{
-          background: "linear-gradient(180deg, #07131F 0%, #0B1F33 100%)",
-          borderRight: "1px solid rgba(47,127,134,0.1)",
+          background: "linear-gradient(180deg, var(--bg) 0%, var(--bg-mid) 100%)",
+          borderRight: "1px solid var(--border-subtle)",
         }}
       >
 
@@ -234,7 +234,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
       <div className="flex min-w-0 flex-1 flex-col">
         <div
           className="flex items-center gap-3 px-3 py-2 lg:hidden"
-          style={{ background: "#07131F", borderBottom: "1px solid rgba(47,127,134,0.1)" }}
+          style={{ background: "var(--bg)", borderBottom: "1px solid var(--border-subtle)" }}
         >
           <Image
             src="/brand/ximo-logo.png"
@@ -263,7 +263,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
 
-        <main className="flex-1 overflow-y-auto" style={{ background: "#07131F" }}>
+        <main className="flex-1 overflow-y-auto" style={{ background: "var(--bg)" }}>
           <div className="mx-auto max-w-[1400px] p-4 sm:p-5 lg:p-6">
             {children}
           </div>
