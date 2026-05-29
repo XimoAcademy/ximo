@@ -102,18 +102,14 @@ function PostCard({ post, likes, setLikes }: { post:Post; likes:number; setLikes
           )}
           <div className="mt-3 flex items-center gap-0.5 flex-wrap">
             <button type="button" onClick={() => setLikes(likes + 1)}
-              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-colors duration-150"
-              style={{ color:"rgba(127,175,178,0.5)" }}
-              onMouseEnter={e=>(e.currentTarget.style.color="#C9A84C")}
-              onMouseLeave={e=>(e.currentTarget.style.color="rgba(127,175,178,0.5)")}>
+              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-colors duration-150 hover:text-[#C9A84C]"
+              style={{ color:"rgba(127,175,178,0.5)" }}>
               ♥ {likes}
             </button>
             <button type="button" onClick={() => setOpen(!open)}
-              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-colors duration-150"
-              style={{ color:"rgba(127,175,178,0.5)" }}
-              onMouseEnter={e=>(e.currentTarget.style.color="#7FAFB2")}
-              onMouseLeave={e=>(e.currentTarget.style.color="rgba(127,175,178,0.5)")}>
-              💬 {post.comments}
+              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-colors duration-150 hover:text-[#7FAFB2]"
+              style={{ color:"rgba(127,175,178,0.5)" }}>
+              ↩ {post.comments}
             </button>
             <button type="button"
               className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-colors"
@@ -269,10 +265,8 @@ export default function ComunidadPage() {
         {[{
           title:"Temas activos", subtitle:"Esta semana",
           content:<div className="space-y-1.5">{hotTopics.map((t,i)=>(
-            <div key={t.label} className="flex items-center gap-2.5 rounded-xl px-3 py-2 cursor-pointer transition-all duration-150"
-              style={{ border:"1px solid rgba(47,127,134,0.08)" }}
-              onMouseEnter={e=>(e.currentTarget.style.background="rgba(47,127,134,0.06)")}
-              onMouseLeave={e=>(e.currentTarget.style.background="transparent")}>
+            <div key={t.label} className="flex items-center gap-2.5 rounded-xl px-3 py-2 cursor-pointer transition-all duration-150 hover:bg-[rgba(47,127,134,0.06)]"
+              style={{ border:"1px solid rgba(47,127,134,0.08)" }}>
               <span className="w-4 text-center text-[10px] font-black" style={{ color:"rgba(127,175,178,0.35)" }}>#{i+1}</span>
               <p className="flex-1 text-[11px] font-semibold text-white leading-snug">{t.label}</p>
               <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background:"rgba(47,127,134,0.1)", color:"#7FAFB2" }}>{t.count}</span>

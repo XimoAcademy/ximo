@@ -1,11 +1,7 @@
 "use client";
 
-// app/app/tareas/page.tsx
-// Ximo — Tareas: Centro diario de acción para atletas
-
 import { useState } from "react";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
+import Link from "next/link";
 
 type Priority = "alta" | "media" | "baja";
 type Status   = "pendiente" | "en progreso" | "completada";
@@ -18,509 +14,323 @@ interface Task {
   status: Status;
   estimatedTime: string;
   relatedModule: string;
-  cta: string;
+  href: string;
 }
 
-interface ModuleGroup {
-  id: string;
-  name: string;
-  icon: string;
-  count: number;
-  nextAction: string;
-  color: string;
-}
+const CARD  = "rgba(17,37,56,0.78)";
+const BORDER = "rgba(47,127,134,0.14)";
 
-interface CompletedTask {
-  id: number;
-  title: string;
-  completedDay: string;
-}
-
-interface Decision {
-  id: number;
-  title: string;
-  deadline: string;
-  impact: string;
-  icon: string;
-}
-
-// ─── Static mock data ─────────────────────────────────────────────────────────
+// Priority & status → dark-safe tokens
+const P: Record<Priority, { bg: string; color: string; label: string }> = {
+  alta:  { bg:"rgba(248,113,113,0.12)", color:"#f87171", label:"Alta" },
+  media: { bg:"rgba(251,191,36,0.12)",  color:"#fbbf24", label:"Media" },
+  baja:  { bg:"rgba(30,206,206,0.10)",  color:"#1ECECE", label:"Baja" },
+};
+const S: Record<Status, { bg: string; color: string; label: string }> = {
+  pendiente:     { bg:"rgba(127,175,178,0.10)", color:"rgba(127,175,178,0.7)", label:"Pendiente" },
+  "en progreso": { bg:"rgba(30,206,206,0.12)",  color:"#1ECECE",               label:"En progreso" },
+  completada:    { bg:"rgba(5,150,105,0.12)",   color:"#6ee7b7",               label:"Completada" },
+};
 
 const todayTasks: Task[] = [
-  {
-    id: 1,
-    title: "Actualizar tiempos después de competencia",
-    category: "Progreso atlético",
-    priority: "alta",
-    status: "pendiente",
-    estimatedTime: "10 min",
-    relatedModule: "Progreso",
-    cta: "Ir a Progreso",
-  },
-  {
-    id: 2,
-    title: "Enviar follow-up a Coach Boyle",
-    category: "Recruiting",
-    priority: "alta",
-    status: "en progreso",
-    estimatedTime: "15 min",
-    relatedModule: "Coaches",
-    cta: "Abrir Correo",
-  },
-  {
-    id: 3,
-    title: "Revisar universidades realistas",
-    category: "Universidades",
-    priority: "media",
-    status: "pendiente",
-    estimatedTime: "20 min",
-    relatedModule: "Universidades",
-    cta: "Ver Lista",
-  },
-  {
-    id: 4,
-    title: "Subir transcript académico",
-    category: "Documentos",
-    priority: "alta",
-    status: "pendiente",
-    estimatedTime: "5 min",
-    relatedModule: "Documentos",
-    cta: "Subir Ahora",
-  },
-  {
-    id: 5,
-    title: "Preparar correo para LIU",
-    category: "Recruiting",
-    priority: "media",
-    status: "pendiente",
-    estimatedTime: "25 min",
-    relatedModule: "Correos",
-    cta: "Redactar",
-  },
+  { id:1, title:"Actualizar tiempos después de competencia",  category:"Progreso",     priority:"alta",  status:"pendiente",    estimatedTime:"10 min", relatedModule:"Progreso",     href:"/app/progreso" },
+  { id:2, title:"Enviar follow-up a Coach Boyle",             category:"Recruiting",   priority:"alta",  status:"en progreso",  estimatedTime:"15 min", relatedModule:"Coaches",      href:"/app/coaches" },
+  { id:3, title:"Revisar universidades realistas",            category:"Universidades",priority:"media", status:"pendiente",    estimatedTime:"20 min", relatedModule:"Universidades",href:"/app/universidades" },
+  { id:4, title:"Subir transcript académico",                 category:"Documentos",   priority:"alta",  status:"pendiente",    estimatedTime:"5 min",  relatedModule:"Documentos",   href:"/app/documentos" },
+  { id:5, title:"Preparar correo para LIU",                   category:"Recruiting",   priority:"media", status:"pendiente",    estimatedTime:"25 min", relatedModule:"Correos",      href:"/app/correos" },
 ];
 
 const urgentTasks = [
-  {
-    id: 1,
-    title: "Confirmar llamada pendiente",
-    detail: "Coach Davis – Northwestern",
-    deadline: "Hoy, 3:00 PM",
-    icon: "📞",
-  },
-  {
-    id: 2,
-    title: "Preguntar claridad de beca",
-    detail: "Athletic scholarship – Tier 1",
-    deadline: "Mañana",
-    icon: "💰",
-  },
-  {
-    id: 3,
-    title: "Revisar deadline real",
-    detail: "Common App – Early Action",
-    deadline: "Nov 1",
-    icon: "📅",
-  },
+  { id:1, title:"Confirmar llamada pendiente",    detail:"Coach Davis — Northwestern",         deadline:"Hoy, 3:00 PM" },
+  { id:2, title:"Preguntar claridad de beca",     detail:"Athletic scholarship — Tier 1",       deadline:"Mañana" },
+  { id:3, title:"Revisar deadline real",          detail:"Common App — Early Action",           deadline:"Nov 1" },
 ];
 
-const moduleGroups: ModuleGroup[] = [
-  { id: "coaches",        name: "Coaches",       icon: "🏊",  count: 4, nextAction: "Follow-up con Coach Boyle",      color: "#1D4ED8" },
-  { id: "universidades",  name: "Universidades",  icon: "🎓",  count: 3, nextAction: "Comparar rankings D1 vs D3",     color: "#C9A84C" },
-  { id: "documentos",     name: "Documentos",     icon: "📄",  count: 2, nextAction: "Subir transcript actualizado",   color: "#0B1F33" },
-  { id: "progreso",       name: "Progreso",       icon: "⏱",  count: 1, nextAction: "Registrar marcas de ayer",       color: "#059669" },
-  { id: "correos",        name: "Correos",        icon: "✉️",  count: 3, nextAction: "Redactar email para LIU",        color: "#7C3AED" },
+const moduleGroups = [
+  { id:"coaches",       name:"Coaches",       count:4, nextAction:"Follow-up con Coach Boyle",    href:"/app/coaches" },
+  { id:"universidades", name:"Universidades", count:3, nextAction:"Comparar rankings D1 vs D3",   href:"/app/universidades" },
+  { id:"documentos",    name:"Documentos",    count:2, nextAction:"Subir transcript actualizado", href:"/app/documentos" },
+  { id:"progreso",      name:"Progreso",      count:1, nextAction:"Registrar marcas de ayer",     href:"/app/progreso" },
+  { id:"correos",       name:"Correos",       count:3, nextAction:"Redactar email para LIU",      href:"/app/correos" },
 ];
 
-const completedTasks: CompletedTask[] = [
-  { id: 1, title: "Landing publicada",      completedDay: "Lunes" },
-  { id: 2, title: "Waitlist conectada",     completedDay: "Martes" },
-  { id: 3, title: "Comunidad creada",       completedDay: "Miércoles" },
-  { id: 4, title: "Perfil actualizado",     completedDay: "Jueves" },
+const completedTasks = [
+  { id:1, title:"Landing publicada",    completedDay:"Lunes" },
+  { id:2, title:"Waitlist conectada",   completedDay:"Martes" },
+  { id:3, title:"Comunidad creada",     completedDay:"Miércoles" },
+  { id:4, title:"Perfil actualizado",   completedDay:"Jueves" },
 ];
 
-const upcomingDecisions: Decision[] = [
-  { id: 1, title: "Definir top 3 universidades",    deadline: "Esta semana",  impact: "Alta",   icon: "🎯" },
-  { id: 2, title: "Preparar updates de verano",     deadline: "Junio 1",      impact: "Media",  icon: "☀️" },
-  { id: 3, title: "Revisar costo real anual",       deadline: "Junio 15",     impact: "Alta",   icon: "💵" },
-  { id: 4, title: "Comparar becas y roster spot",   deadline: "Julio",        impact: "Alta",   icon: "⚖️" },
+const upcomingDecisions = [
+  { id:1, title:"Definir top 3 universidades",   deadline:"Esta semana", impact:"Alta" },
+  { id:2, title:"Preparar updates de verano",    deadline:"Jun 1",       impact:"Media" },
+  { id:3, title:"Revisar costo real anual",      deadline:"Jun 15",      impact:"Alta" },
+  { id:4, title:"Comparar becas y roster spot",  deadline:"Julio",       impact:"Alta" },
 ];
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-const priorityStyles: Record<Priority, { bg: string; text: string; label: string }> = {
-  alta:  { bg: "#FEE2E2", text: "#B91C1C", label: "Alta" },
-  media: { bg: "#FEF9C3", text: "#92400E", label: "Media" },
-  baja:  { bg: "#DCFCE7", text: "#166534", label: "Baja" },
-};
-
-const statusStyles: Record<Status, { bg: string; text: string; label: string }> = {
-  pendiente:    { bg: "#F1F5F9", text: "#475569", label: "Pendiente" },
-  "en progreso":{ bg: "#DBEAFE", text: "#1E40AF", label: "En progreso" },
-  completada:   { bg: "#DCFCE7", text: "#166534", label: "Completada" },
-};
-
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
-function Badge({ bg, text, label }: { bg: string; text: string; label: string }) {
+// ─── Progress Ring SVG ────────────────────────────────────────
+function ProgressRing({ value, max, r = 38 }: { value: number; max: number; r?: number }) {
+  const stroke = 5;
+  const norm = r - stroke;
+  const circ = 2 * Math.PI * norm;
+  const offset = circ - (value / max) * circ;
   return (
-    <span style={{
-      background: bg, color: text,
-      fontSize: 11, fontWeight: 700,
-      padding: "2px 10px", borderRadius: 20,
-      letterSpacing: "0.04em", textTransform: "uppercase" as const,
-    }}>
-      {label}
-    </span>
-  );
-}
-
-function TaskCard({ task }: { task: Task }) {
-  const p = priorityStyles[task.priority];
-  const s = statusStyles[task.status];
-  return (
-    <div style={{
-      background: "#fff",
-      borderRadius: 16,
-      boxShadow: "0 2px 12px rgba(11,31,51,0.07)",
-      padding: "20px 22px",
-      display: "flex",
-      flexDirection: "column" as const,
-      gap: 10,
-      transition: "box-shadow .2s",
-      border: "1px solid #EDEAE2",
-      cursor: "default",
-    }}
-      onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 6px 24px rgba(11,31,51,0.13)")}
-      onMouseLeave={e => (e.currentTarget.style.boxShadow = "0 2px 12px rgba(11,31,51,0.07)")}
-    >
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" as const }}>
-        <Badge {...p} />
-        <Badge {...s} />
-      </div>
-      <p style={{ margin: 0, fontWeight: 700, fontSize: 15, color: "#0D1B2A", lineHeight: 1.35 }}>
-        {task.title}
-      </p>
-      <div style={{ display: "flex", gap: 16, flexWrap: "wrap" as const }}>
-        <Micro icon="🏷" label={task.category} />
-        <Micro icon="⏱" label={task.estimatedTime} />
-        <Micro icon="📂" label={task.relatedModule} />
-      </div>
-      <div style={{ marginTop: 4 }}>
-        <CtaBtn label={task.cta} />
-      </div>
-    </div>
-  );
-}
-
-function Micro({ icon, label }: { icon: string; label: string }) {
-  return (
-    <span style={{ fontSize: 12, color: "#5E7080", display: "flex", alignItems: "center", gap: 4 }}>
-      <span style={{ fontSize: 13 }}>{icon}</span> {label}
-    </span>
-  );
-}
-
-function CtaBtn({ label }: { label: string }) {
-  const [hover, setHover] = useState(false);
-  return (
-    <button
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      style={{
-        background: hover ? "#0B1F33" : "#1D4ED8",
-        color: "#fff", border: "none",
-        borderRadius: 10, padding: "8px 18px",
-        fontSize: 13, fontWeight: 700, cursor: "pointer",
-        transition: "background .18s",
-        letterSpacing: "0.02em",
-      }}
-    >
-      {label} →
-    </button>
-  );
-}
-
-function UrgentCard({ task }: { task: typeof urgentTasks[0] }) {
-  return (
-    <div style={{
-      background: "#fff",
-      borderLeft: "4px solid #C9A84C",
-      borderRadius: 14,
-      padding: "18px 20px",
-      boxShadow: "0 2px 10px rgba(11,31,51,0.08)",
-      display: "flex", flexDirection: "column" as const, gap: 6,
-    }}>
-      <div style={{ fontSize: 26 }}>{task.icon}</div>
-      <p style={{ margin: 0, fontWeight: 700, fontSize: 14, color: "#0D1B2A" }}>{task.title}</p>
-      <p style={{ margin: 0, fontSize: 12, color: "#5E7080" }}>{task.detail}</p>
-      <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
-        <span style={{ fontSize: 11, background: "#FEF9C3", color: "#92400E", padding: "2px 10px", borderRadius: 20, fontWeight: 700 }}>
-          ⚡ {task.deadline}
-        </span>
-      </div>
-    </div>
-  );
-}
-
-function ModuleCard({ m }: { m: ModuleGroup }) {
-  const [hover, setHover] = useState(false);
-  return (
-    <div
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      style={{
-        background: hover ? m.color : "#fff",
-        borderRadius: 16,
-        padding: "20px 22px",
-        boxShadow: "0 2px 12px rgba(11,31,51,0.08)",
-        display: "flex", flexDirection: "column" as const, gap: 8,
-        transition: "background .22s, color .22s",
-        cursor: "pointer",
-        border: `1.5px solid ${hover ? m.color : "#EDEAE2"}`,
-      }}
-    >
-      <div style={{ fontSize: 30 }}>{m.icon}</div>
-      <p style={{ margin: 0, fontWeight: 800, fontSize: 15, color: hover ? "#fff" : "#0D1B2A" }}>{m.name}</p>
-      <span style={{
-        fontSize: 12, fontWeight: 700,
-        background: hover ? "rgba(255,255,255,0.2)" : "#F1F5F9",
-        color: hover ? "#fff" : "#1D4ED8",
-        padding: "2px 10px", borderRadius: 20, alignSelf: "flex-start" as const,
-      }}>
-        {m.count} tarea{m.count !== 1 ? "s" : ""}
-      </span>
-      <p style={{ margin: 0, fontSize: 12, color: hover ? "rgba(255,255,255,0.8)" : "#5E7080", lineHeight: 1.4 }}>
-        {m.nextAction}
-      </p>
-    </div>
-  );
-}
-
-function CompletedCard({ task }: { task: CompletedTask }) {
-  return (
-    <div style={{
-      background: "#fff",
-      borderRadius: 14,
-      padding: "16px 18px",
-      boxShadow: "0 1px 8px rgba(11,31,51,0.06)",
-      display: "flex", alignItems: "center", gap: 14,
-      border: "1px solid #EDEAE2",
-    }}>
-      <div style={{
-        width: 36, height: 36, borderRadius: "50%",
-        background: "linear-gradient(135deg,#059669,#10B981)",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        flexShrink: 0,
-      }}>
-        <span style={{ color: "#fff", fontSize: 18 }}>✓</span>
-      </div>
-      <div>
-        <p style={{ margin: 0, fontWeight: 700, fontSize: 14, color: "#0D1B2A" }}>{task.title}</p>
-        <p style={{ margin: 0, fontSize: 11, color: "#5E7080" }}>Completada el {task.completedDay}</p>
-      </div>
-    </div>
-  );
-}
-
-function DecisionCard({ d }: { d: Decision }) {
-  const impactColor = d.impact === "Alta" ? "#B91C1C" : "#92400E";
-  const impactBg    = d.impact === "Alta" ? "#FEE2E2"  : "#FEF9C3";
-  return (
-    <div style={{
-      background: "#fff",
-      borderRadius: 16,
-      padding: "20px 22px",
-      boxShadow: "0 2px 12px rgba(11,31,51,0.07)",
-      display: "flex", flexDirection: "column" as const, gap: 8,
-      border: "1px solid #EDEAE2",
-    }}>
-      <div style={{ fontSize: 28 }}>{d.icon}</div>
-      <p style={{ margin: 0, fontWeight: 700, fontSize: 14, color: "#0D1B2A", lineHeight: 1.4 }}>{d.title}</p>
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" as const }}>
-        <span style={{ fontSize: 11, background: "#F1F5F9", color: "#475569", padding: "2px 10px", borderRadius: 20, fontWeight: 600 }}>
-          📅 {d.deadline}
-        </span>
-        <span style={{ fontSize: 11, background: impactBg, color: impactColor, padding: "2px 10px", borderRadius: 20, fontWeight: 700 }}>
-          Impacto {d.impact}
-        </span>
-      </div>
-    </div>
-  );
-}
-
-// ─── Progress Ring ─────────────────────────────────────────────────────────────
-
-function ProgressRing({ value, max, radius = 38 }: { value: number; max: number; radius?: number }) {
-  const stroke = 6;
-  const normalizedRadius = radius - stroke;
-  const circumference = 2 * Math.PI * normalizedRadius;
-  const progress = value / max;
-  const strokeDashoffset = circumference - progress * circumference;
-  return (
-    <svg height={radius * 2} width={radius * 2} style={{ transform: "rotate(-90deg)" }}>
-      <circle
-        stroke="#EDEAE2" strokeWidth={stroke} fill="none"
-        r={normalizedRadius} cx={radius} cy={radius}
-      />
+    <svg height={r * 2} width={r * 2} style={{ transform: "rotate(-90deg)" }} aria-hidden>
+      <circle stroke="rgba(47,127,134,0.18)" strokeWidth={stroke} fill="none" r={norm} cx={r} cy={r} />
       <circle
         stroke="#C9A84C" strokeWidth={stroke} fill="none"
-        strokeDasharray={`${circumference} ${circumference}`}
-        strokeDashoffset={strokeDashoffset}
+        strokeDasharray={`${circ} ${circ}`}
+        strokeDashoffset={offset}
         strokeLinecap="round"
-        r={normalizedRadius} cx={radius} cy={radius}
-        style={{ transition: "stroke-dashoffset 0.6s ease" }}
+        r={norm} cx={r} cy={r}
+        style={{ transition: "stroke-dashoffset 0.6s cubic-bezier(0.4,0,0.2,1)" }}
       />
     </svg>
   );
 }
 
-// ─── Section Wrapper ──────────────────────────────────────────────────────────
-
-function Section({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
+// ─── Pill badge ───────────────────────────────────────────────
+function Pill({ bg, color, label }: { bg: string; color: string; label: string }) {
   return (
-    <section style={{ display: "flex", flexDirection: "column" as const, gap: 16 }}>
-      <div>
-        <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: "#0B1F33", letterSpacing: "-0.02em" }}>{title}</h2>
-        {subtitle && <p style={{ margin: "4px 0 0", fontSize: 13, color: "#5E7080" }}>{subtitle}</p>}
-      </div>
-      {children}
-    </section>
+    <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide"
+      style={{ background: bg, color }}>
+      {label}
+    </span>
   );
 }
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
-
-export default function TareasPage() {
-  const rachaActual  = 7;
-  const rachaObjetivo = 30;
-  const rachaPercent  = rachaActual / rachaObjetivo;
-
+// ─── Section heading ──────────────────────────────────────────
+function SectionTitle({ title, subtitle, count }: { title: string; subtitle?: string; count?: number }) {
   return (
-    <div style={{
-      background: "#F5F5F0",
-      minHeight: "100vh",
-      padding: "32px 24px 64px",
-      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
-      color: "#0D1B2A",
-    }}>
-      <div style={{ maxWidth: 900, margin: "0 auto", display: "flex", flexDirection: "column", gap: 48 }}>
+    <div className="mb-4">
+      <div className="flex items-baseline gap-2">
+        <h2 className="text-base font-black tracking-tight sm:text-lg" style={{ color:"#F5F5F0" }}>{title}</h2>
+        {count !== undefined && (
+          <span className="rounded-full px-2 py-0.5 text-[10px] font-bold"
+            style={{ background:"rgba(47,127,134,0.12)", color:"rgba(127,175,178,0.7)" }}>
+            {count}
+          </span>
+        )}
+      </div>
+      {subtitle && <p className="mt-0.5 text-xs" style={{ color:"rgba(127,175,178,0.5)" }}>{subtitle}</p>}
+    </div>
+  );
+}
 
-        {/* ── Page Header ─────────────────────────────────── */}
-        <div>
-          <h1 style={{ margin: 0, fontSize: 32, fontWeight: 900, color: "#0B1F33", letterSpacing: "-0.03em" }}>
-            Tareas
-          </h1>
-          <p style={{ margin: "6px 0 0", fontSize: 15, color: "#5E7080", maxWidth: 520, lineHeight: 1.5 }}>
-            Tu centro diario para saber qué hacer hoy y no dejar escapar oportunidades.
-          </p>
-        </div>
+// ─── Task card ────────────────────────────────────────────────
+function TaskCard({ task }: { task: Task }) {
+  const p = P[task.priority];
+  const s = S[task.status];
+  return (
+    <div className="flex flex-col gap-3 rounded-2xl p-4 ximo-lift"
+      style={{ background: CARD, border:`1px solid ${BORDER}` }}>
+      <div className="flex flex-wrap gap-1.5">
+        <Pill {...p} />
+        <Pill {...s} />
+      </div>
+      <p className="text-sm font-bold leading-snug" style={{ color:"#F5F5F0" }}>
+        {task.title}
+      </p>
+      <div className="flex flex-wrap gap-3 text-[11px]" style={{ color:"rgba(127,175,178,0.55)" }}>
+        <span>{task.category}</span>
+        <span style={{ color:"rgba(47,127,134,0.4)" }}>·</span>
+        <span>{task.estimatedTime}</span>
+        <span style={{ color:"rgba(47,127,134,0.4)" }}>·</span>
+        <span>{task.relatedModule}</span>
+      </div>
+      <Link href={task.href}
+        className="ximo-btn-press mt-auto inline-flex w-fit items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition-opacity hover:opacity-80"
+        style={{ background:"rgba(30,206,206,0.14)", color:"#1ECECE", border:"1px solid rgba(30,206,206,0.22)" }}>
+        {task.href.split("/app/")[1]?.charAt(0).toUpperCase() + task.href.split("/app/")[1]?.slice(1)} →
+      </Link>
+    </div>
+  );
+}
 
-        {/* ── 1. Enfoque de hoy ───────────────────────────── */}
-        <Section title="Enfoque de hoy">
-          <div style={{
-            background: "linear-gradient(135deg, #0B1F33 0%, #1D4ED8 100%)",
-            borderRadius: 20,
-            padding: "28px 32px",
-            display: "flex",
-            flexWrap: "wrap" as const,
-            gap: 28,
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}>
-            {/* Left */}
-            <div style={{ flex: "1 1 280px" }}>
-              <p style={{ margin: "0 0 6px", fontSize: 13, color: "rgba(255,255,255,0.6)", fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.08em" }}>
-                Motivación del día
-              </p>
-              <h3 style={{ margin: "0 0 20px", fontSize: 22, fontWeight: 800, color: "#fff", lineHeight: 1.3 }}>
-                "Pequeñas acciones diarias crean oportunidades reales."
-              </h3>
-              <div style={{ display: "flex", gap: 20 }}>
-                <Stat label="Pendientes" value="5" light />
-                <Stat label="En progreso" value="1" light />
-                <Stat label="Urgentes" value="3" light />
-              </div>
-            </div>
+// ─── Urgent card ──────────────────────────────────────────────
+function UrgentCard({ task }: { task: typeof urgentTasks[0] }) {
+  return (
+    <div className="flex flex-col gap-2.5 rounded-2xl p-4 ximo-card-3d"
+      style={{ background: CARD, border:"1px solid rgba(201,168,76,0.22)" }}>
+      <div className="flex h-7 w-7 items-center justify-center rounded-lg text-xs font-black"
+        style={{ background:"rgba(201,168,76,0.12)", color:"#C9A84C" }}>
+        !
+      </div>
+      <p className="text-sm font-bold leading-snug" style={{ color:"#F5F5F0" }}>{task.title}</p>
+      <p className="text-xs" style={{ color:"rgba(127,175,178,0.5)" }}>{task.detail}</p>
+      <span className="inline-flex w-fit items-center rounded-full px-2 py-0.5 text-[10px] font-bold"
+        style={{ background:"rgba(201,168,76,0.12)", color:"#C9A84C" }}>
+        {task.deadline}
+      </span>
+    </div>
+  );
+}
 
-            {/* Racha */}
-            <div style={{
-              background: "rgba(255,255,255,0.07)",
-              borderRadius: 16,
-              padding: "20px 24px",
-              display: "flex",
-              flexDirection: "column" as const,
-              alignItems: "center",
-              gap: 10,
-              flex: "0 0 auto",
-            }}>
-              <p style={{ margin: 0, fontSize: 11, color: "rgba(255,255,255,0.6)", fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.1em" }}>
-                Racha actual
-              </p>
-              <div style={{ position: "relative" as const, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <ProgressRing value={rachaActual} max={rachaObjetivo} radius={44} />
-                <div style={{ position: "absolute" as const, textAlign: "center" as const }}>
-                  <div style={{ fontSize: 20, fontWeight: 900, color: "#C9A84C", lineHeight: 1 }}>{rachaActual}</div>
-                  <div style={{ fontSize: 10, color: "rgba(255,255,255,0.5)" }}>días</div>
-                </div>
-              </div>
-              <div style={{ textAlign: "center" as const }}>
-                <p style={{ margin: 0, fontSize: 13, color: "#C9A84C", fontWeight: 700 }}>{rachaActual} / {rachaObjetivo} días</p>
-                <p style={{ margin: 0, fontSize: 11, color: "rgba(255,255,255,0.5)" }}>Objetivo: racha de un mes</p>
-              </div>
-              <div style={{ width: "100%", height: 6, background: "rgba(255,255,255,0.1)", borderRadius: 3 }}>
-                <div style={{ width: `${rachaPercent * 100}%`, height: "100%", background: "#C9A84C", borderRadius: 3, transition: "width .6s ease" }} />
-              </div>
-            </div>
-          </div>
-        </Section>
+// ─── Module card ──────────────────────────────────────────────
+function ModuleCard({ m }: { m: typeof moduleGroups[0] }) {
+  return (
+    <Link href={m.href}
+      className="flex flex-col gap-2.5 rounded-2xl p-4 transition-all duration-200 hover:bg-[rgba(47,127,134,0.12)]"
+      style={{ background: CARD, border:`1px solid ${BORDER}` }}>
+      <p className="text-sm font-black" style={{ color:"#F5F5F0" }}>{m.name}</p>
+      <span className="inline-flex w-fit items-center rounded-full px-2 py-0.5 text-[10px] font-bold"
+        style={{ background:"rgba(30,206,206,0.10)", color:"#1ECECE" }}>
+        {m.count} {m.count !== 1 ? "tareas" : "tarea"}
+      </span>
+      <p className="text-xs leading-snug" style={{ color:"rgba(127,175,178,0.5)" }}>{m.nextAction}</p>
+    </Link>
+  );
+}
 
-        {/* ── 2. Tareas de hoy ────────────────────────────── */}
-        <Section title="Tareas de hoy" subtitle={`${todayTasks.length} tareas activas`}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(280px,1fr))", gap: 14 }}>
-            {todayTasks.map(t => <TaskCard key={t.id} task={t} />)}
-          </div>
-        </Section>
-
-        {/* ── 3. Prioridad alta ───────────────────────────── */}
-        <Section title="⚡ Prioridad alta" subtitle="No puedes dejar esto para mañana.">
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(240px,1fr))", gap: 14 }}>
-            {urgentTasks.map(t => <UrgentCard key={t.id} task={t} />)}
-          </div>
-        </Section>
-
-        {/* ── 4. Por módulo ───────────────────────────────── */}
-        <Section title="Por módulo" subtitle="Tus tareas organizadas por área.">
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(160px,1fr))", gap: 14 }}>
-            {moduleGroups.map(m => <ModuleCard key={m.id} m={m} />)}
-          </div>
-        </Section>
-
-        {/* ── 5. Completadas esta semana ──────────────────── */}
-        <Section title="✅ Completadas esta semana" subtitle="Buen trabajo. El progreso se acumula.">
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: 12 }}>
-            {completedTasks.map(t => <CompletedCard key={t.id} task={t} />)}
-          </div>
-        </Section>
-
-        {/* ── 6. Próximas decisiones ──────────────────────── */}
-        <Section title="🔮 Próximas decisiones" subtitle="Decisiones que formarán tu camino. Prepárate con tiempo.">
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))", gap: 14 }}>
-            {upcomingDecisions.map(d => <DecisionCard key={d.id} d={d} />)}
-          </div>
-        </Section>
-
+// ─── Completed card ───────────────────────────────────────────
+function CompletedCard({ task }: { task: typeof completedTasks[0] }) {
+  return (
+    <div className="flex items-center gap-3.5 rounded-2xl p-3.5"
+      style={{ background: CARD, border:`1px solid ${BORDER}` }}>
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-sm font-bold"
+        style={{ background:"rgba(5,150,105,0.15)", color:"#6ee7b7" }}>
+        ✓
+      </div>
+      <div>
+        <p className="text-sm font-bold" style={{ color:"#F5F5F0" }}>{task.title}</p>
+        <p className="text-[11px]" style={{ color:"rgba(127,175,178,0.4)" }}>El {task.completedDay}</p>
       </div>
     </div>
   );
 }
 
-// ─── Mini stat ────────────────────────────────────────────────────────────────
-
-function Stat({ label, value, light }: { label: string; value: string; light?: boolean }) {
+// ─── Decision card ────────────────────────────────────────────
+function DecisionCard({ d }: { d: typeof upcomingDecisions[0] }) {
+  const isHigh = d.impact === "Alta";
   return (
-    <div>
-      <div style={{ fontSize: 22, fontWeight: 900, color: light ? "#fff" : "#0B1F33" }}>{value}</div>
-      <div style={{ fontSize: 11, color: light ? "rgba(255,255,255,0.55)" : "#5E7080", fontWeight: 600 }}>{label}</div>
+    <div className="flex flex-col gap-2.5 rounded-2xl p-4 ximo-card-3d"
+      style={{ background: CARD, border:`1px solid ${BORDER}` }}>
+      <p className="text-sm font-bold leading-snug" style={{ color:"#F5F5F0" }}>{d.title}</p>
+      <div className="flex flex-wrap gap-1.5">
+        <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold"
+          style={{ background:"rgba(47,127,134,0.1)", color:"rgba(127,175,178,0.6)" }}>
+          {d.deadline}
+        </span>
+        <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold"
+          style={isHigh
+            ? { background:"rgba(248,113,113,0.12)", color:"#f87171" }
+            : { background:"rgba(251,191,36,0.12)", color:"#fbbf24" }}>
+          {d.impact}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main page ────────────────────────────────────────────────
+export default function TareasPage() {
+  const racha = 7;
+  const meta  = 30;
+
+  return (
+    <div className="space-y-8">
+
+      {/* ── Header ── */}
+      <div className="ximo-fade-up">
+        <h1 className="text-xl font-black tracking-tight sm:text-2xl" style={{ color:"#F5F5F0" }}>Tareas</h1>
+        <p className="mt-1 text-sm" style={{ color:"rgba(127,175,178,0.55)" }}>
+          Tu centro diario. Sabe qué hacer hoy y no dejes escapar oportunidades.
+        </p>
+      </div>
+
+      {/* ── Enfoque del día ── */}
+      <section className="ximo-fade-up delay-75">
+        <div className="relative overflow-hidden rounded-2xl p-6 sm:p-8"
+          style={{
+            background:"linear-gradient(135deg, #0B1F33 0%, #1A5566 100%)",
+            border:"1px solid rgba(30,206,206,0.2)",
+            boxShadow:"0 0 48px rgba(30,206,206,0.1), 0 8px 32px rgba(0,0,0,0.4)",
+          }}>
+          {/* Glow */}
+          <div className="pointer-events-none absolute right-0 top-0 h-48 w-48 rounded-full ximo-glow-pulse"
+            style={{ background:"radial-gradient(circle, rgba(30,206,206,0.18) 0%, transparent 70%)", filter:"blur(32px)" }} />
+
+          <div className="relative flex flex-wrap items-start justify-between gap-6">
+            {/* Left */}
+            <div className="flex-1 min-w-0">
+              <p className="mb-2 text-[11px] font-bold uppercase tracking-widest" style={{ color:"rgba(30,206,206,0.5)" }}>
+                Hoy
+              </p>
+              <h2 className="text-lg font-black leading-snug sm:text-xl" style={{ color:"#F5F5F0", maxWidth:"38ch" }}>
+                Pequeñas acciones diarias crean oportunidades reales.
+              </h2>
+              <div className="mt-5 flex gap-6">
+                {[
+                  { label:"Pendientes",   value: todayTasks.filter(t => t.status === "pendiente").length },
+                  { label:"En progreso",  value: todayTasks.filter(t => t.status === "en progreso").length },
+                  { label:"Urgentes",     value: urgentTasks.length },
+                ].map((s) => (
+                  <div key={s.label}>
+                    <p className="text-2xl font-black" style={{ color:"#F5F5F0" }}>{s.value}</p>
+                    <p className="text-[11px] font-semibold" style={{ color:"rgba(245,245,240,0.45)" }}>{s.label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Racha ring */}
+            <div className="flex flex-col items-center gap-2.5 rounded-2xl px-5 py-4"
+              style={{ background:"rgba(255,255,255,0.06)", border:"1px solid rgba(30,206,206,0.15)" }}>
+              <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color:"rgba(30,206,206,0.5)" }}>Racha</p>
+              <div className="relative flex items-center justify-center">
+                <ProgressRing value={racha} max={meta} r={44} />
+                <div className="absolute text-center">
+                  <p className="text-lg font-black leading-none" style={{ color:"#C9A84C" }}>{racha}</p>
+                  <p className="text-[9px]" style={{ color:"rgba(255,255,255,0.4)" }}>días</p>
+                </div>
+              </div>
+              <p className="text-[11px] font-semibold" style={{ color:"rgba(201,168,76,0.7)" }}>{racha}/{meta} días</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Tareas de hoy ── */}
+      <section className="ximo-fade-up delay-100">
+        <SectionTitle title="Tareas de hoy" count={todayTasks.length} />
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {todayTasks.map((t) => <TaskCard key={t.id} task={t} />)}
+        </div>
+      </section>
+
+      {/* ── Prioridad alta ── */}
+      <section className="ximo-fade-up delay-150">
+        <SectionTitle title="Prioridad alta" subtitle="No pueden esperar." count={urgentTasks.length} />
+        <div className="grid gap-3 sm:grid-cols-3">
+          {urgentTasks.map((t) => <UrgentCard key={t.id} task={t} />)}
+        </div>
+      </section>
+
+      {/* ── Por módulo ── */}
+      <section className="ximo-fade-up delay-200">
+        <SectionTitle title="Por módulo" subtitle="Tareas organizadas por área." />
+        <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          {moduleGroups.map((m) => <ModuleCard key={m.id} m={m} />)}
+        </div>
+      </section>
+
+      {/* ── Completadas y decisiones ── */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <section className="ximo-fade-up delay-200">
+          <SectionTitle title="Completadas esta semana" count={completedTasks.length} />
+          <div className="space-y-2">
+            {completedTasks.map((t) => <CompletedCard key={t.id} task={t} />)}
+          </div>
+        </section>
+
+        <section className="ximo-fade-up delay-300">
+          <SectionTitle title="Próximas decisiones" subtitle="Prepárate con tiempo." count={upcomingDecisions.length} />
+          <div className="grid gap-2.5 sm:grid-cols-2">
+            {upcomingDecisions.map((d) => <DecisionCard key={d.id} d={d} />)}
+          </div>
+        </section>
+      </div>
+
     </div>
   );
 }

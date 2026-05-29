@@ -1,22 +1,129 @@
 @import "tailwindcss";
 
-:root {
-  --background: #07131F;
-  --foreground: #F5F5F0;
+/* ══════════════════════════════════════════════════════════════
+   XIMO DESIGN SYSTEM — CSS CUSTOM PROPERTIES
+   ──────────────────────────────────────────────────────────────
+   :root = dark theme (default, production)
+   .theme-light = future light theme (toggled via user settings)
 
-  /* Ximo palette — extracted from brand references */
-  --ximo-navy:        #07131F;
-  --ximo-navy-mid:    #0B1F33;
-  --ximo-navy-surf:   #112538;
-  --ximo-teal:        #1ECECE;   /* vibrant teal from image 2 */
-  --ximo-teal-dark:   #1A8890;
-  --ximo-teal-soft:   #7FDDD4;
-  --ximo-teal-muted:  #2F7F86;
-  --ximo-gold:        #C9A84C;
-  --ximo-lime:        #B8D840;   /* lime accent from image 2 gradient */
-  --ximo-cream:       #F5F5F0;
+   Settings will later switch <html class="theme-light"> via
+   a settings toggle stored in localStorage. No backend needed.
+   ══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Page & surface ── */
+  --bg:            #07131F;
+  --bg-mid:        #0B1F33;
+  --bg-surf:       #112538;
+  --surface:       rgba(17, 37, 56, 0.78);
+  --surface-2:     rgba(7, 19, 31, 0.9);
+  --surface-hover: rgba(47, 127, 134, 0.09);
+
+  /* ── Borders ── */
+  --border:        rgba(47, 127, 134, 0.14);
+  --border-strong: rgba(47, 127, 134, 0.32);
+  --border-subtle: rgba(47, 127, 134, 0.08);
+  --border-gold:   rgba(201, 168, 76, 0.22);
+
+  /* ── Text ── */
+  --text:          #F5F5F0;
+  --text-2:        rgba(245, 245, 240, 0.60);
+  --text-3:        rgba(245, 245, 240, 0.36);
+  --text-label:    rgba(127, 175, 178, 0.60);
+
+  /* ── Brand accents ── */
+  --teal:          #1ECECE;   /* vibrant teal — primary action/active */
+  --teal-dim:      rgba(30, 206, 206, 0.55);
+  --teal-bg:       rgba(30, 206, 206, 0.10);
+  --teal-border:   rgba(30, 206, 206, 0.28);
+  --teal-muted:    #2F7F86;   /* quieter teal for large glow areas */
+  --gold:          #C9A84C;   /* premium accent — use sparingly */
+  --gold-dim:      rgba(201, 168, 76, 0.55);
+  --gold-bg:       rgba(201, 168, 76, 0.10);
+  --gold-border:   rgba(201, 168, 76, 0.25);
+  --lime:          #B8D840;   /* from brand gradient image */
+
+  /* ── Semantic states ── */
+  --success:       #6ee7b7;
+  --success-bg:    rgba(5, 150, 105, 0.12);
+  --warning:       #fbbf24;
+  --warning-bg:    rgba(251, 191, 36, 0.12);
+  --error:         #f87171;
+  --error-bg:      rgba(248, 113, 113, 0.12);
+  --info:          var(--teal);
+  --info-bg:       var(--teal-bg);
+
+  /* ── Priority colors (for badges, indicators) ── */
+  --priority-high:   #f87171;
+  --priority-high-bg: rgba(248, 113, 113, 0.12);
+  --priority-med:    #fbbf24;
+  --priority-med-bg: rgba(251, 191, 36, 0.12);
+  --priority-low:    var(--teal);
+  --priority-low-bg: var(--teal-bg);
+
+  /* ── Tailwind bridge ── */
+  --background:  var(--bg);
+  --foreground:  var(--text);
 }
 
+/* ──────────────────────────────────────────────────────────────
+   LIGHT THEME
+   Inspired by the Ximo brand gradient (teal → lime).
+   Premium, branded — not generic white SaaS.
+
+   To activate: add class="theme-light" on <html>.
+   Future settings page will toggle this.
+   ────────────────────────────────────────────────────────────── */
+.theme-light {
+  --bg:            #EFF9FA;
+  --bg-mid:        #DFF2F4;
+  --bg-surf:       #D0EBEE;
+  --surface:       rgba(255, 255, 255, 0.92);
+  --surface-2:     rgba(239, 249, 250, 0.97);
+  --surface-hover: rgba(11, 138, 150, 0.06);
+
+  --border:        rgba(11, 138, 150, 0.18);
+  --border-strong: rgba(11, 138, 150, 0.38);
+  --border-subtle: rgba(11, 138, 150, 0.09);
+  --border-gold:   rgba(138, 96, 32, 0.22);
+
+  --text:          #071A1F;
+  --text-2:        rgba(7, 26, 31, 0.62);
+  --text-3:        rgba(7, 26, 31, 0.38);
+  --text-label:    rgba(11, 138, 150, 0.70);
+
+  --teal:          #0B8A96;
+  --teal-dim:      rgba(11, 138, 150, 0.55);
+  --teal-bg:       rgba(11, 138, 150, 0.09);
+  --teal-border:   rgba(11, 138, 150, 0.28);
+  --teal-muted:    #0E6870;
+  --gold:          #8A6020;
+  --gold-dim:      rgba(138, 96, 32, 0.55);
+  --gold-bg:       rgba(138, 96, 32, 0.09);
+  --gold-border:   rgba(138, 96, 32, 0.25);
+  --lime:          #708A10;
+
+  --success:       #065F46;
+  --success-bg:    rgba(5, 150, 105, 0.10);
+  --warning:       #92400E;
+  --warning-bg:    rgba(251, 191, 36, 0.15);
+  --error:         #991B1B;
+  --error-bg:      rgba(248, 113, 113, 0.10);
+  --info:          var(--teal);
+  --info-bg:       var(--teal-bg);
+
+  --priority-high:   #991B1B;
+  --priority-high-bg: rgba(248, 113, 113, 0.12);
+  --priority-med:    #92400E;
+  --priority-med-bg: rgba(251, 191, 36, 0.14);
+  --priority-low:    var(--teal);
+  --priority-low-bg: var(--teal-bg);
+
+  --background: var(--bg);
+  --foreground: var(--text);
+}
+
+/* ── Tailwind v4 theme bridge ── */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -24,10 +131,11 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* ── Base ── */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans, Arial, sans-serif);
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-geist-sans, system-ui, Arial, sans-serif);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -35,172 +143,161 @@ body {
 /* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(47,127,134,0.3); border-radius: 99px; }
+::-webkit-scrollbar-thumb { background: var(--teal-bg); border-radius: 99px; }
 
-/* ── Keyframes ── */
+/* ══════════════════════════════════════════════════════════════
+   KEYFRAMES
+   ══════════════════════════════════════════════════════════════ */
+
 @keyframes ximo-fade-up {
-  from { opacity: 0; transform: translateY(16px); }
+  from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes ximo-fade-in {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
-
 @keyframes ximo-glow-pulse {
   0%, 100% { opacity: 0.45; }
   50%       { opacity: 1; }
 }
-
 @keyframes ximo-progress {
   from { width: 0%; }
   to   { width: var(--progress-width, 100%); }
 }
-
 @keyframes ximo-spin-slow {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
 }
-
 @keyframes ximo-float {
   0%, 100% { transform: translateY(0px); }
   50%       { transform: translateY(-8px); }
 }
-
 @keyframes ximo-zoom-enter {
   from { opacity: 0; transform: scale(0.94); }
   to   { opacity: 1; transform: scale(1); }
 }
-
 @keyframes ximo-shimmer {
   0%   { background-position: -200% center; }
   100% { background-position: 200% center; }
 }
-
 @keyframes ximo-orb-drift {
   0%, 100% { transform: translate(0px, 0px) scale(1); }
   33%       { transform: translate(30px, -20px) scale(1.05); }
   66%       { transform: translate(-20px, 15px) scale(0.97); }
 }
-
 @keyframes ximo-gradient-shift {
   0%   { background-position: 0% 50%; }
   50%  { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
-
 @keyframes ximo-soft-grid-fade {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
-
-@keyframes ximo-bar-grow {
-  from { transform: scaleX(0); }
-  to   { transform: scaleX(1); }
-}
-
 @keyframes ximo-ring-spin {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
 }
-
 @keyframes ximo-ring-glow {
   0%, 100% { box-shadow: 0 0 28px rgba(30,206,206,0.35), 0 0 56px rgba(30,206,206,0.1); }
   50%       { box-shadow: 0 0 44px rgba(30,206,206,0.55), 0 0 88px rgba(30,206,206,0.2); }
 }
-
 @keyframes ximo-logo-appear {
   from { opacity: 0; transform: scale(0.88); }
   to   { opacity: 1; transform: scale(1); }
 }
-
 @keyframes ximo-scale-in {
   from { opacity: 0; transform: scale(0.96) translateY(8px); }
   to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-/* ── Utility classes ── */
-.ximo-fade-up    { animation: ximo-fade-up 0.6s cubic-bezier(0.22,1,0.36,1) both; }
-.ximo-fade-in    { animation: ximo-fade-in 0.5s ease both; }
+/* ══════════════════════════════════════════════════════════════
+   UTILITY CLASSES
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Reveal animations — use sparingly; conveys content loading, not decoration ── */
+.ximo-fade-up    { animation: ximo-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+.ximo-fade-in    { animation: ximo-fade-in 0.4s ease both; }
+.ximo-zoom-enter { animation: ximo-zoom-enter 0.6s cubic-bezier(0.22,1,0.36,1) both; }
+.ximo-scale-in   { animation: ximo-scale-in 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+
+/* ── Ambient / looping ── */
 .ximo-glow-pulse { animation: ximo-glow-pulse 3s ease-in-out infinite; }
 .ximo-float      { animation: ximo-float 5s ease-in-out infinite; }
-.ximo-zoom-enter { animation: ximo-zoom-enter 0.7s cubic-bezier(0.22,1,0.36,1) both; }
-.ximo-scale-in   { animation: ximo-scale-in 0.55s cubic-bezier(0.22,1,0.36,1) both; }
+.ximo-orb        { animation: ximo-orb-drift 12s ease-in-out infinite; filter: blur(80px); }
+.ximo-ring-glow  { animation: ximo-ring-glow 2.5s ease-in-out infinite; }
+.ximo-ring-spin  { animation: ximo-ring-spin 2s linear infinite; }
+.ximo-logo-appear { animation: ximo-logo-appear 0.6s cubic-bezier(0.22,1,0.36,1) both; }
 
+/* ── Shimmer (skeleton / loading states) ── */
 .ximo-shimmer {
   background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%);
   background-size: 200% auto;
   animation: ximo-shimmer 2.4s linear infinite;
 }
 
-.ximo-orb {
-  animation: ximo-orb-drift 12s ease-in-out infinite;
-  filter: blur(80px);
-}
-
-.ximo-card-3d {
-  transform: perspective(900px) rotateX(0deg);
-  transition: transform 0.28s cubic-bezier(0.22,1,0.36,1), box-shadow 0.28s ease;
-}
-.ximo-card-3d:hover {
-  transform: perspective(900px) rotateX(1.5deg) translateY(-4px);
-  box-shadow: 0 20px 56px rgba(0,0,0,0.4), 0 0 0 1px rgba(47,127,134,0.14);
-}
-
-.ximo-lift {
-  transition: transform 0.22s cubic-bezier(0.22,1,0.36,1), box-shadow 0.22s ease;
-}
-.ximo-lift:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 16px 40px rgba(0,0,0,0.35);
-}
-
-.ximo-glass {
-  background: rgba(17, 37, 56, 0.55);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(47,127,134,0.18);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
-}
-
-.ximo-glass-gold {
-  background: rgba(17, 37, 56, 0.55);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(201,168,76,0.2);
-  box-shadow: inset 0 1px 0 rgba(201,168,76,0.06);
-}
-
-.ximo-glow-teal {
-  box-shadow: 0 0 28px rgba(47,127,134,0.28), 0 0 56px rgba(47,127,134,0.1);
-}
-
-.ximo-glow-gold {
-  box-shadow: 0 0 24px rgba(201,168,76,0.24), 0 0 48px rgba(201,168,76,0.08);
-}
-
+/* ── Progress bar ── */
 .ximo-progress-bar {
   animation: ximo-progress 1.4s cubic-bezier(0.4,0,0.2,1) both;
   transform-origin: left;
 }
 
+/* ── Card interactions — 200ms per product register ── */
+.ximo-card-3d {
+  transition: transform 0.2s cubic-bezier(0.22,1,0.36,1), box-shadow 0.2s ease;
+}
+.ximo-card-3d:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.35), 0 0 0 1px var(--border);
+}
+
+.ximo-lift {
+  transition: transform 0.2s cubic-bezier(0.22,1,0.36,1), box-shadow 0.2s ease;
+}
+.ximo-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+}
+
+/* ── Glass surface ── */
+.ximo-glass {
+  background: var(--surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+/* ── Glow accents ── */
+.ximo-glow-teal {
+  box-shadow: 0 0 24px rgba(30,206,206,0.22), 0 0 48px rgba(30,206,206,0.08);
+}
+.ximo-glow-gold {
+  box-shadow: 0 0 20px rgba(201,168,76,0.20), 0 0 40px rgba(201,168,76,0.07);
+}
+
+/* ── Soft grid background ── */
 .ximo-soft-grid {
   background-image:
-    linear-gradient(rgba(47,127,134,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(47,127,134,0.04) 1px, transparent 1px);
+    linear-gradient(var(--teal-bg) 1px, transparent 1px),
+    linear-gradient(90deg, var(--teal-bg) 1px, transparent 1px);
   background-size: 48px 48px;
   animation: ximo-soft-grid-fade 1.2s ease both;
 }
 
 /* ── Animated gradient background ── */
 .ximo-animated-gradient {
-  background: linear-gradient(135deg, #07131F, #0B1F33, #112538, #07131F);
+  background: linear-gradient(135deg, var(--bg), var(--bg-mid), var(--bg-surf), var(--bg));
   background-size: 300% 300%;
   animation: ximo-gradient-shift 12s ease infinite;
 }
 
-/* ── Staggered delay helpers ── */
+/* ── Button tactile feedback ── */
+.ximo-btn-press { transition: transform 0.1s ease, opacity 0.1s ease; }
+.ximo-btn-press:active { transform: scale(0.97) translateY(1px); }
+
+/* ── Stagger delay helpers ── */
 .delay-75  { animation-delay: 0.075s; }
 .delay-100 { animation-delay: 0.1s; }
 .delay-150 { animation-delay: 0.15s; }
@@ -225,37 +322,34 @@ body {
   mix-blend-mode: overlay;
 }
 
-/* ── Button tactile press ── */
-.ximo-btn-press:active {
-  transform: scale(0.97) translateY(1px);
-}
-
-/* ── Loading ring ── */
-.ximo-ring-glow {
-  animation: ximo-ring-glow 2.5s ease-in-out infinite;
-}
-
-.ximo-ring-spin {
-  animation: ximo-ring-spin 2s linear infinite;
-}
-
-.ximo-logo-appear {
-  animation: ximo-logo-appear 0.6s cubic-bezier(0.22,1,0.36,1) both;
-}
-
-/* ── Teal gradient text ── */
-.ximo-gradient-text {
-  background: linear-gradient(90deg, #1ECECE, #C9A84C);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* ── Vibrant teal glow ── */
-.ximo-glow-teal {
-  box-shadow: 0 0 28px rgba(30,206,206,0.28), 0 0 56px rgba(30,206,206,0.1);
-}
-
-.ximo-glow-gold {
-  box-shadow: 0 0 24px rgba(201,168,76,0.24), 0 0 48px rgba(201,168,76,0.08);
+/* ══════════════════════════════════════════════════════════════
+   REDUCED MOTION
+   All animations collapse to a simple crossfade or instant.
+   ══════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .ximo-fade-up,
+  .ximo-fade-in,
+  .ximo-zoom-enter,
+  .ximo-scale-in,
+  .ximo-logo-appear {
+    animation: ximo-fade-in 0.2s ease both;
+  }
+  .ximo-glow-pulse,
+  .ximo-float,
+  .ximo-orb,
+  .ximo-shimmer,
+  .ximo-ring-spin,
+  .ximo-ring-glow,
+  .ximo-animated-gradient,
+  .ximo-soft-grid {
+    animation: none;
+  }
+  .ximo-card-3d,
+  .ximo-lift {
+    transition: none;
+  }
+  .ximo-progress-bar {
+    animation: none;
+    width: var(--progress-width, 100%);
+  }
 }

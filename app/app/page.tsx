@@ -309,10 +309,8 @@ export default function DashboardPage() {
                 </div>
               ))}
               <Link href="/app/marcas"
-                className="mt-2 block w-full rounded-xl py-2.5 text-center text-xs font-bold transition-colors duration-200"
-                style={{ background: "rgba(47,127,134,0.15)", color: "#7FAFB2", border: "1px solid rgba(47,127,134,0.2)" }}
-                onMouseEnter={e => (e.currentTarget.style.background = "rgba(47,127,134,0.25)")}
-                onMouseLeave={e => (e.currentTarget.style.background = "rgba(47,127,134,0.15)")}>
+                className="mt-2 block w-full rounded-xl py-2.5 text-center text-xs font-bold transition-all duration-200 hover:bg-[rgba(47,127,134,0.25)]"
+                style={{ background: "rgba(47,127,134,0.15)", color: "#7FAFB2", border: "1px solid rgba(47,127,134,0.2)" }}>
                 Explorar marcas →
               </Link>
             </div>

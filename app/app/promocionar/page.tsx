@@ -54,10 +54,8 @@ function PillSelect({ options }: { options:string[] }) {
   return (
     <div className="flex flex-wrap gap-1.5">
       {options.map(o => (
-        <span key={o} className="rounded-full px-2.5 py-1 text-[10px] font-medium cursor-pointer transition-all duration-150"
-          style={{ background:"rgba(47,127,134,0.06)", border:"1px solid rgba(47,127,134,0.12)", color:"rgba(127,175,178,0.5)" }}
-          onMouseEnter={e=>{ e.currentTarget.style.background="rgba(47,127,134,0.15)"; e.currentTarget.style.color="#7FAFB2"; }}
-          onMouseLeave={e=>{ e.currentTarget.style.background="rgba(47,127,134,0.06)"; e.currentTarget.style.color="rgba(127,175,178,0.5)"; }}>
+        <span key={o} className="rounded-full px-2.5 py-1 text-[10px] font-medium cursor-pointer transition-all duration-150 hover:bg-[rgba(47,127,134,0.15)] hover:text-[#7FAFB2]"
+          style={{ background:"rgba(47,127,134,0.06)", border:"1px solid rgba(47,127,134,0.12)", color:"rgba(127,175,178,0.5)" }}>
           {o}
         </span>
       ))}
@@ -247,9 +245,7 @@ export default function PromocionarPage() {
 
       <div className="pb-4">
         <Link href="/app/comunidad"
-          className="text-xs font-semibold transition-colors" style={{ color:"rgba(127,175,178,0.4)" }}
-          onMouseEnter={e=>(e.currentTarget.style.color="#7FAFB2")}
-          onMouseLeave={e=>(e.currentTarget.style.color="rgba(127,175,178,0.4)")}>
+          className="text-xs font-semibold transition-colors hover:text-[#7FAFB2]" style={{ color:"rgba(127,175,178,0.4)" }}>
           ← Volver a Comunidad
         </Link>
       </div>
