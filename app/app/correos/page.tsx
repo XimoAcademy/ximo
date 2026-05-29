@@ -7,10 +7,10 @@ const INNER = { background:"rgba(47,127,134,0.06)", border:"1px solid rgba(47,12
 
 const templates = [
   "Primer contacto con coach",
-  "Follow-up despuÃ©s de no respuesta",
-  "ActualizaciÃ³n de tiempos",
+  "Follow-up después de no respuesta",
+  "Actualización de tiempos",
   "Pregunta sobre beca/costo",
-  "Agradecimiento despuÃ©s de llamada",
+  "Agradecimiento después de llamada",
 ];
 
 const messageStatus = [
@@ -21,10 +21,10 @@ const messageStatus = [
 ];
 
 const emails = [
-  { to:"LIU â€” Coach Lucy",          subject:"ActualizaciÃ³n de competencias",   status:"Pendiente",  sb:"rgba(201,168,76,0.12)",  st:"#C9A84C", date:"Por enviar", preview:"Coach Lucy, comparto mis tiempos recientes: 50 libre 26.0s y 100 libre 58.0s. Adjunto video actualizadoâ€¦" },
-  { to:"Niagara â€” Coach Dylan",      subject:"Preguntar beca oficial",          status:"Follow-up",  sb:"rgba(47,127,134,0.1)",   st:"rgba(127,175,178,0.6)", date:"Mar 25", preview:"Estimado Coach Dylan, querÃ­a dar seguimiento y preguntar sobre las opciones de beca para atletas internacionalesâ€¦" },
-  { to:"Towson â€” Coach Boyle",       subject:"Confirmar llamada",               status:"Respondido", sb:"rgba(5,150,105,0.12)",   st:"#6ee7b7", date:"Mar 20", preview:"Coach Boyle, confirmo mi disponibilidad para la llamada del jueves. Â¿Prefiere Zoom o llamada directa?" },
-  { to:"Princeton â€” Coach Crispino", subject:"Volver a contactar en otoÃ±o",     status:"Pendiente",  sb:"rgba(201,168,76,0.12)",  st:"#C9A84C", date:"Oct 2025", preview:"Recordatorio: contactar cuando tenga mejores tiempos y GPA mÃ¡s sÃ³lido. Princeton es aspiracionalâ€¦" },
+  { to:"LIU — Coach Lucy",          subject:"Actualización de competencias",   status:"Pendiente",  sb:"rgba(201,168,76,0.12)",  st:"#C9A84C", date:"Por enviar", preview:"Coach Lucy, comparto mis tiempos recientes: 50 libre 26.0s y 100 libre 58.0s. Adjunto video actualizado…" },
+  { to:"Niagara — Coach Dylan",      subject:"Preguntar beca oficial",          status:"Follow-up",  sb:"rgba(47,127,134,0.1)",   st:"rgba(127,175,178,0.6)", date:"Mar 25", preview:"Estimado Coach Dylan, quería dar seguimiento y preguntar sobre las opciones de beca para atletas internacionales…" },
+  { to:"Towson — Coach Boyle",       subject:"Confirmar llamada",               status:"Respondido", sb:"rgba(5,150,105,0.12)",   st:"#6ee7b7", date:"Mar 20", preview:"Coach Boyle, confirmo mi disponibilidad para la llamada del jueves. ¿Prefiere Zoom o llamada directa?" },
+  { to:"Princeton — Coach Crispino", subject:"Volver a contactar en otoño",     status:"Pendiente",  sb:"rgba(201,168,76,0.12)",  st:"#C9A84C", date:"Oct 2025", preview:"Recordatorio: contactar cuando tenga mejores tiempos y GPA más sólido. Princeton es aspiracional…" },
 ];
 
 export default function CorreosPage() {
@@ -48,7 +48,7 @@ export default function CorreosPage() {
       <div className="mb-5 grid gap-4 lg:grid-cols-[240px_1fr]">
         {/* Templates */}
         <div className="rounded-2xl p-4" style={CARD}>
-          <p className="mb-3 text-xs font-bold uppercase tracking-widest" style={{ color:"rgba(127,175,178,0.5)" }}>Templates rÃ¡pidos</p>
+          <p className="mb-3 text-xs font-bold uppercase tracking-widest" style={{ color:"rgba(127,175,178,0.5)" }}>Templates rápidos</p>
           <ul className="space-y-1.5">
             {templates.map((t) => (
               <li key={t} className="cursor-default rounded-xl px-3 py-2 text-sm font-medium transition-opacity hover:opacity-80" style={{ ...INNER, color:"rgba(245,245,240,0.7)" }}>
@@ -63,7 +63,7 @@ export default function CorreosPage() {
           <p className="text-sm font-bold" style={{ color:"#C9A84C" }}>Consejo Ximo</p>
           <p className="mt-2 text-sm leading-relaxed" style={{ color:"rgba(245,245,240,0.5)" }}>
             Personaliza cada correo con tiempos reales, eventos principales y una pregunta concreta.
-            Los coaches responden mÃ¡s cuando ven preparaciÃ³n y claridad.
+            Los coaches responden más cuando ven preparación y claridad.
           </p>
         </div>
       </div>

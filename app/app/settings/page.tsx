@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { useTheme, type AppTheme } from "../../providers/ThemeProvider";
 
 const THEMES: { id: AppTheme; label: string; sub: string; preview: React.ReactNode }[] = [
@@ -77,6 +78,14 @@ const THEMES: { id: AppTheme; label: string; sub: string; preview: React.ReactNo
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
+  const [saved, setSaved] = useState(false);
+
+  const handleSave = () => {
+    // Theme is already applied live via setTheme + localStorage.
+    // This confirms the choice for the user.
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2200);
+  };
 
   return (
     <div className="mx-auto max-w-[680px] space-y-6">
@@ -142,6 +151,23 @@ export default function SettingsPage() {
               </button>
             );
           })}
+        </div>
+
+        {/* Note + save */}
+        <div className="mt-5 flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between"
+          style={{ borderColor:"var(--border)" }}>
+          <p className="text-[11px] leading-snug" style={{ color:"var(--text-3)" }}>
+            El tema se aplica a toda la app al instante. Pronto podrás personalizar más
+            detalles visuales desde aquí.
+          </p>
+          <button
+            type="button"
+            onClick={handleSave}
+            className="ximo-btn-press shrink-0 rounded-xl px-5 py-2.5 text-xs font-black transition-opacity hover:opacity-90"
+            style={{ background:"var(--teal)", color:"#07131F" }}
+          >
+            {saved ? "Cambios guardados" : "Guardar cambios"}
+          </button>
         </div>
       </div>
 

@@ -1,66 +1,66 @@
-﻿// app/app/recruiting/page.tsx â€” dark/teal premium recruiting pipeline
+﻿// app/app/recruiting/page.tsx — dark/teal premium recruiting pipeline
 import Link from "next/link";
 import { Badge, SectionHeader } from "../components/ui";
 import ScrollReveal from "../../components/ScrollReveal";
 
-type Stage = "Investigando"|"Contactado"|"RespondiÃ³"|"Llamada agendada"|"InterÃ©s real"|"Beca pendiente"|"DecisiÃ³n final";
+type Stage = "Investigando"|"Contactado"|"Respondió"|"Llamada agendada"|"Interés real"|"Beca pendiente"|"Decisión final";
 type Priority = "Alta"|"Media"|"Baja";
-type Scholar = "Sin claridad"|"En conversaciÃ³n"|"Costo estimado"|"Oferta pendiente"|"OpciÃ³n segura";
+type Scholar = "Sin claridad"|"En conversación"|"Costo estimado"|"Oferta pendiente"|"Opción segura";
 
 interface Uni { name:string; div:string; loc:string; coach:string; stage:Stage; priority:Priority; scholarship:Scholar; next:string; last:string; }
 
 const unis: Uni[] = [
-  { name:"Niagara University", div:"D1", loc:"NY", coach:"Coach Dylan",    stage:"InterÃ©s real",      priority:"Alta",  scholarship:"En conversaciÃ³n", next:"Preguntar beca oficial",     last:"Hace 3 dÃ­as" },
-  { name:"LIU Brooklyn",       div:"D1", loc:"NY", coach:"Coach Lucy",     stage:"RespondiÃ³",         priority:"Alta",  scholarship:"Sin claridad",    next:"Enviar updates de verano",   last:"Hace 5 dÃ­as" },
+  { name:"Niagara University", div:"D1", loc:"NY", coach:"Coach Dylan",    stage:"Interés real",      priority:"Alta",  scholarship:"En conversación", next:"Preguntar beca oficial",     last:"Hace 3 días" },
+  { name:"LIU Brooklyn",       div:"D1", loc:"NY", coach:"Coach Lucy",     stage:"Respondió",         priority:"Alta",  scholarship:"Sin claridad",    next:"Enviar updates de verano",   last:"Hace 5 días" },
   { name:"Towson University",  div:"D1", loc:"MD", coach:"Coach Boyle",    stage:"Llamada agendada",  priority:"Alta",  scholarship:"Costo estimado",  next:"Confirmar llamada",          last:"Ayer" },
-  { name:"Husson University",  div:"D2", loc:"ME", coach:"Coach Adams",    stage:"Contactado",        priority:"Media", scholarship:"Sin claridad",    next:"Preparar documentos",        last:"Hace 8 dÃ­as" },
-  { name:"Princeton",          div:"D1", loc:"NJ", coach:"Coach Crispino", stage:"Investigando",      priority:"Baja",  scholarship:"Sin claridad",    next:"Contactar en otoÃ±o",         last:"Hace 2 sem" },
-  { name:"UNCW",               div:"D1", loc:"NC", coach:"â€”",              stage:"Investigando",      priority:"Media", scholarship:"Sin claridad",    next:"Enviar primer correo",       last:"Sin contacto" },
-  { name:"Le Moyne",           div:"D2", loc:"NY", coach:"Coach Adam",     stage:"Contactado",        priority:"Media", scholarship:"Sin claridad",    next:"Hacer seguimiento",          last:"Hace 10 dÃ­as" },
+  { name:"Husson University",  div:"D2", loc:"ME", coach:"Coach Adams",    stage:"Contactado",        priority:"Media", scholarship:"Sin claridad",    next:"Preparar documentos",        last:"Hace 8 días" },
+  { name:"Princeton",          div:"D1", loc:"NJ", coach:"Coach Crispino", stage:"Investigando",      priority:"Baja",  scholarship:"Sin claridad",    next:"Contactar en otoño",         last:"Hace 2 sem" },
+  { name:"UNCW",               div:"D1", loc:"NC", coach:"—",              stage:"Investigando",      priority:"Media", scholarship:"Sin claridad",    next:"Enviar primer correo",       last:"Sin contacto" },
+  { name:"Le Moyne",           div:"D2", loc:"NY", coach:"Coach Adam",     stage:"Contactado",        priority:"Media", scholarship:"Sin claridad",    next:"Hacer seguimiento",          last:"Hace 10 días" },
 ];
 
 const STAGE_C: Record<Stage,{bg:string;color:string}> = {
   "Investigando":     { bg:"rgba(94,112,128,0.15)",    color:"rgba(127,175,178,0.6)" },
   "Contactado":       { bg:"rgba(47,127,134,0.15)",    color:"#7FAFB2" },
-  "RespondiÃ³":        { bg:"rgba(201,168,76,0.12)",    color:"#C9A84C" },
+  "Respondió":        { bg:"rgba(201,168,76,0.12)",    color:"#C9A84C" },
   "Llamada agendada": { bg:"rgba(31,95,102,0.2)",      color:"#7FAFB2" },
-  "InterÃ©s real":     { bg:"rgba(5,150,105,0.15)",     color:"#6ee7b7" },
+  "Interés real":     { bg:"rgba(5,150,105,0.15)",     color:"#6ee7b7" },
   "Beca pendiente":   { bg:"rgba(139,92,246,0.15)",    color:"#c4b5fd" },
-  "DecisiÃ³n final":   { bg:"rgba(245,245,240,0.1)",    color:"#F5F5F0" },
+  "Decisión final":   { bg:"rgba(245,245,240,0.1)",    color:"#F5F5F0" },
 };
 
 const SCHOLAR_C: Record<Scholar,{bg:string;color:string}> = {
   "Sin claridad":    { bg:"rgba(94,112,128,0.12)",  color:"rgba(127,175,178,0.5)" },
-  "En conversaciÃ³n": { bg:"rgba(201,168,76,0.12)",  color:"#C9A84C" },
+  "En conversación": { bg:"rgba(201,168,76,0.12)",  color:"#C9A84C" },
   "Costo estimado":  { bg:"rgba(47,127,134,0.12)",  color:"#7FAFB2" },
   "Oferta pendiente":{ bg:"rgba(139,92,246,0.12)",  color:"#c4b5fd" },
-  "OpciÃ³n segura":   { bg:"rgba(5,150,105,0.12)",   color:"#6ee7b7" },
+  "Opción segura":   { bg:"rgba(5,150,105,0.12)",   color:"#6ee7b7" },
 };
 
 const PRIORITY_C: Record<Priority,string> = { Alta:"#f87171", Media:"#fbbf24", Baja:"rgba(127,175,178,0.5)" };
 
 const coaches = [
-  { name:"Coach Dylan",    school:"Niagara",  status:"Activo",       next:"Preguntar beca oficial",      last:"Hace 3 dÃ­as",  urgency:"Alta"  },
-  { name:"Coach Lucy",     school:"LIU",      status:"Activo",       next:"Enviar actualizaciones",      last:"Hace 5 dÃ­as",  urgency:"Alta"  },
+  { name:"Coach Dylan",    school:"Niagara",  status:"Activo",       next:"Preguntar beca oficial",      last:"Hace 3 días",  urgency:"Alta"  },
+  { name:"Coach Lucy",     school:"LIU",      status:"Activo",       next:"Enviar actualizaciones",      last:"Hace 5 días",  urgency:"Alta"  },
   { name:"Coach Boyle",    school:"Towson",   status:"Llamada",      next:"Confirmar llamada",           last:"Ayer",         urgency:"Alta"  },
-  { name:"Coach Crispino", school:"Princeton",status:"En radar",     next:"Contactar en otoÃ±o 2025",    last:"â€”",            urgency:"Baja"  },
-  { name:"Coach Adam",     school:"Le Moyne", status:"Sin respuesta",next:"Follow-up con correo nuevo", last:"Hace 10 dÃ­as", urgency:"Media" },
+  { name:"Coach Crispino", school:"Princeton",status:"En radar",     next:"Contactar en otoño 2025",    last:"—",            urgency:"Baja"  },
+  { name:"Coach Adam",     school:"Le Moyne", status:"Sin respuesta",next:"Follow-up con correo nuevo", last:"Hace 10 días", urgency:"Media" },
 ];
 
 const priorities = [
   { school:"Niagara",  task:"Pedir beca oficial a Coach Dylan",         urgency:"Alta",  deadline:"Esta semana" },
   { school:"LIU",      task:"Mandar updates de verano a Coach Lucy",    urgency:"Alta",  deadline:"Esta semana" },
   { school:"Towson",   task:"Confirmar si Coach Boyle sigue interesado",urgency:"Alta",  deadline:"Mar 25" },
-  { school:"Husson",   task:"Preparar documentos para primer envÃ­o",    urgency:"Media", deadline:"Mar 28" },
+  { school:"Husson",   task:"Preparar documentos para primer envío",    urgency:"Media", deadline:"Mar 28" },
   { school:"Princeton",task:"Revisar si sigue siendo aspiracional",      urgency:"Baja",  deadline:"Abr 15" },
 ];
 
 const matrixSchools = ["Niagara","LIU","Towson","Husson","Le Moyne"];
 const matrixRows = [
-  { label:"InterÃ©s del coach",  scores:[5,4,5,3,3] },
+  { label:"Interés del coach",  scores:[5,4,5,3,3] },
   { label:"Nivel deportivo",    scores:[4,4,4,3,3] },
   { label:"Beca / costo",       scores:[3,2,3,4,4] },
-  { label:"Fit acadÃ©mico",      scores:[4,4,3,3,3] },
+  { label:"Fit académico",      scores:[4,4,3,3,3] },
   { label:"Instalaciones",      scores:[4,4,5,3,3] },
   { label:"Plan desarrollo",    scores:[4,3,4,3,3] },
 ];
@@ -77,7 +77,7 @@ const stats = [
   { label:"Universidades",  value:"12" },
   { label:"Contactadas",    value:"7"  },
   { label:"Respuestas",     value:"4"  },
-  { label:"InterÃ©s real",   value:"2"  },
+  { label:"Interés real",   value:"2"  },
   { label:"Beca pendiente", value:"3"  },
 ];
 
@@ -115,11 +115,11 @@ export default function RecruitingPage() {
         <div className="relative">
           <div className="mb-3 flex flex-wrap gap-2">
             <Badge className="border" style={{ borderColor:"rgba(47,127,134,0.3)", background:"rgba(47,127,134,0.12)", color:"#7FAFB2" }}>Recruiting</Badge>
-            <Badge className="border" style={{ borderColor:"rgba(255,255,255,0.08)", background:"rgba(255,255,255,0.04)", color:"rgba(255,255,255,0.4)" }}>Clase 2027 Â· MX</Badge>
+            <Badge className="border" style={{ borderColor:"rgba(255,255,255,0.08)", background:"rgba(255,255,255,0.04)", color:"rgba(255,255,255,0.4)" }}>Clase 2027 · MX</Badge>
           </div>
           <h1 className="text-2xl font-black text-white sm:text-3xl" style={{ textShadow:"0 2px 20px rgba(47,127,134,0.4)" }}>Recruiting</h1>
           <p className="mt-1.5 max-w-lg text-sm leading-relaxed" style={{ color:"rgba(127,175,178,0.65)" }}>
-            Visualiza tu proceso completo: universidades, coaches, respuestas, llamadas, becas, documentos y prÃ³ximas decisiones.
+            Visualiza tu proceso completo: universidades, coaches, respuestas, llamadas, becas, documentos y próximas decisiones.
           </p>
         </div>
         {/* Stats */}
@@ -136,7 +136,7 @@ export default function RecruitingPage() {
       {/* Pipeline board */}
       <ScrollReveal delay={80}>
       <DarkCard className="p-4 sm:p-5" glow>
-        <SectionHeader dark title="Pipeline de recruiting" subtitle="Estado de cada universidad" action="Ver coaches â†’" actionHref="/app/coaches" />
+        <SectionHeader dark title="Pipeline de recruiting" subtitle="Estado de cada universidad" action="Ver coaches →" actionHref="/app/coaches" />
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {unis.map(uni => {
             const sc = STAGE_C[uni.stage];
@@ -147,15 +147,15 @@ export default function RecruitingPage() {
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <div>
                     <p className="text-sm font-black text-white leading-tight">{uni.name}</p>
-                    <p className="text-[10px] mt-0.5" style={{ color:"rgba(127,175,178,0.45)" }}>{uni.div} Â· {uni.loc} Â· {uni.coach}</p>
+                    <p className="text-[10px] mt-0.5" style={{ color:"rgba(127,175,178,0.45)" }}>{uni.div} · {uni.loc} · {uni.coach}</p>
                   </div>
                   <Pill label={uni.stage} bg={sc.bg} color={sc.color} />
                 </div>
                 <div className="flex flex-wrap gap-1.5 mb-2.5">
                   <Pill label={uni.scholarship} bg={ss.bg} color={ss.color} />
-                  <span className="text-[10px] font-bold" style={{ color:PRIORITY_C[uni.priority] }}>â†‘ {uni.priority}</span>
+                  <span className="text-[10px] font-bold" style={{ color:PRIORITY_C[uni.priority] }}>↑ {uni.priority}</span>
                 </div>
-                <p className="text-[11px] font-semibold" style={{ color:"#2F7F86" }}>â†’ {uni.next}</p>
+                <p className="text-[11px] font-semibold" style={{ color:"#2F7F86" }}>→ {uni.next}</p>
                 <p className="text-[10px] mt-1" style={{ color:"rgba(127,175,178,0.35)" }}>{uni.last}</p>
               </div>
             );
@@ -190,14 +190,14 @@ export default function RecruitingPage() {
         <DarkCard className="p-4 sm:p-5 ximo-fade-up delay-200">
           <SectionHeader dark title="Claridad de beca y costo" subtitle="Estado por universidad" />
           <div className="space-y-2">
-            {(["Sin claridad","En conversaciÃ³n","Costo estimado","Oferta pendiente","OpciÃ³n segura"] as Scholar[]).map(s => {
+            {(["Sin claridad","En conversación","Costo estimado","Oferta pendiente","Opción segura"] as Scholar[]).map(s => {
               const c = SCHOLAR_C[s];
               const names = unis.filter(u => u.scholarship === s).map(u => u.name.split(" ")[0]);
               return (
                 <div key={s} className="flex items-center gap-3 rounded-xl px-3 py-2.5"
                   style={{ border:"1px solid rgba(47,127,134,0.08)" }}>
                   <Pill label={s} bg={c.bg} color={c.color} />
-                  <p className="flex-1 text-[10px] truncate" style={{ color:"rgba(127,175,178,0.45)" }}>{names.join(", ") || "â€”"}</p>
+                  <p className="flex-1 text-[10px] truncate" style={{ color:"rgba(127,175,178,0.45)" }}>{names.join(", ") || "—"}</p>
                   <span className="text-xs font-black text-white">{names.length}</span>
                 </div>
               );
@@ -209,7 +209,7 @@ export default function RecruitingPage() {
 
       {/* Coach tracker */}
       <DarkCard className="p-4 sm:p-5 ximo-fade-up delay-300">
-        <SectionHeader dark title="ComunicaciÃ³n con coaches" subtitle="Seguimiento por relaciÃ³n" action="Ver correos â†’" actionHref="/app/correos" />
+        <SectionHeader dark title="Comunicación con coaches" subtitle="Seguimiento por relación" action="Ver correos →" actionHref="/app/correos" />
         <div className="divide-y" style={{ borderColor:"rgba(47,127,134,0.08)" }}>
           {coaches.map(c => (
             <div key={c.name} className="flex flex-col gap-1.5 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:gap-4">
@@ -225,7 +225,7 @@ export default function RecruitingPage() {
                     bg={c.status==="Activo"?"rgba(5,150,105,0.12)":c.status==="Llamada"?"rgba(47,127,134,0.12)":"rgba(94,112,128,0.1)"}
                     color={c.status==="Activo"?"#6ee7b7":c.status==="Llamada"?"#7FAFB2":"rgba(127,175,178,0.5)"} />
                 </div>
-                <p className="mt-0.5 text-[11px] font-semibold" style={{ color:"#2F7F86" }}>â†’ {c.next}</p>
+                <p className="mt-0.5 text-[11px] font-semibold" style={{ color:"#2F7F86" }}>→ {c.next}</p>
               </div>
               <div className="flex items-center gap-3 sm:flex-col sm:items-end sm:gap-1">
                 <p className="text-[10px]" style={{ color:"rgba(127,175,178,0.35)" }}>{c.last}</p>
@@ -238,7 +238,7 @@ export default function RecruitingPage() {
 
       {/* Decision matrix */}
       <DarkCard className="p-4 sm:p-5 ximo-fade-up delay-400">
-        <SectionHeader dark title="Matriz de decisiÃ³n" subtitle="ComparaciÃ³n por criterio Â· escala 1â€“5" />
+        <SectionHeader dark title="Matriz de decisión" subtitle="Comparación por criterio · escala 1–5" />
         <div className="overflow-x-auto">
           <table className="w-full min-w-[480px]">
             <thead>
@@ -274,7 +274,7 @@ export default function RecruitingPage() {
 
       {/* Next steps */}
       <DarkCard className="p-4 sm:p-5 ximo-fade-up delay-400">
-        <SectionHeader dark title="PrÃ³ximos pasos" subtitle="Acciones concretas para esta semana" action="Ver tareas â†’" actionHref="/app/tareas" />
+        <SectionHeader dark title="Próximos pasos" subtitle="Acciones concretas para esta semana" action="Ver tareas →" actionHref="/app/tareas" />
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {nextSteps.map((step, i) => (
             <div key={step.task} className="flex gap-3 rounded-xl p-3"
@@ -294,7 +294,7 @@ export default function RecruitingPage() {
 
       <footer className="rounded-xl py-2.5 text-center text-[11px]"
         style={{ border:"1px dashed rgba(47,127,134,0.1)", color:"rgba(127,175,178,0.3)" }}>
-        Datos de muestra Â· App en desarrollo Â· Ximo
+        Datos de muestra · App en desarrollo · Ximo
       </footer>
     </div>
   );

@@ -21,7 +21,7 @@ interface Task {
 const CARD  = "rgba(17,37,56,0.78)";
 const BORDER = "rgba(47,127,134,0.14)";
 
-// Priority & status â†’ dark-safe tokens
+// Priority & status → dark-safe tokens
 const P: Record<Priority, { bg: string; color: string; label: string }> = {
   alta:  { bg:"rgba(248,113,113,0.12)", color:"#f87171", label:"Alta" },
   media: { bg:"rgba(251,191,36,0.12)",  color:"#fbbf24", label:"Media" },
@@ -34,17 +34,17 @@ const S: Record<Status, { bg: string; color: string; label: string }> = {
 };
 
 const todayTasks: Task[] = [
-  { id:1, title:"Actualizar tiempos despuÃ©s de competencia",  category:"Progreso",     priority:"alta",  status:"pendiente",    estimatedTime:"10 min", relatedModule:"Progreso",     href:"/app/progreso" },
+  { id:1, title:"Actualizar tiempos después de competencia",  category:"Progreso",     priority:"alta",  status:"pendiente",    estimatedTime:"10 min", relatedModule:"Progreso",     href:"/app/progreso" },
   { id:2, title:"Enviar follow-up a Coach Boyle",             category:"Recruiting",   priority:"alta",  status:"en progreso",  estimatedTime:"15 min", relatedModule:"Coaches",      href:"/app/coaches" },
   { id:3, title:"Revisar universidades realistas",            category:"Universidades",priority:"media", status:"pendiente",    estimatedTime:"20 min", relatedModule:"Universidades",href:"/app/universidades" },
-  { id:4, title:"Subir transcript acadÃ©mico",                 category:"Documentos",   priority:"alta",  status:"pendiente",    estimatedTime:"5 min",  relatedModule:"Documentos",   href:"/app/documentos" },
+  { id:4, title:"Subir transcript académico",                 category:"Documentos",   priority:"alta",  status:"pendiente",    estimatedTime:"5 min",  relatedModule:"Documentos",   href:"/app/documentos" },
   { id:5, title:"Preparar correo para LIU",                   category:"Recruiting",   priority:"media", status:"pendiente",    estimatedTime:"25 min", relatedModule:"Correos",      href:"/app/correos" },
 ];
 
 const urgentTasks = [
-  { id:1, title:"Confirmar llamada pendiente",    detail:"Coach Davis â€” Northwestern",         deadline:"Hoy, 3:00 PM" },
-  { id:2, title:"Preguntar claridad de beca",     detail:"Athletic scholarship â€” Tier 1",       deadline:"MaÃ±ana" },
-  { id:3, title:"Revisar deadline real",          detail:"Common App â€” Early Action",           deadline:"Nov 1" },
+  { id:1, title:"Confirmar llamada pendiente",    detail:"Coach Davis — Northwestern",         deadline:"Hoy, 3:00 PM" },
+  { id:2, title:"Preguntar claridad de beca",     detail:"Athletic scholarship — Tier 1",       deadline:"Mañana" },
+  { id:3, title:"Revisar deadline real",          detail:"Common App — Early Action",           deadline:"Nov 1" },
 ];
 
 const moduleGroups = [
@@ -58,7 +58,7 @@ const moduleGroups = [
 const completedTasks = [
   { id:1, title:"Landing publicada",    completedDay:"Lunes" },
   { id:2, title:"Waitlist conectada",   completedDay:"Martes" },
-  { id:3, title:"Comunidad creada",     completedDay:"MiÃ©rcoles" },
+  { id:3, title:"Comunidad creada",     completedDay:"Miércoles" },
   { id:4, title:"Perfil actualizado",   completedDay:"Jueves" },
 ];
 
@@ -69,7 +69,7 @@ const upcomingDecisions = [
   { id:4, title:"Comparar becas y roster spot",  deadline:"Julio",       impact:"Alta" },
 ];
 
-// â”€â”€â”€ Progress Ring SVG â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Progress Ring SVG ────────────────────────────────────────
 function ProgressRing({ value, max, r = 38 }: { value: number; max: number; r?: number }) {
   const stroke = 5;
   const norm = r - stroke;
@@ -90,7 +90,7 @@ function ProgressRing({ value, max, r = 38 }: { value: number; max: number; r?: 
   );
 }
 
-// â”€â”€â”€ Pill badge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Pill badge ───────────────────────────────────────────────
 function Pill({ bg, color, label }: { bg: string; color: string; label: string }) {
   return (
     <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide"
@@ -100,7 +100,7 @@ function Pill({ bg, color, label }: { bg: string; color: string; label: string }
   );
 }
 
-// â”€â”€â”€ Section heading â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Section heading ──────────────────────────────────────────
 function SectionTitle({ title, subtitle, count }: { title: string; subtitle?: string; count?: number }) {
   return (
     <div className="mb-4">
@@ -118,7 +118,7 @@ function SectionTitle({ title, subtitle, count }: { title: string; subtitle?: st
   );
 }
 
-// â”€â”€â”€ Task card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Task card ────────────────────────────────────────────────
 function TaskCard({ task }: { task: Task }) {
   const p = P[task.priority];
   const s = S[task.status];
@@ -134,21 +134,21 @@ function TaskCard({ task }: { task: Task }) {
       </p>
       <div className="flex flex-wrap gap-3 text-[11px]" style={{ color:"rgba(127,175,178,0.55)" }}>
         <span>{task.category}</span>
-        <span style={{ color:"rgba(47,127,134,0.4)" }}>Â·</span>
+        <span style={{ color:"rgba(47,127,134,0.4)" }}>·</span>
         <span>{task.estimatedTime}</span>
-        <span style={{ color:"rgba(47,127,134,0.4)" }}>Â·</span>
+        <span style={{ color:"rgba(47,127,134,0.4)" }}>·</span>
         <span>{task.relatedModule}</span>
       </div>
       <Link href={task.href}
         className="ximo-btn-press mt-auto inline-flex w-fit items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition-opacity hover:opacity-80"
         style={{ background:"rgba(30,206,206,0.14)", color:"#1ECECE", border:"1px solid rgba(30,206,206,0.22)" }}>
-        {task.href.split("/app/")[1]?.charAt(0).toUpperCase() + task.href.split("/app/")[1]?.slice(1)} â†’
+        {task.href.split("/app/")[1]?.charAt(0).toUpperCase() + task.href.split("/app/")[1]?.slice(1)} →
       </Link>
     </div>
   );
 }
 
-// â”€â”€â”€ Urgent card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Urgent card ──────────────────────────────────────────────
 function UrgentCard({ task }: { task: typeof urgentTasks[0] }) {
   return (
     <div className="flex flex-col gap-2.5 rounded-2xl p-4 ximo-card-3d"
@@ -167,7 +167,7 @@ function UrgentCard({ task }: { task: typeof urgentTasks[0] }) {
   );
 }
 
-// â”€â”€â”€ Module card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Module card ──────────────────────────────────────────────
 function ModuleCard({ m }: { m: typeof moduleGroups[0] }) {
   return (
     <Link href={m.href}
@@ -183,14 +183,14 @@ function ModuleCard({ m }: { m: typeof moduleGroups[0] }) {
   );
 }
 
-// â”€â”€â”€ Completed card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Completed card ───────────────────────────────────────────
 function CompletedCard({ task }: { task: typeof completedTasks[0] }) {
   return (
     <div className="flex items-center gap-3.5 rounded-2xl p-3.5"
       style={{ background: CARD, border:`1px solid ${BORDER}` }}>
       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-sm font-bold"
         style={{ background:"rgba(5,150,105,0.15)", color:"#6ee7b7" }}>
-        âœ“
+        ✓
       </div>
       <div>
         <p className="text-sm font-bold" style={{ color:"#F5F5F0" }}>{task.title}</p>
@@ -200,7 +200,7 @@ function CompletedCard({ task }: { task: typeof completedTasks[0] }) {
   );
 }
 
-// â”€â”€â”€ Decision card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Decision card ────────────────────────────────────────────
 function DecisionCard({ d }: { d: typeof upcomingDecisions[0] }) {
   const isHigh = d.impact === "Alta";
   return (
@@ -223,7 +223,7 @@ function DecisionCard({ d }: { d: typeof upcomingDecisions[0] }) {
   );
 }
 
-// â”€â”€â”€ Main page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Main page ────────────────────────────────────────────────
 export default function TareasPage() {
   const racha = 7;
   const meta  = 30;
@@ -231,15 +231,15 @@ export default function TareasPage() {
   return (
     <div className="space-y-8">
 
-      {/* â”€â”€ Header â”€â”€ */}
+      {/* ── Header ── */}
       <div className="ximo-fade-up">
         <h1 className="text-xl font-black tracking-tight sm:text-2xl" style={{ color:"#F5F5F0" }}>Tareas</h1>
         <p className="mt-1 text-sm" style={{ color:"rgba(127,175,178,0.55)" }}>
-          Tu centro diario. Sabe quÃ© hacer hoy y no dejes escapar oportunidades.
+          Tu centro diario. Sabe qué hacer hoy y no dejes escapar oportunidades.
         </p>
       </div>
 
-      {/* â”€â”€ Enfoque del dÃ­a â”€â”€ */}
+      {/* ── Enfoque del día ── */}
       <section className="ximo-fade-up delay-75">
         <div className="relative overflow-hidden rounded-2xl p-6 sm:p-8"
           style={{
@@ -258,7 +258,7 @@ export default function TareasPage() {
                 Hoy
               </p>
               <h2 className="text-lg font-black leading-snug sm:text-xl" style={{ color:"#F5F5F0", maxWidth:"38ch" }}>
-                PequeÃ±as acciones diarias crean oportunidades reales.
+                Pequeñas acciones diarias crean oportunidades reales.
               </h2>
               <div className="mt-5 flex gap-6">
                 {[
@@ -282,16 +282,16 @@ export default function TareasPage() {
                 <ProgressRing value={racha} max={meta} r={44} />
                 <div className="absolute text-center">
                   <p className="text-lg font-black leading-none" style={{ color:"#C9A84C" }}>{racha}</p>
-                  <p className="text-[9px]" style={{ color:"rgba(255,255,255,0.4)" }}>dÃ­as</p>
+                  <p className="text-[9px]" style={{ color:"rgba(255,255,255,0.4)" }}>días</p>
                 </div>
               </div>
-              <p className="text-[11px] font-semibold" style={{ color:"rgba(201,168,76,0.7)" }}>{racha}/{meta} dÃ­as</p>
+              <p className="text-[11px] font-semibold" style={{ color:"rgba(201,168,76,0.7)" }}>{racha}/{meta} días</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* â”€â”€ Tareas de hoy â”€â”€ */}
+      {/* ── Tareas de hoy ── */}
       <ScrollReveal delay={80}>
       <section>
         <SectionTitle title="Tareas de hoy" count={todayTasks.length} />
@@ -301,7 +301,7 @@ export default function TareasPage() {
       </section>
       </ScrollReveal>
 
-      {/* â”€â”€ Prioridad alta â”€â”€ */}
+      {/* ── Prioridad alta ── */}
       <ScrollReveal delay={120}>
       <section>
         <SectionTitle title="Prioridad alta" subtitle="No pueden esperar." count={urgentTasks.length} />
@@ -311,17 +311,17 @@ export default function TareasPage() {
       </section>
       </ScrollReveal>
 
-      {/* â”€â”€ Por mÃ³dulo â”€â”€ */}
+      {/* ── Por módulo ── */}
       <ScrollReveal delay={60}>
       <section>
-        <SectionTitle title="Por mÃ³dulo" subtitle="Tareas organizadas por Ã¡rea." />
+        <SectionTitle title="Por módulo" subtitle="Tareas organizadas por área." />
         <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-5">
           {moduleGroups.map((m) => <ModuleCard key={m.id} m={m} />)}
         </div>
       </section>
       </ScrollReveal>
 
-      {/* â”€â”€ Completadas y decisiones â”€â”€ */}
+      {/* ── Completadas y decisiones ── */}
       <ScrollReveal>
       <div className="grid gap-6 lg:grid-cols-2">
         <section>
@@ -331,7 +331,7 @@ export default function TareasPage() {
           </div>
         </section>
         <section>
-          <SectionTitle title="PrÃ³ximas decisiones" subtitle="PrepÃ¡rate con tiempo." count={upcomingDecisions.length} />
+          <SectionTitle title="Próximas decisiones" subtitle="Prepárate con tiempo." count={upcomingDecisions.length} />
           <div className="grid gap-2.5 sm:grid-cols-2">
             {upcomingDecisions.map((d) => <DecisionCard key={d.id} d={d} />)}
           </div>

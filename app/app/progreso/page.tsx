@@ -6,16 +6,16 @@ const CARD  = { background:"rgba(17,37,56,0.7)",  border:"1px solid rgba(47,127,
 const INNER = { background:"rgba(47,127,134,0.06)", border:"1px solid rgba(47,127,134,0.1)"  } as const;
 
 const events = [
-  { event:"50 libre",     current:"26.0", target:"25.2", improvement:"âˆ’0.8s",  progress:72, note:"Mejor marca en competencia reciente. Prioridad para coaches D1." },
-  { event:"100 libre",    current:"58.0", target:"56.5", improvement:"âˆ’1.5s",  progress:58, note:"Consistencia mejorando. Enfocar en salida y primer 25m." },
-  { event:"100 mariposa", current:"63.0", target:"61.0", improvement:"âˆ’2.0s",  progress:45, note:"Evento secundario. Ãštil para relays y versatilidad." },
-  { event:"200 libre",    current:"2:05.0",target:"2:00.0",improvement:"âˆ’5.0s",progress:38, note:"Desarrollar resistencia para programas que valoran versatilidad." },
+  { event:"50 libre",     current:"26.0", target:"25.2", improvement:"−0.8s",  progress:72, note:"Mejor marca en competencia reciente. Prioridad para coaches D1." },
+  { event:"100 libre",    current:"58.0", target:"56.5", improvement:"−1.5s",  progress:58, note:"Consistencia mejorando. Enfocar en salida y primer 25m." },
+  { event:"100 mariposa", current:"63.0", target:"61.0", improvement:"−2.0s",  progress:45, note:"Evento secundario. Útil para relays y versatilidad." },
+  { event:"200 libre",    current:"2:05.0",target:"2:00.0",improvement:"−5.0s",progress:38, note:"Desarrollar resistencia para programas que valoran versatilidad." },
 ];
 
 const recentProgress = [
-  "Mejor tÃ©cnica de salida en 50 libre",
+  "Mejor técnica de salida en 50 libre",
   "Mejor constancia en entrenamiento de base",
-  "PrÃ³xima competencia por actualizar â€” Guadalajara Open",
+  "Próxima competencia por actualizar — Guadalajara Open",
 ];
 
 export default function ProgresoPage() {
@@ -23,7 +23,7 @@ export default function ProgresoPage() {
     <>
       <PageHeader
         title="Progreso deportivo"
-        subtitle="Visualiza tus eventos, tiempos actuales, metas y avances hacia estÃ¡ndares universitarios."
+        subtitle="Visualiza tus eventos, tiempos actuales, metas y avances hacia estándares universitarios."
       />
 
       <div className="mb-5 space-y-3">
@@ -47,7 +47,7 @@ export default function ProgresoPage() {
 
       <div className="grid gap-5 lg:grid-cols-2">
         <div className="rounded-2xl p-4 sm:p-5" style={CARD}>
-          <SectionHeader title="Ãšltimos avances" subtitle="Temporada 2024â€“25" />
+          <SectionHeader title="Últimos avances" subtitle="Temporada 2024–25" />
           <ul className="space-y-3">
             {recentProgress.map((item) => (
               <li key={item} className="flex items-start gap-2.5 text-sm" style={{ color:"rgba(245,245,240,0.65)" }}>
@@ -65,7 +65,7 @@ export default function ProgresoPage() {
           </div>
           <div className="p-5">
             <p className="text-sm leading-relaxed" style={{ color:"rgba(245,245,240,0.5)" }}>
-              Bajar el tiempo necesario para abrir mÃ¡s opciones universitarias reales.
+              Bajar el tiempo necesario para abrir más opciones universitarias reales.
             </p>
           </div>
         </div>

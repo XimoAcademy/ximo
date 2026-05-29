@@ -9,7 +9,7 @@ const satChecklist  = [
   { item:"Investigar fechas",          done:true  },
   { item:"Crear cuenta College Board", done:true  },
   { item:"Estudiar vocabulario",       done:false },
-  { item:"Hacer prÃ¡ctica semanal",     done:false },
+  { item:"Hacer práctica semanal",     done:false },
   { item:"Agendar examen oficial",     done:false },
 ];
 const toeflChecklist = [
@@ -21,15 +21,15 @@ const toeflChecklist = [
 ];
 const timeline = [
   { period:"Este mes",          items:["Completar 2 practice tests SAT","Benchmark TOEFL con simulacro","Definir fecha objetivo de examen"] },
-  { period:"PrÃ³ximos 3 meses",  items:["SAT oficial â€” Mayo","Intensificar listening y speaking TOEFL","Compartir scores con coaches activos"] },
-  { period:"Antes de aplicar",  items:["TOEFL oficial â€” Junio","Enviar scores a NCAA Eligibility Center","Confirmar requisitos por universidad"] },
+  { period:"Próximos 3 meses",  items:["SAT oficial — Mayo","Intensificar listening y speaking TOEFL","Compartir scores con coaches activos"] },
+  { period:"Antes de aplicar",  items:["TOEFL oficial — Junio","Enviar scores a NCAA Eligibility Center","Confirmar requisitos por universidad"] },
 ];
 const resources = [
   { name:"Khan Academy SAT",      type:"SAT",    desc:"Prep oficial gratuita" },
   { name:"PrepScholar SAT",       type:"SAT",    desc:"Plan personalizado" },
   { name:"Magoosh TOEFL",         type:"TOEFL",  desc:"Lecciones en video" },
   { name:"ETS TOEFL Official",    type:"TOEFL",  desc:"Material oficial" },
-  { name:"Cursos Ximo SAT/TOEFL", type:"Ximo",   desc:"PrÃ³ximamente en Cursos" },
+  { name:"Cursos Ximo SAT/TOEFL", type:"Ximo",   desc:"Próximamente en Cursos" },
 ];
 
 function CheckRow({ item, done }: { item:string; done:boolean }) {
@@ -50,7 +50,7 @@ function CheckRow({ item, done }: { item:string; done:boolean }) {
 export default function SatToeflPage() {
   return (
     <>
-      <PageHeader title="SAT / TOEFL" subtitle="Organiza los exÃ¡menes que pueden abrirte mÃ¡s puertas acadÃ©micas y deportivas." />
+      <PageHeader title="SAT / TOEFL" subtitle="Organiza los exámenes que pueden abrirte más puertas académicas y deportivas." />
 
       {/* Checklists */}
       <ScrollReveal>
@@ -69,7 +69,7 @@ export default function SatToeflPage() {
       {/* Timeline */}
       <ScrollReveal delay={80}>
       <div className="mb-5 rounded-2xl p-4 sm:p-5" style={CARD}>
-        <SectionHeader title="Timeline" subtitle="Plan de preparaciÃ³n" />
+        <SectionHeader title="Timeline" subtitle="Plan de preparación" />
         <div className="grid gap-4 sm:grid-cols-3">
           {timeline.map((b) => (
             <div key={b.period} className="rounded-xl p-4" style={INNER}>

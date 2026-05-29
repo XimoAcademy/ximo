@@ -4,12 +4,12 @@ import ScrollReveal from "../../components/ScrollReveal";
 const CARD  = { background:"rgba(17,37,56,0.7)",  border:"1px solid rgba(47,127,134,0.14)" } as const;
 
 const courses = [
-  { title:"Recruiting universitario desde cero",   desc:"Reglas NCAA, divisiones, calendario y cÃ³mo iniciar tu proceso como atleta internacional.",     status:"disponible pronto", lessons:8 },
-  { title:"CÃ³mo escribirle a coaches",             desc:"Plantillas, estructura y personalizaciÃ³n que genera respuestas reales.",                         status:"disponible pronto", lessons:6 },
-  { title:"SAT / TOEFL para atletas",              desc:"Equilibra entrenamiento de Ã©lite con preparaciÃ³n acadÃ©mica internacional.",                      status:"prÃ³ximamente",      lessons:10 },
-  { title:"CÃ³mo armar tu perfil deportivo",        desc:"Video, resume atlÃ©tico y narrativa que destaca ante coaches.",                                   status:"prÃ³ximamente",      lessons:7 },
-  { title:"Marca personal para atletas",           desc:"Redes, contenido y presencia digital para atletas en proceso de recruiting.",                    status:"prÃ³ximamente",      lessons:6 },
-  { title:"Mentalidad y disciplina",               desc:"HÃ¡bitos, enfoque y resiliencia en el camino universitario.",                                     status:"prÃ³ximamente",      lessons:5 },
+  { title:"Recruiting universitario desde cero",   desc:"Reglas NCAA, divisiones, calendario y cómo iniciar tu proceso como atleta internacional.",     status:"disponible pronto", lessons:8 },
+  { title:"Cómo escribirle a coaches",             desc:"Plantillas, estructura y personalización que genera respuestas reales.",                         status:"disponible pronto", lessons:6 },
+  { title:"SAT / TOEFL para atletas",              desc:"Equilibra entrenamiento de élite con preparación académica internacional.",                      status:"próximamente",      lessons:10 },
+  { title:"Cómo armar tu perfil deportivo",        desc:"Video, resume atlético y narrativa que destaca ante coaches.",                                   status:"próximamente",      lessons:7 },
+  { title:"Marca personal para atletas",           desc:"Redes, contenido y presencia digital para atletas en proceso de recruiting.",                    status:"próximamente",      lessons:6 },
+  { title:"Mentalidad y disciplina",               desc:"Hábitos, enfoque y resiliencia en el camino universitario.",                                     status:"próximamente",      lessons:5 },
 ];
 
 export default function CursosPage() {
@@ -21,7 +21,7 @@ export default function CursosPage() {
       <div className="mb-5 rounded-2xl p-5" style={{ ...CARD, background:"linear-gradient(135deg, rgba(201,168,76,0.1), rgba(47,127,134,0.08))", border:"1px solid rgba(201,168,76,0.2)" }}>
         <p className="text-sm font-bold" style={{ color:"#C9A84C" }}>Acceso anticipado</p>
         <p className="mt-1 text-sm leading-relaxed" style={{ color:"rgba(245,245,240,0.5)" }}>
-          Los suscriptores activos tendrÃ¡n prioridad para acceder a los primeros contenidos.
+          Los suscriptores activos tendrán prioridad para acceder a los primeros contenidos.
         </p>
       </div>
 
@@ -42,7 +42,7 @@ export default function CursosPage() {
             <p className="mb-4 flex-1 text-sm leading-relaxed" style={{ color:"rgba(245,245,240,0.45)" }}>{c.desc}</p>
             <p className="text-[11px]" style={{ color:"rgba(127,175,178,0.35)" }}>{c.lessons} lecciones</p>
             <button type="button" className="mt-3 text-left text-xs font-semibold opacity-50 cursor-not-allowed" style={{ color:"#1ECECE" }} disabled>
-              Acceso prÃ³ximamente â†’
+              Acceso próximamente →
             </button>
           </div>
           </ScrollReveal>
