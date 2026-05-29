@@ -1,20 +1,19 @@
 import Link from "next/link";
 import PageHeader from "../components/PageHeader";
-import { Badge, Card, SectionHeader } from "../components/ui";
 
 const profile = {
   name: "Manuel Zúñiga",
   country: "México",
   sport: "Natación",
   graduationYear: "2027",
-  mainEvents: "50 libre, 100 libre, 100 mariposa",
+  mainEvents: "50 libre · 100 libre · 100 mariposa",
   goal: "College athlete en Estados Unidos",
   recruitingStatus: "En proceso activo",
 };
 
 const athleticInfo = [
   ["Club", "Club Tiburones GDL"],
-  ["Eventos principales", profile.mainEvents],
+  ["Eventos", profile.mainEvents],
   ["50 libre", "26.0s"],
   ["100 libre", "58.0s"],
   ["100 mariposa", "63.0s"],
@@ -49,6 +48,24 @@ const upcomingUpdates = [
   "Agregar cartas de recomendación",
 ];
 
+const CARD = {
+  background: "rgba(17,37,56,0.7)",
+  border: "1px solid rgba(47,127,134,0.14)",
+} as const;
+
+function InfoGrid({ items }: { items: string[][] }) {
+  return (
+    <div className="grid gap-2 sm:grid-cols-2">
+      {items.map(([label, value]) => (
+        <div key={label} className="rounded-xl px-3.5 py-2.5" style={{ background: "rgba(47,127,134,0.06)", border: "1px solid rgba(47,127,134,0.1)" }}>
+          <p className="text-[9px] font-bold uppercase tracking-widest" style={{ color: "rgba(127,175,178,0.45)" }}>{label}</p>
+          <p className="mt-0.5 text-sm font-semibold" style={{ color: "#F5F5F0" }}>{value}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function PerfilPage() {
   return (
     <>
@@ -57,164 +74,172 @@ export default function PerfilPage() {
         subtitle="Tu información deportiva, académica y personal organizada para recruiting."
       />
 
-      <div className="grid gap-5 lg:grid-cols-[1fr_280px]">
-        <div className="space-y-5">
-          <Card className="overflow-hidden">
-            <div className="bg-gradient-to-br from-[#0B1F33] to-[#0A1C2E] p-5 sm:p-6">
+      <div className="grid gap-5 lg:grid-cols-[1fr_288px]">
+
+        {/* Left column */}
+        <div className="space-y-4">
+
+          {/* Profile hero */}
+          <div className="overflow-hidden rounded-2xl ximo-card-3d" style={CARD}>
+            <div className="relative p-6"
+              style={{ background: "linear-gradient(135deg, rgba(47,127,134,0.12) 0%, transparent 60%)" }}>
+              <div className="absolute top-0 right-0 h-40 w-40 rounded-full"
+                style={{ background: "radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%)", filter: "blur(30px)" }} />
               <div className="flex items-start gap-4">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#C9A84C]/20 text-xl font-black text-[#C9A84C]">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl text-xl font-black"
+                  style={{ background: "linear-gradient(135deg, rgba(201,168,76,0.2), rgba(201,168,76,0.08))", color: "#C9A84C", border: "1px solid rgba(201,168,76,0.2)" }}>
                   MZ
                 </div>
                 <div>
-                  <h2 className="text-xl font-black text-white">
-                    {profile.name}
-                  </h2>
-                  <p className="mt-1 text-sm text-white/55">
+                  <h2 className="text-xl font-black" style={{ color: "#F5F5F0" }}>{profile.name}</h2>
+                  <p className="mt-1 text-sm" style={{ color: "rgba(245,245,240,0.5)" }}>
                     {profile.sport} · {profile.country}
                   </p>
-                  <Badge className="mt-2 border border-[#C9A84C]/30 bg-[#C9A84C]/15 text-[#C9A84C]">
+                  <span className="mt-2 inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold"
+                    style={{ background: "rgba(47,127,134,0.15)", border: "1px solid rgba(47,127,134,0.3)", color: "#7FAFB2" }}>
                     {profile.recruitingStatus}
-                  </Badge>
+                  </span>
                 </div>
               </div>
-              <p className="mt-4 text-sm text-white/50">
-                Objetivo:{" "}
-                <span className="font-semibold text-[#C9A84C]">
-                  {profile.goal}
-                </span>
+              <p className="mt-4 text-sm" style={{ color: "rgba(245,245,240,0.4)" }}>
+                Objetivo: <span className="font-semibold" style={{ color: "#C9A84C" }}>{profile.goal}</span>
               </p>
             </div>
-          </Card>
+          </div>
 
-          <Card className="p-4 sm:p-5">
-            <SectionHeader title="Información deportiva" />
-            <div className="grid gap-3 sm:grid-cols-2">
-              {athleticInfo.map(([label, value]) => (
-                <div key={label} className="rounded-lg bg-[#F5F5F0] px-3 py-2">
-                  <p className="text-[10px] font-bold tracking-wide text-[#5E7080] uppercase">
-                    {label}
-                  </p>
-                  <p className="mt-0.5 text-sm font-semibold text-[#0B1F33]">
-                    {value}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </Card>
+          {/* Deportiva */}
+          <div className="rounded-2xl p-5 ximo-card-3d" style={CARD}>
+            <p className="mb-4 text-[10px] font-bold uppercase tracking-widest" style={{ color: "rgba(127,175,178,0.5)" }}>Información deportiva</p>
+            <InfoGrid items={athleticInfo} />
+          </div>
 
-          <Card className="p-4 sm:p-5">
-            <SectionHeader title="Información académica" />
-            <div className="grid gap-3 sm:grid-cols-2">
-              {academicInfo.map(([label, value]) => (
-                <div key={label} className="rounded-lg bg-[#F5F5F0] px-3 py-2">
-                  <p className="text-[10px] font-bold tracking-wide text-[#5E7080] uppercase">
-                    {label}
-                  </p>
-                  <p className="mt-0.5 text-sm font-semibold text-[#0B1F33]">
-                    {value}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </Card>
+          {/* Académica */}
+          <div className="rounded-2xl p-5 ximo-card-3d" style={CARD}>
+            <p className="mb-4 text-[10px] font-bold uppercase tracking-widest" style={{ color: "rgba(127,175,178,0.5)" }}>Información académica</p>
+            <InfoGrid items={academicInfo} />
+          </div>
 
-          <Card className="p-4 sm:p-5">
-            <SectionHeader title="Objetivos" />
-            <ul className="space-y-2">
+          {/* Objetivos */}
+          <div className="rounded-2xl p-5 ximo-card-3d" style={CARD}>
+            <p className="mb-4 text-[10px] font-bold uppercase tracking-widest" style={{ color: "rgba(127,175,178,0.5)" }}>Objetivos</p>
+            <ul className="space-y-2.5">
               {goals.map((goal) => (
-                <li
-                  key={goal}
-                  className="flex items-start gap-2 text-sm text-[#0D1B2A]"
-                >
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#C9A84C]" />
-                  {goal}
+                <li key={goal} className="flex items-start gap-2.5">
+                  <span className="mt-2 h-1 w-1 shrink-0 rounded-full" style={{ background: "#C9A84C" }} />
+                  <span className="text-sm" style={{ color: "rgba(245,245,240,0.65)" }}>{goal}</span>
                 </li>
               ))}
             </ul>
-          </Card>
+          </div>
 
-          <Card className="p-4 sm:p-5">
-            <SectionHeader title="Redes sociales" />
+          {/* Redes */}
+          <div className="rounded-2xl p-5 ximo-card-3d" style={CARD}>
+            <p className="mb-4 text-[10px] font-bold uppercase tracking-widest" style={{ color: "rgba(127,175,178,0.5)" }}>Redes sociales</p>
             <div className="space-y-2">
               {social.map(([platform, handle]) => (
-                <div
-                  key={platform}
-                  className="flex items-center justify-between rounded-lg border border-[#0B1F33]/6 px-3 py-2"
-                >
-                  <span className="text-sm font-semibold text-[#0B1F33]">
-                    {platform}
-                  </span>
-                  <span className="text-sm text-[#1D4ED8]">{handle}</span>
+                <div key={platform} className="flex items-center justify-between rounded-xl px-3.5 py-2.5"
+                  style={{ background: "rgba(47,127,134,0.05)", border: "1px solid rgba(47,127,134,0.1)" }}>
+                  <span className="text-sm font-semibold" style={{ color: "rgba(245,245,240,0.5)" }}>{platform}</span>
+                  <span className="text-sm font-semibold" style={{ color: "#7FAFB2" }}>{handle}</span>
                 </div>
               ))}
             </div>
-          </Card>
+          </div>
         </div>
 
+        {/* Right column */}
         <div className="space-y-4">
-          <Card className="p-4">
-            <SectionHeader
-              title="Próximas actualizaciones"
-              subtitle="Para completar tu perfil"
-            />
+
+          {/* Subscription status */}
+          <div className="rounded-2xl p-5 ximo-card-3d" style={{ ...CARD, border: "1px solid rgba(47,127,134,0.28)" }}>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="h-2 w-2 rounded-full ximo-glow-pulse" style={{ background: "#2F7F86" }} />
+              <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "rgba(127,175,178,0.6)" }}>
+                Estado de suscripción
+              </p>
+            </div>
+            <div className="space-y-2.5">
+              {[
+                ["Plan actual", "Activo"],
+                ["Tipo de plan", "Mensual"],
+                ["Próxima renovación", "15 de febrero"],
+                ["Estado", "Activo"],
+              ].map(([k, v]) => (
+                <div key={k} className="flex items-center justify-between">
+                  <span className="text-xs" style={{ color: "rgba(245,245,240,0.4)" }}>{k}</span>
+                  <span className="text-xs font-bold" style={{ color: k === "Estado" ? "#6ee7b7" : "#F5F5F0" }}>{v}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 flex gap-2">
+              <button
+                type="button"
+                className="ximo-btn-press flex-1 rounded-xl py-2.5 text-xs font-bold transition-all duration-200 hover:opacity-80"
+                style={{ background: "rgba(47,127,134,0.15)", border: "1px solid rgba(47,127,134,0.3)", color: "#7FAFB2" }}
+              >
+                Gestionar plan
+              </button>
+              <Link href="/subscribe" className="flex-1">
+                <button
+                  type="button"
+                  className="ximo-btn-press w-full rounded-xl py-2.5 text-xs font-bold transition-all duration-200 hover:opacity-80"
+                  style={{ background: "transparent", border: "1px solid rgba(47,127,134,0.15)", color: "rgba(245,245,240,0.45)" }}
+                >
+                  Ver planes
+                </button>
+              </Link>
+            </div>
+          </div>
+
+          {/* Next updates */}
+          <div className="rounded-2xl p-5 ximo-card-3d" style={CARD}>
+            <p className="mb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "rgba(127,175,178,0.5)" }}>Próximas actualizaciones</p>
+            <p className="mb-4 text-[10px]" style={{ color: "rgba(245,245,240,0.3)" }}>Para completar tu perfil</p>
             <ul className="space-y-2">
               {upcomingUpdates.map((item) => (
-                <li
-                  key={item}
-                  className="flex items-start gap-2 text-xs text-[#5E7080]"
-                >
-                  <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-[#C9A84C]" />
-                  {item}
+                <li key={item} className="flex items-start gap-2.5">
+                  <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full" style={{ background: "rgba(201,168,76,0.5)" }} />
+                  <span className="text-xs" style={{ color: "rgba(245,245,240,0.45)" }}>{item}</span>
                 </li>
               ))}
             </ul>
-          </Card>
+          </div>
 
-          <Card className="p-4">
-            <SectionHeader title="Visibilidad" subtitle="Perfil coach-shareable" />
-            <p className="text-2xl font-black text-[#1D4ED8]">12</p>
-            <p className="text-xs text-[#5E7080]">
-              universidades con perfil activo
-            </p>
+          {/* Visibility */}
+          <div className="rounded-2xl p-5 ximo-card-3d" style={CARD}>
+            <p className="mb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "rgba(127,175,178,0.5)" }}>Visibilidad</p>
+            <p className="mt-3 text-3xl font-black" style={{ color: "#2F7F86" }}>12</p>
+            <p className="text-xs" style={{ color: "rgba(245,245,240,0.4)" }}>universidades con perfil activo</p>
             <button
               type="button"
-              className="mt-3 w-full rounded-xl border border-[#0B1F33]/10 py-2 text-xs font-semibold text-[#0B1F33]"
+              className="ximo-btn-press mt-4 w-full rounded-xl py-2.5 text-xs font-bold transition-all duration-200 hover:opacity-80"
+              style={{ background: "rgba(47,127,134,0.08)", border: "1px solid rgba(47,127,134,0.2)", color: "rgba(127,175,178,0.7)" }}
             >
               Copiar link de perfil
             </button>
-          </Card>
-
-          <Card className="p-4">
-            <p className="text-xs leading-relaxed text-[#5E7080]">
-              Completa SAT, TOEFL y video para maximizar visibilidad ante
-              coaches.
-            </p>
-            <Link
-              href="/login"
-              className="mt-3 block w-full rounded-xl bg-[#0B1F33] py-2.5 text-center text-xs font-bold text-white hover:bg-[#0A1C2E]"
-            >
-              Acceso privado →
-            </Link>
-          </Card>
+          </div>
 
           {/* Brand CTA */}
-          <Card className="p-4">
-            <div className="flex items-start gap-3 mb-3">
-              <span className="text-lg mt-0.5">◈</span>
+          <div className="rounded-2xl p-5 ximo-card-3d" style={{ ...CARD, border: "1px solid rgba(201,168,76,0.15)" }}>
+            <div className="flex items-start gap-3 mb-4">
+              <span className="text-base mt-0.5 shrink-0" style={{ color: "#C9A84C" }}>◈</span>
               <div>
-                <p className="text-xs font-black text-[#0B1F33]">¿Representas una marca?</p>
-                <p className="mt-1 text-[11px] text-[#5E7080] leading-relaxed">
-                  Solicita revisión para promocionar productos, descuentos, patrocinios o campañas dentro de la comunidad ximo.
+                <p className="text-xs font-black" style={{ color: "#F5F5F0" }}>¿Representas una marca?</p>
+                <p className="mt-1 text-[11px] leading-relaxed" style={{ color: "rgba(245,245,240,0.4)" }}>
+                  Solicita revisión para promocionar productos, descuentos, patrocinios o campañas dentro de la comunidad Ximo.
                 </p>
               </div>
             </div>
-            <Link
-              href="/app/promocionar"
-              className="block w-full rounded-xl bg-[#0B1F33] py-2.5 text-center text-xs font-bold text-white hover:bg-[#112538] transition-colors"
-            >
-              Promocionar con ximo →
+            <Link href="/app/promocionar">
+              <button
+                type="button"
+                className="ximo-btn-press w-full rounded-xl py-2.5 text-xs font-bold transition-all duration-200 hover:opacity-90"
+                style={{ background: "rgba(201,168,76,0.12)", border: "1px solid rgba(201,168,76,0.25)", color: "#C9A84C" }}
+              >
+                Promocionar con Ximo →
+              </button>
             </Link>
-          </Card>
+          </div>
         </div>
       </div>
     </>

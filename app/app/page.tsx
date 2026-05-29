@@ -1,27 +1,27 @@
-// app/app/page.tsx — ximo Academy Dashboard
-// Later: protect route with auth; check subscription status
+"use client";
+// app/app/page.tsx — Ximo Dashboard
 import Link from "next/link";
 import { Badge, Card, ProgressBar, SectionHeader } from "./components/ui";
 
-const statCards = [
-  { label: "Universidades", value: "12", sub: "3 en seguimiento activo",   icon: "◫", href: "/app/universidades" },
-  { label: "Coaches",       value: "7",  sub: "2 con interés alto",         icon: "⬘", href: "/app/coaches" },
-  { label: "Respuestas",    value: "4",  sub: "1 llamada pendiente",         icon: "✉", href: "/app/correos" },
-  { label: "Documentos",    value: "6/10", sub: "4 pendientes",             icon: "▣", href: "/app/documentos" },
+const stats = [
+  { label: "Universidades", value: "12", sub: "3 en seguimiento",  icon: "◫", href: "/app/universidades", color: "#2F7F86" },
+  { label: "Coaches",       value: "7",  sub: "2 con interés alto", icon: "⬘", href: "/app/coaches",       color: "#C9A84C" },
+  { label: "Respuestas",    value: "4",  sub: "1 llamada pendiente", icon: "✉", href: "/app/correos",       color: "#7FAFB2" },
+  { label: "Documentos",    value: "6/10",sub: "4 pendientes",      icon: "▣", href: "/app/documentos",    color: "#F5F5F0" },
 ];
 
-const pipelineStages = [
-  { label: "Identificadas", count: 12, note: "En radar" },
-  { label: "Contactadas",   count: 7,  note: "1er correo" },
-  { label: "Respondieron",  count: 4,  note: "Activas" },
-  { label: "Interesadas",   count: 2,  note: "Interés real" },
-  { label: "Oferta",        count: 1,  note: "Siguiente paso" },
+const pipeline = [
+  { label: "Identificadas", count: 12, pct: 100 },
+  { label: "Contactadas",   count: 7,  pct: 58 },
+  { label: "Respondieron",  count: 4,  pct: 33 },
+  { label: "Interesadas",   count: 2,  pct: 17 },
+  { label: "Oferta",        count: 1,  pct: 8 },
 ];
 
 const universities = [
-  { name: "Niagara University", div: "D1 · NY", status: "Interés real",  statusC: "bg-emerald-500/10 text-emerald-700", next: "Preguntar beca oficial" },
-  { name: "LIU Brooklyn",       div: "D1 · NY", status: "Respondió",     statusC: "bg-[#C9A84C]/12 text-[#7a5f1f]",   next: "Enviar updates de verano" },
-  { name: "Towson University",  div: "D1 · MD", status: "Llamada",       statusC: "bg-[#2F7F86]/12 text-[#1F5F66]",   next: "Confirmar llamada" },
+  { name: "Niagara University", div: "D1 · NY", status: "Interés real",  sc: "rgba(5,150,105,0.12)", tc: "#6ee7b7", next: "Preguntar beca oficial" },
+  { name: "LIU Brooklyn",       div: "D1 · NY", status: "Respondió",     sc: "rgba(201,168,76,0.1)", tc: "#C9A84C", next: "Enviar updates de verano" },
+  { name: "Towson University",  div: "D1 · MD", status: "Llamada",       sc: "rgba(47,127,134,0.12)",tc: "#7FAFB2", next: "Confirmar llamada" },
 ];
 
 const swimEvents = [
@@ -38,8 +38,8 @@ const rankings = [
 ];
 
 const communityPreview = [
-  { user: "Carlos Nado", initials: "CN", tag: "Duda",  tagC: "bg-[#2F7F86]/10 text-[#1F5F66]",  text: "¿26.8 en 50 libre es realista para D1?",  likes: 8,  replies: 5 },
-  { user: "Fer Swim",    initials: "FS", tag: "Logro", tagC: "bg-emerald-500/10 text-emerald-700", text: "¡Nuevo PB en 50 libre: 25.1! El trabajo da resultados 🔥", likes: 22, replies: 9 },
+  { user: "Carlos Nado", initials: "CN", tag: "Duda",  tagC: "rgba(47,127,134,0.15)", tagT: "#7FAFB2",  text: "¿26.8 en 50 libre es realista para D1?",              likes: 8,  replies: 5 },
+  { user: "Fer Swim",    initials: "FS", tag: "Logro", tagC: "rgba(5,150,105,0.12)",  tagT: "#6ee7b7",  text: "Nuevo PB en 50 libre: 25.1. El trabajo da resultados.", likes: 22, replies: 9 },
 ];
 
 const nextActions = [
@@ -51,224 +51,277 @@ const nextActions = [
 
 const STREAK = { current: 7, goal: 30 };
 
+// Dark card helper
+function DarkCard({ children, className = "", glow = false }: { children: React.ReactNode; className?: string; glow?: boolean }) {
+  return (
+    <div className={`rounded-2xl ximo-card-3d ${className}`}
+      style={{
+        background: "rgba(17,37,56,0.8)",
+        border: "1px solid rgba(47,127,134,0.12)",
+        boxShadow: glow
+          ? "0 0 30px rgba(47,127,134,0.15), 0 4px 24px rgba(0,0,0,0.4)"
+          : "0 4px 24px rgba(0,0,0,0.3)",
+      }}>
+      {children}
+    </div>
+  );
+}
+
 export default function DashboardPage() {
   const streakPct = Math.round((STREAK.current / STREAK.goal) * 100);
-
   return (
     <>
-      {/* Hero */}
-      <section className="relative mb-5 overflow-hidden rounded-2xl bg-[#0B1F33] p-5 sm:p-6">
-        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <div className="mb-2 flex flex-wrap gap-2">
-              <Badge className="border border-[#C9A84C]/25 bg-[#C9A84C]/10 text-[#C9A84C]">Beta privada</Badge>
-              <Badge className="border border-white/10 bg-white/5 text-white/45">Atleta fundador</Badge>
-              <Badge className="border border-white/10 bg-white/5 text-white/45">México</Badge>
+      {/* ── Hero ── */}
+      <section className="relative mb-5 overflow-hidden rounded-2xl p-6 sm:p-8 ximo-fade-up"
+        style={{
+          background: "linear-gradient(135deg, #07131F 0%, #112538 50%, #1F5F66 100%)",
+          border: "1px solid rgba(47,127,134,0.2)",
+          boxShadow: "0 0 60px rgba(47,127,134,0.15), 0 8px 32px rgba(0,0,0,0.5)",
+        }}>
+        {/* Glow orbs */}
+        <div className="absolute top-0 right-0 h-64 w-64 rounded-full blur-3xl pointer-events-none ximo-glow-pulse"
+          style={{ background: "radial-gradient(circle, rgba(47,127,134,0.25) 0%, transparent 70%)" }} />
+        <div className="absolute bottom-0 left-0 h-40 w-40 rounded-full blur-2xl pointer-events-none ximo-glow-pulse delay-300"
+          style={{ background: "radial-gradient(circle, rgba(201,168,76,0.15) 0%, transparent 70%)" }} />
+
+        <div className="relative flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+          <div className="ximo-fade-up">
+            <div className="mb-3 flex flex-wrap gap-2">
+              <Badge className="border" style={{ borderColor: "rgba(201,168,76,0.25)", background: "rgba(201,168,76,0.1)", color: "#C9A84C" }}>Suscripción activa</Badge>
+              <Badge className="border" style={{ borderColor: "rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.4)" }}>Atleta fundador</Badge>
             </div>
-            <h1 className="text-xl font-black text-white sm:text-2xl">Bienvenido, Manuel 👋</h1>
-            <p className="mt-1.5 max-w-md text-sm text-white/40 leading-relaxed">
-              Tu centro de recruiting, progreso y oportunidades.
+            <h1 className="text-2xl font-black text-white sm:text-3xl" style={{ textShadow: "0 2px 20px rgba(47,127,134,0.4)" }}>
+              Tu centro de mando deportivo.
+            </h1>
+            <p className="mt-2 max-w-lg text-sm leading-relaxed" style={{ color: "rgba(127,175,178,0.7)" }}>
+              Convierte correos, dudas, tiempos y oportunidades en un camino claro.
             </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Link href="/app/recruiting"
+                className="rounded-xl px-4 py-2 text-xs font-bold transition-all duration-200 hover:scale-105"
+                style={{ background: "#2F7F86", color: "white", boxShadow: "0 0 16px rgba(47,127,134,0.4)" }}>
+                Ver Recruiting {'->'}
+              </Link>
+              <Link href="/app/tareas"
+                className="rounded-xl border px-4 py-2 text-xs font-bold transition-all duration-200 hover:scale-105"
+                style={{ borderColor: "rgba(201,168,76,0.25)", color: "#C9A84C", background: "rgba(201,168,76,0.06)" }}>
+                Tareas del día {'->'}
+              </Link>
+            </div>
           </div>
 
           {/* Streak */}
-          <div className="shrink-0 rounded-xl border border-white/8 bg-white/4 px-4 py-3 min-w-[164px]">
-            <p className="text-[9px] font-bold tracking-widest text-white/35 uppercase mb-1">Racha diaria</p>
-            <p className="text-3xl font-black text-[#C9A84C]">🔥 {STREAK.current}</p>
-            <p className="text-[10px] text-white/25 mt-0.5">días consecutivos</p>
-            <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-white/8">
-              <div className="h-full rounded-full bg-gradient-to-r from-[#C9A84C] to-[#e8c76a]" style={{ width: `${streakPct}%` }} />
+          <div className="shrink-0 rounded-2xl p-4 ximo-glow-teal ximo-fade-up delay-200"
+            style={{ background: "rgba(47,127,134,0.1)", border: "1px solid rgba(47,127,134,0.25)", minWidth: 164 }}>
+            <p className="text-[9px] font-bold uppercase tracking-widest mb-1" style={{ color: "rgba(127,175,178,0.5)" }}>Racha diaria</p>
+            <p className="text-4xl font-black" style={{ color: "#C9A84C" }}>{STREAK.current}</p>
+            <p className="text-[10px] mt-0.5" style={{ color: "rgba(127,175,178,0.4)" }}>días consecutivos</p>
+            <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full" style={{ background: "rgba(255,255,255,0.06)" }}>
+              <div className="h-full rounded-full ximo-progress-bar"
+                style={{ width: `${streakPct}%`, background: "linear-gradient(90deg,#2F7F86,#C9A84C)", "--progress-width": `${streakPct}%` } as React.CSSProperties} />
             </div>
-            <p className="mt-1 text-[9px] text-white/20">Meta: {STREAK.goal} días</p>
-          </div>
-        </div>
-
-        {/* Daily nudge */}
-        <div className="relative mt-4 flex items-center justify-between gap-3 rounded-xl border border-[#2F7F86]/25 bg-[#2F7F86]/8 px-4 py-2.5">
-          <p className="text-xs text-[#7FAFB2]">
-            <span className="font-black">Tarea de hoy:</span> Actualiza un avance, revisa un coach o registra tu próximo paso.
-          </p>
-          <div className="flex shrink-0 gap-2">
-            <Link href="/app/recruiting"
-              className="rounded-lg border border-[#2F7F86]/40 px-3 py-1.5 text-[10px] font-black text-[#7FAFB2] hover:bg-[#2F7F86]/15 transition-colors">
-              Recruiting
-            </Link>
-            <Link href="/app/tareas"
-              className="rounded-lg bg-[#2F7F86] px-3 py-1.5 text-[10px] font-black text-white hover:bg-[#1F5F66] transition-colors">
-              Ver tareas
-            </Link>
+            <p className="mt-1 text-[9px]" style={{ color: "rgba(127,175,178,0.3)" }}>Meta: {STREAK.goal} días</p>
           </div>
         </div>
       </section>
 
-      {/* Stats */}
+      {/* ── Stats ── */}
       <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {statCards.map((s) => (
+        {stats.map((s, i) => (
           <Link key={s.label} href={s.href}>
-            <Card className="p-4 hover:-translate-y-0.5 hover:shadow-md transition-all duration-150">
+            <DarkCard className={`p-4 ximo-lift ximo-fade-up delay-${(i + 1) * 100}`}>
               <div className="flex items-center justify-between mb-2">
-                <p className="text-[10px] font-bold tracking-wide text-[#5E7080] uppercase">{s.label}</p>
-                <span className="text-[11px] text-[#0B1F33]/20">{s.icon}</span>
+                <p className="text-[10px] font-bold uppercase tracking-wide" style={{ color: "rgba(127,175,178,0.5)" }}>{s.label}</p>
+                <span className="text-[11px] opacity-30 text-white">{s.icon}</span>
               </div>
-              <p className="text-2xl font-black text-[#0B1F33]">{s.value}</p>
-              <p className="mt-0.5 text-[11px] text-[#5E7080]">{s.sub}</p>
-            </Card>
+              <p className="text-2xl font-black" style={{ color: s.color }}>{s.value}</p>
+              <p className="mt-0.5 text-[11px]" style={{ color: "rgba(127,175,178,0.4)" }}>{s.sub}</p>
+            </DarkCard>
           </Link>
         ))}
       </div>
 
-      {/* Main grid */}
+      {/* ── Main grid ── */}
       <div className="grid gap-5 xl:grid-cols-[1fr_288px]">
         <div className="space-y-5">
 
-          {/* Pipeline */}
-          <Card className="p-4 sm:p-5">
-            <SectionHeader title="Pipeline de recruiting" subtitle="Etapas del proceso" action="Ver recruiting →" actionHref="/app/recruiting" />
-            <div className="grid grid-cols-5 gap-2">
-              {pipelineStages.map((stage, i) => {
-                const widths = [100, 58, 33, 17, 8];
-                return (
-                  <div key={stage.label} className="rounded-xl border border-[#0B1F33]/6 bg-[#F5F5F0]/70 p-3 text-center">
-                    <p className="text-xl font-black text-[#0B1F33]">{stage.count}</p>
-                    <p className="mt-0.5 text-[9px] font-bold text-[#0B1F33] leading-tight">{stage.label}</p>
-                    <p className="mt-1.5 text-[9px] text-[#5E7080]">{stage.note}</p>
-                    <div className="mt-2 h-0.5 w-full rounded-full bg-[#0B1F33]/6">
-                      <div className="h-full rounded-full bg-[#2F7F86]" style={{ width: `${widths[i]}%` }} />
-                    </div>
-                  </div>
-                );
-              })}
+          {/* Recruiting preview header */}
+          <div
+            className="ximo-fade-up delay-200 flex items-center justify-between rounded-2xl px-5 py-4"
+            style={{ background: "rgba(47,127,134,0.07)", border: "1px solid rgba(47,127,134,0.15)" }}
+          >
+            <div>
+              <p className="text-sm font-bold" style={{ color: "#F5F5F0" }}>Recruiting Dashboard</p>
+              <p className="text-xs mt-0.5" style={{ color: "rgba(127,175,178,0.45)" }}>Tu centro de mando deportivo activo</p>
             </div>
-          </Card>
+            <Link href="/app/recruiting"
+              className="rounded-xl px-4 py-2 text-xs font-bold transition-all duration-200 hover:opacity-80"
+              style={{ background: "rgba(47,127,134,0.18)", border: "1px solid rgba(47,127,134,0.3)", color: "#7FAFB2" }}>
+              Abrir →
+            </Link>
+          </div>
+
+          {/* Pipeline */}
+          <DarkCard className="p-4 sm:p-5 ximo-fade-up delay-200" glow>
+            <SectionHeader dark title="Pipeline de recruiting" subtitle="Etapas del proceso" action="Ver recruiting →" actionHref="/app/recruiting" />
+            <div className="grid grid-cols-5 gap-2">
+              {pipeline.map((stage) => (
+                <div key={stage.label} className="rounded-xl p-3 text-center transition-all duration-200 hover:scale-105"
+                  style={{ background: "rgba(47,127,134,0.06)", border: "1px solid rgba(47,127,134,0.1)" }}>
+                  <p className="text-xl font-black text-white">{stage.count}</p>
+                  <p className="mt-0.5 text-[9px] font-bold leading-tight" style={{ color: "#7FAFB2" }}>{stage.label}</p>
+                  <div className="mt-2 h-0.5 w-full rounded-full" style={{ background: "rgba(47,127,134,0.15)" }}>
+                    <div className="h-full rounded-full ximo-progress-bar"
+                      style={{ width: `${stage.pct}%`, background: "linear-gradient(90deg,#2F7F86,#7FAFB2)", "--progress-width": `${stage.pct}%` } as React.CSSProperties} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </DarkCard>
 
           {/* Universities + Progress */}
           <div className="grid gap-5 lg:grid-cols-[1fr_220px]">
-            <Card className="p-4 sm:p-5">
-              <SectionHeader title="Universidades activas" subtitle="Vista rápida" action="Ver todas →" actionHref="/app/universidades" />
+            <DarkCard className="p-4 sm:p-5 ximo-fade-up delay-300">
+              <SectionHeader dark title="Universidades activas" subtitle="Vista rápida" action="Ver todas →" actionHref="/app/universidades" />
               <div className="space-y-2">
                 {universities.map((uni) => (
-                  <div key={uni.name} className="flex items-center gap-3 rounded-xl border border-[#0B1F33]/6 bg-[#F5F5F0]/50 p-3">
+                  <div key={uni.name} className="flex items-center gap-3 rounded-xl p-3 transition-all duration-200 hover:scale-[1.01]"
+                    style={{ background: "rgba(47,127,134,0.05)", border: "1px solid rgba(47,127,134,0.1)" }}>
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2 mb-0.5">
-                        <h3 className="text-sm font-bold text-[#0B1F33] truncate">{uni.name}</h3>
-                        <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold ${uni.statusC}`}>{uni.status}</span>
+                        <h3 className="text-sm font-bold text-white truncate">{uni.name}</h3>
+                        <span className="rounded-full px-2 py-0.5 text-[9px] font-bold"
+                          style={{ background: uni.sc, color: uni.tc }}>{uni.status}</span>
                       </div>
-                      <p className="text-[10px] text-[#5E7080]">{uni.div}</p>
-                      <p className="mt-1 text-[11px] text-[#2F7F86] font-semibold">→ {uni.next}</p>
+                      <p className="text-[10px]" style={{ color: "rgba(127,175,178,0.4)" }}>{uni.div}</p>
+                      <p className="mt-0.5 text-[11px] font-semibold" style={{ color: "#2F7F86" }}>→ {uni.next}</p>
                     </div>
                   </div>
                 ))}
               </div>
-            </Card>
+            </DarkCard>
 
-            <Card className="p-4">
-              <SectionHeader title="Progreso" subtitle="Marcas vs metas" action="Ver →" actionHref="/app/progreso" />
+            <DarkCard className="p-4 ximo-fade-up delay-300">
+              <SectionHeader dark title="Progreso" subtitle="Marcas vs metas" action="Ver →" actionHref="/app/progreso" />
               <div className="space-y-4">
                 {swimEvents.map((ev) => (
                   <div key={ev.event}>
                     <div className="mb-1.5 flex justify-between">
-                      <span className="text-xs font-bold text-[#0B1F33]">{ev.event}</span>
-                      <span className="font-mono text-[10px] text-[#5E7080]">{ev.current}→{ev.target}s</span>
+                      <span className="text-xs font-bold text-white">{ev.event}</span>
+                      <span className="font-mono text-[10px]" style={{ color: "rgba(127,175,178,0.5)" }}>{ev.current}→{ev.target}s</span>
                     </div>
-                    <ProgressBar value={ev.progress} color="from-[#2F7F86] to-[#7FAFB2]" />
+                    <div className="h-1.5 w-full overflow-hidden rounded-full" style={{ background: "rgba(47,127,134,0.1)" }}>
+                      <div className="h-full rounded-full ximo-progress-bar"
+                        style={{ width: `${ev.progress}%`, background: "linear-gradient(90deg,#2F7F86,#C9A84C)", "--progress-width": `${ev.progress}%` } as React.CSSProperties} />
+                    </div>
                   </div>
                 ))}
               </div>
-            </Card>
+            </DarkCard>
           </div>
 
           {/* Community preview */}
-          <Card className="p-4 sm:p-5">
-            <SectionHeader title="Comunidad" subtitle="Lo más reciente" action="Ver comunidad →" actionHref="/app/comunidad" />
+          <DarkCard className="p-4 sm:p-5 ximo-fade-up delay-400">
+            <SectionHeader dark title="Comunidad" subtitle="Lo más reciente" action="Ver comunidad →" actionHref="/app/comunidad" />
             <div className="space-y-2">
               {communityPreview.map((post) => (
-                <div key={post.user} className="flex gap-3 rounded-xl border border-[#0B1F33]/6 bg-[#F5F5F0]/50 p-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#0B1F33]/8 text-[10px] font-black text-[#0B1F33]">
+                <div key={post.user} className="flex gap-3 rounded-xl p-3 transition-all duration-200 hover:scale-[1.01]"
+                  style={{ background: "rgba(47,127,134,0.05)", border: "1px solid rgba(47,127,134,0.08)" }}>
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[10px] font-black"
+                    style={{ background: "rgba(47,127,134,0.15)", color: "#7FAFB2" }}>
                     {post.initials}
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <p className="text-[11px] font-bold text-[#0B1F33]">{post.user}</p>
-                      <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold ${post.tagC}`}>{post.tag}</span>
+                      <p className="text-[11px] font-bold text-white">{post.user}</p>
+                      <span className="rounded-full px-2 py-0.5 text-[9px] font-bold"
+                        style={{ background: post.tagC, color: post.tagT }}>{post.tag}</span>
                     </div>
-                    <p className="text-xs text-[#5E7080] leading-snug">{post.text}</p>
+                    <p className="text-xs leading-snug" style={{ color: "rgba(245,245,240,0.6)" }}>{post.text}</p>
                     <div className="mt-1.5 flex gap-3">
-                      <span className="text-[10px] text-[#5E7080]">♥ {post.likes}</span>
-                      <span className="text-[10px] text-[#5E7080]">💬 {post.replies}</span>
+                      <span className="text-[10px]" style={{ color: "rgba(127,175,178,0.5)" }}>♥ {post.likes}</span>
+                      <span className="text-[10px]" style={{ color: "rgba(127,175,178,0.5)" }}>💬 {post.replies}</span>
                     </div>
                   </div>
                 </div>
               ))}
               <Link href="/app/comunidad"
-                className="block w-full rounded-xl border border-dashed border-[#0B1F33]/12 py-2.5 text-center text-xs font-bold text-[#2F7F86] hover:bg-[#F5F5F0] transition-colors">
-                Ver toda la comunidad →
+                className="block w-full rounded-xl py-2.5 text-center text-xs font-bold transition-colors duration-200"
+                style={{ border: "1px dashed rgba(47,127,134,0.2)", color: "#7FAFB2" }}
+                onMouseEnter={e => (e.currentTarget.style.background = "rgba(47,127,134,0.06)")}
+                onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
+                Ver toda la comunidad {'->'}
               </Link>
             </div>
-          </Card>
+          </DarkCard>
         </div>
 
         {/* Right column */}
         <div className="space-y-5">
-
-          {/* Next actions */}
-          <Card className="p-4">
-            <SectionHeader title="Próximas acciones" subtitle="Esta semana" />
+          <DarkCard className="p-4 ximo-fade-up delay-100">
+            <SectionHeader dark title="Próximas acciones" subtitle="Esta semana" />
             <ul className="space-y-2">
               {nextActions.map((task, i) => (
-                <li key={task.title} className="flex gap-2.5 rounded-xl border border-[#0B1F33]/6 bg-[#F5F5F0]/50 p-3">
-                  <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md text-[10px] font-black ${task.p ? "bg-[#2F7F86] text-white" : "bg-[#0B1F33]/8 text-[#0B1F33]"}`}>
+                <li key={task.title} className="flex gap-2.5 rounded-xl p-3"
+                  style={{ background: "rgba(47,127,134,0.05)", border: "1px solid rgba(47,127,134,0.08)" }}>
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md text-[10px] font-black"
+                    style={task.p ? { background: "#2F7F86", color: "white" } : { background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.4)" }}>
                     {i + 1}
                   </span>
                   <div>
-                    <p className="text-[11px] font-bold text-[#0B1F33] leading-snug">{task.title}</p>
-                    <p className="mt-0.5 text-[10px] font-semibold text-[#2F7F86]">{task.date}</p>
+                    <p className="text-[11px] font-bold leading-snug text-white">{task.title}</p>
+                    <p className="mt-0.5 text-[10px] font-semibold" style={{ color: "#2F7F86" }}>{task.date}</p>
                   </div>
                 </li>
               ))}
             </ul>
-          </Card>
+          </DarkCard>
 
-          {/* Rankings */}
-          <Card className="p-4">
-            <SectionHeader title="Ranking comunidad" subtitle="Top racha" action="Comunidad →" actionHref="/app/comunidad" />
+          <DarkCard className="p-4 ximo-fade-up delay-200">
+            <SectionHeader dark title="Ranking comunidad" subtitle="Top racha" action="Comunidad →" actionHref="/app/comunidad" />
             <div className="space-y-1.5">
               {rankings.map((r) => (
-                <div key={r.name} className={`flex items-center gap-2.5 rounded-xl px-3 py-2 ${r.you ? "bg-[#C9A84C]/10 border border-[#C9A84C]/20" : "border border-[#0B1F33]/6"}`}>
-                  <span className="w-4 text-center text-[10px] font-black text-[#5E7080]">#{r.rank}</span>
+                <div key={r.name} className="flex items-center gap-2.5 rounded-xl px-3 py-2"
+                  style={r.you ? { background: "rgba(201,168,76,0.1)", border: "1px solid rgba(201,168,76,0.2)" } : { border: "1px solid rgba(47,127,134,0.08)" }}>
+                  <span className="w-4 text-center text-[10px] font-black" style={{ color: "rgba(127,175,178,0.4)" }}>#{r.rank}</span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[11px] font-bold text-[#0B1F33] truncate">
-                      {r.name} {r.you && <span className="text-[#C9A84C]">(tú)</span>}
+                    <p className="text-[11px] font-bold text-white truncate">
+                      {r.name} {r.you && <span style={{ color: "#C9A84C" }}>(tú)</span>}
                     </p>
-                    <p className="text-[10px] text-[#5E7080]">{r.metric}</p>
+                    <p className="text-[10px]" style={{ color: "rgba(127,175,178,0.4)" }}>{r.metric}</p>
                   </div>
                 </div>
               ))}
             </div>
-          </Card>
+          </DarkCard>
 
           {/* Brands */}
-          <Card className="overflow-hidden">
-            <div className="bg-[#0B1F33] px-4 py-3">
+          <DarkCard className="overflow-hidden ximo-fade-up delay-300">
+            <div className="p-4" style={{ background: "linear-gradient(135deg,rgba(47,127,134,0.15),transparent)" }}>
               <p className="text-xs font-black text-white">Marcas y oportunidades</p>
-              <p className="mt-0.5 text-[10px] text-white/35">Curadas para atletas ximo</p>
+              <p className="mt-0.5 text-[10px]" style={{ color: "rgba(127,175,178,0.4)" }}>Curadas para atletas ximo</p>
             </div>
             <div className="p-4 space-y-1.5">
-              {["Speedo", "Arena", "GNC", "Aquasport"].map((brand) => (
-                <div key={brand} className="flex items-center justify-between rounded-lg border border-[#0B1F33]/6 px-3 py-2">
-                  <p className="text-xs font-bold text-[#0B1F33]">{brand}</p>
-                  <span className="text-[9px] rounded-full border border-[#2F7F86]/20 bg-[#2F7F86]/8 px-2 py-0.5 font-bold text-[#2F7F86]">Activa</span>
+              {["Speedo","Arena","GNC","Aquasport"].map((brand) => (
+                <div key={brand} className="flex items-center justify-between rounded-lg px-3 py-2"
+                  style={{ border: "1px solid rgba(47,127,134,0.08)" }}>
+                  <p className="text-xs font-bold text-white">{brand}</p>
+                  <span className="text-[9px] rounded-full px-2 py-0.5 font-bold"
+                    style={{ border: "1px solid rgba(47,127,134,0.2)", color: "#2F7F86", background: "rgba(47,127,134,0.08)" }}>Activa</span>
                 </div>
               ))}
               <Link href="/app/marcas"
-                className="mt-2 block w-full rounded-xl bg-[#0B1F33] py-2.5 text-center text-xs font-bold text-white hover:bg-[#07131F] transition-colors">
+                className="mt-2 block w-full rounded-xl py-2.5 text-center text-xs font-bold transition-colors duration-200"
+                style={{ background: "rgba(47,127,134,0.15)", color: "#7FAFB2", border: "1px solid rgba(47,127,134,0.2)" }}
+                onMouseEnter={e => (e.currentTarget.style.background = "rgba(47,127,134,0.25)")}
+                onMouseLeave={e => (e.currentTarget.style.background = "rgba(47,127,134,0.15)")}>
                 Explorar marcas →
               </Link>
             </div>
-          </Card>
+          </DarkCard>
 
-          {/* Quick links */}
-          <Card className="p-4">
-            <SectionHeader title="Accesos rápidos" />
+          <DarkCard className="p-4 ximo-fade-up delay-400">
+            <SectionHeader dark title="Accesos rápidos" />
             <div className="grid grid-cols-2 gap-2">
               {[
                 { label: "Recruiting",  href: "/app/recruiting" },
@@ -277,17 +330,19 @@ export default function DashboardPage() {
                 { label: "SAT/TOEFL",   href: "/app/sat-toefl" },
               ].map((link) => (
                 <Link key={link.href} href={link.href}
-                  className="rounded-xl border border-[#0B1F33]/8 bg-[#F5F5F0]/70 px-3 py-2.5 text-center text-[11px] font-bold text-[#0B1F33] hover:bg-[#ECEBE4] transition-colors">
+                  className="rounded-xl px-3 py-2.5 text-center text-[11px] font-bold text-white transition-all duration-200 hover:scale-105"
+                  style={{ background: "rgba(47,127,134,0.06)", border: "1px solid rgba(47,127,134,0.1)", color: "rgba(245,245,240,0.7)" }}>
                   {link.label}
                 </Link>
               ))}
             </div>
-          </Card>
+          </DarkCard>
         </div>
       </div>
 
-      <footer className="mt-5 rounded-xl border border-dashed border-[#0B1F33]/10 bg-white/40 py-2.5 text-center text-[11px] text-[#5E7080]">
-        Vista interna · Beta privada · Datos de muestra
+      <footer className="mt-5 rounded-xl py-2.5 text-center text-[11px]"
+        style={{ border: "1px dashed rgba(47,127,134,0.1)", color: "rgba(127,175,178,0.3)" }}>
+        Ximo · Suscripción activa · Datos de muestra
       </footer>
     </>
   );

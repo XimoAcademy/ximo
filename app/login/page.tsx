@@ -1,90 +1,103 @@
-// Later: replace with Supabase Auth
-// Later: add route protection after login
 import Image from "next/image";
 import Link from "next/link";
 
 export default function LoginPage() {
   return (
-    <div className="flex min-h-screen bg-[#F5F5F0]">
-      {/* Left panel — decorative, hidden on mobile */}
-      <div className="hidden lg:flex lg:w-[42%] xl:w-[46%] flex-col justify-between bg-gradient-to-br from-[#0B1F33] via-[#112538] to-[#0A1C2E] p-12 relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none"
-          style={{ backgroundImage: "radial-gradient(circle at 20% 80%, rgba(201,168,76,0.12) 0%, transparent 55%)" }} />
+    <div className="flex min-h-screen" style={{ background: "#07131F" }}>
 
+      {/* ── Left panel — decorative ── */}
+      <div className="relative hidden overflow-hidden lg:flex lg:w-[44%] xl:w-[48%] flex-col justify-between p-14"
+        style={{
+          background: "linear-gradient(160deg, #0B1F33 0%, #07131F 60%, #0B1F33 100%)",
+          borderRight: "1px solid rgba(47,127,134,0.1)",
+        }}>
+
+        {/* Ambient orbs */}
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute" style={{ width: 500, height: 500, top: "-10%", left: "-10%", background: "radial-gradient(circle, rgba(47,127,134,0.18) 0%, transparent 65%)", filter: "blur(60px)" }} />
+          <div className="absolute" style={{ width: 400, height: 400, bottom: "0%", right: "-5%", background: "radial-gradient(circle, rgba(201,168,76,0.12) 0%, transparent 65%)", filter: "blur(60px)" }} />
+        </div>
+
+        {/* Grid overlay */}
+        <div className="ximo-soft-grid pointer-events-none absolute inset-0 opacity-50" />
+
+        {/* Logo */}
         <div className="relative">
-          <Image
-            src="/brand/ximo-logo.png"
-            alt="ximo Academy"
-            width={120}
-            height={40}
-            className="h-10 w-auto object-contain"
-            priority
-          />
-          <span className="mt-3 inline-flex items-center rounded-full border border-[#C9A84C]/30 bg-[#C9A84C]/12 px-2.5 py-0.5 text-[9px] font-bold tracking-widest text-[#C9A84C] uppercase">
-            Beta privada
+          <Image src="/brand/ximo-logo.png" alt="Ximo" width={110} height={36} className="h-9 w-auto object-contain" priority />
+          <span
+            className="mt-3 inline-flex items-center rounded-full px-2.5 py-0.5 text-[9px] font-bold tracking-widest uppercase"
+            style={{ border: "1px solid rgba(201,168,76,0.25)", color: "#C9A84C", background: "rgba(201,168,76,0.08)" }}
+          >
+            Suscripción activa
           </span>
         </div>
 
-        <div className="relative space-y-6">
+        {/* Feature list */}
+        <div className="relative space-y-7">
           {[
             { icon: "◫", label: "Universidades NCAA", sub: "Encuentra programas reales alineados a tu nivel" },
-            { icon: "⬘", label: "Coaches reales", sub: "Contacta, da seguimiento y construye relaciones" },
-            { icon: "◑", label: "Progreso deportivo", sub: "Visualiza tus marcas y el camino hacia tus metas" },
-            { icon: "◉", label: "Comunidad atleta", sub: "Aprende y avanza con otros atletas serios" },
+            { icon: "⬘", label: "Coaches reales", sub: "Construye relaciones y da seguimiento" },
+            { icon: "◑", label: "Progreso deportivo", sub: "Visualiza marcas y el camino hacia tus metas" },
+            { icon: "◉", label: "Comunidad atleta", sub: "Avanza con otros atletas serios" },
           ].map((item) => (
-            <div key={item.label} className="flex items-start gap-3">
-              <span className="mt-0.5 text-[#C9A84C] text-base">{item.icon}</span>
+            <div key={item.label} className="flex items-start gap-3.5">
+              <span className="mt-0.5 text-base shrink-0" style={{ color: "#C9A84C" }}>{item.icon}</span>
               <div>
-                <p className="text-sm font-bold text-white">{item.label}</p>
-                <p className="text-xs text-white/40">{item.sub}</p>
+                <p className="text-sm font-bold" style={{ color: "#F5F5F0" }}>{item.label}</p>
+                <p className="mt-0.5 text-xs leading-relaxed" style={{ color: "rgba(245,245,240,0.38)" }}>{item.sub}</p>
               </div>
             </div>
           ))}
         </div>
 
-        <p className="relative text-[10px] font-medium tracking-wide text-white/20">
-          ximo Academy · México primero · Atletas fundadores
+        <p className="relative text-[10px] font-medium tracking-wide" style={{ color: "rgba(255,255,255,0.15)" }}>
+          Ximo · México primero
         </p>
       </div>
 
-      {/* Right panel — form */}
-      <div className="flex flex-1 flex-col items-center justify-center px-5 py-12 sm:px-8">
+      {/* ── Right panel — form ── */}
+      <div className="flex flex-1 flex-col items-center justify-center px-6 py-16 sm:px-10">
         <div className="w-full max-w-[400px]">
-          {/* Logo — mobile only */}
-          <div className="mb-8 text-center lg:hidden">
-            <Image
-              src="/brand/ximo-logo.png"
-              alt="ximo Academy"
-              width={120}
-              height={44}
-              className="mx-auto h-12 w-auto object-contain"
-              priority
-            />
+
+          {/* Mobile logo */}
+          <div className="mb-10 text-center lg:hidden">
+            <Image src="/brand/ximo-logo.png" alt="Ximo" width={110} height={38} className="mx-auto h-10 w-auto object-contain" priority />
           </div>
 
-          <h1 className="text-2xl font-black tracking-tight text-[#0B1F33]">Acceso privado</h1>
-          <p className="mt-1.5 text-sm text-[#5E7080]">
-            Ingresa con tu cuenta de atleta aprobado.
-          </p>
+          {/* Heading */}
+          <div className="ximo-fade-up mb-8">
+            <h1 className="text-2xl font-black tracking-tight" style={{ color: "#F5F5F0" }}>
+              Inicia sesión en Ximo
+            </h1>
+            <p className="mt-2 text-sm leading-relaxed" style={{ color: "rgba(245,245,240,0.45)" }}>
+              Entra a tu cuenta para continuar con tu dashboard deportivo.
+            </p>
+          </div>
 
-          <div className="mt-6 space-y-4">
+          {/* Form */}
+          <div className="ximo-fade-up delay-100 space-y-4">
             <div>
-              <label htmlFor="email" className="mb-1.5 block text-[10px] font-bold tracking-widest text-[#5E7080] uppercase">
+              <label htmlFor="email" className="mb-2 block text-[10px] font-bold uppercase tracking-widest" style={{ color: "rgba(127,175,178,0.6)" }}>
                 Correo electrónico
               </label>
               <input
                 id="email"
                 type="email"
                 placeholder="atleta@ejemplo.com"
-                className="w-full rounded-xl border border-[#0B1F33]/12 bg-white px-4 py-3 text-sm text-[#0B1F33] placeholder:text-[#5E7080]/50 shadow-[0_1px_4px_rgba(11,31,51,0.06)] outline-none transition focus:border-[#C9A84C]/60 focus:ring-2 focus:ring-[#C9A84C]/15"
+                className="w-full rounded-xl px-4 py-3.5 text-sm outline-none transition-all duration-200 focus:ring-2"
+                style={{
+                  background: "rgba(17,37,56,0.8)",
+                  border: "1px solid rgba(47,127,134,0.2)",
+                  color: "#F5F5F0",
+                }}
               />
             </div>
             <div>
-              <div className="mb-1.5 flex items-center justify-between">
-                <label htmlFor="password" className="block text-[10px] font-bold tracking-widest text-[#5E7080] uppercase">
+              <div className="mb-2 flex items-center justify-between">
+                <label htmlFor="password" className="block text-[10px] font-bold uppercase tracking-widest" style={{ color: "rgba(127,175,178,0.6)" }}>
                   Contraseña
                 </label>
-                <span className="text-[10px] font-semibold text-[#1D4ED8] cursor-pointer hover:underline">
+                <span className="text-[10px] font-semibold cursor-pointer transition-opacity hover:opacity-70" style={{ color: "#7FAFB2" }}>
                   ¿Olvidaste tu contraseña?
                 </span>
               </div>
@@ -92,16 +105,27 @@ export default function LoginPage() {
                 id="password"
                 type="password"
                 placeholder="••••••••"
-                className="w-full rounded-xl border border-[#0B1F33]/12 bg-white px-4 py-3 text-sm text-[#0B1F33] placeholder:text-[#5E7080]/50 shadow-[0_1px_4px_rgba(11,31,51,0.06)] outline-none transition focus:border-[#C9A84C]/60 focus:ring-2 focus:ring-[#C9A84C]/15"
+                className="w-full rounded-xl px-4 py-3.5 text-sm outline-none transition-all duration-200 focus:ring-2"
+                style={{
+                  background: "rgba(17,37,56,0.8)",
+                  border: "1px solid rgba(47,127,134,0.2)",
+                  color: "#F5F5F0",
+                }}
               />
             </div>
           </div>
 
-          <div className="mt-5 space-y-2.5">
+          {/* Buttons */}
+          <div className="ximo-fade-up delay-200 mt-6 space-y-3">
             <Link href="/app">
               <button
                 type="button"
-                className="w-full rounded-xl bg-[#0B1F33] py-3.5 text-sm font-bold text-white transition-colors hover:bg-[#112538]"
+                className="ximo-btn-press w-full rounded-xl py-3.5 text-sm font-bold transition-all duration-200 hover:opacity-90"
+                style={{
+                  background: "linear-gradient(135deg, #2F7F86, #1F5F66)",
+                  color: "#F5F5F0",
+                  boxShadow: "0 4px 24px rgba(47,127,134,0.3)",
+                }}
               >
                 Entrar
               </button>
@@ -109,28 +133,51 @@ export default function LoginPage() {
             <Link href="/register">
               <button
                 type="button"
-                className="w-full rounded-xl border border-[#0B1F33]/15 bg-white py-3.5 text-sm font-bold text-[#0B1F33] transition-colors hover:bg-[#F5F5F0]"
+                className="ximo-btn-press w-full rounded-xl py-3.5 text-sm font-bold transition-all duration-200 hover:opacity-80"
+                style={{
+                  background: "rgba(17,37,56,0.6)",
+                  border: "1px solid rgba(47,127,134,0.2)",
+                  color: "rgba(245,245,240,0.7)",
+                }}
               >
-                Solicitar acceso
+                Crear cuenta
               </button>
             </Link>
           </div>
 
-          <div className="mt-6 space-y-2">
-            <p className="text-center text-xs leading-relaxed text-[#5E7080]">
-              El acceso privado está disponible para atletas aprobados y miembros fundadores.
-            </p>
-            <p className="text-center text-[10px] leading-relaxed text-[#5E7080]/60">
-              Próximamente: suscripción activa y protección de rutas con Supabase Auth.
-            </p>
+          {/* Subscription validation block */}
+          <div
+            className="ximo-fade-up delay-300 mt-8 rounded-2xl p-4"
+            style={{
+              background: "rgba(47,127,134,0.06)",
+              border: "1px solid rgba(47,127,134,0.15)",
+            }}
+          >
+            <div className="flex items-start gap-3">
+              <div
+                className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px]"
+                style={{ background: "rgba(47,127,134,0.15)", color: "#7FAFB2" }}
+              >
+                ✓
+              </div>
+              <div>
+                <p className="text-xs font-bold" style={{ color: "#7FAFB2" }}>Validación de suscripción</p>
+                <p className="mt-1 text-[11px] leading-relaxed" style={{ color: "rgba(245,245,240,0.4)" }}>
+                  Después de iniciar sesión, Ximo verificará si tu plan mensual o anual está activo.
+                </p>
+              </div>
+            </div>
           </div>
 
-          <div className="mt-8 flex items-center justify-center gap-4 text-[10px] text-[#5E7080]/50 font-medium">
-            <Link href="/" className="hover:text-[#0B1F33] transition-colors">Página principal</Link>
-            <span>·</span>
-            <Link href="/build-log" className="hover:text-[#0B1F33] transition-colors">Build log</Link>
-            <span>·</span>
-            <Link href="/app" className="hover:text-[#0B1F33] transition-colors">Vista previa app</Link>
+          <p className="ximo-fade-up delay-400 mt-4 text-center text-[10px]" style={{ color: "rgba(245,245,240,0.22)" }}>
+            Tu acceso se valida con una suscripción activa.
+          </p>
+
+          {/* Nav links */}
+          <div className="ximo-fade-up delay-500 mt-8 flex items-center justify-center gap-5 text-[10px] font-medium" style={{ color: "rgba(245,245,240,0.3)" }}>
+            <Link href="/" className="transition-opacity hover:opacity-70">Página principal</Link>
+            <span style={{ color: "rgba(47,127,134,0.3)" }}>·</span>
+            <Link href="/build-log" className="transition-opacity hover:opacity-70">Build log</Link>
           </div>
         </div>
       </div>

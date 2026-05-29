@@ -10,9 +10,9 @@ const navGroups = [
   {
     label: "Principal",
     items: [
-      { href: "/app",          label: "Inicio",     icon: "◆" },
-      { href: "/app/comunidad",label: "Comunidad",  icon: "◉", badge: "3" },
-      { href: "/app/tareas",   label: "Tareas",     icon: "☐" },
+      { href: "/app",           label: "Inicio",     icon: "◆" },
+      { href: "/app/comunidad", label: "Comunidad",  icon: "◉", badge: "3" },
+      { href: "/app/tareas",    label: "Tareas",     icon: "☐" },
     ],
   },
   {
@@ -41,7 +41,7 @@ const navGroups = [
   },
 ];
 
-const allNavItems = navGroups.flatMap((g) => g.items);
+const allItems = navGroups.flatMap((g) => g.items);
 
 function isActive(pathname: string, href: string) {
   if (href === "/app") return pathname === "/app";
@@ -52,85 +52,115 @@ const STREAK = { current: 7, goal: 30 };
 
 export default function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const streakPct = Math.round((STREAK.current / STREAK.goal) * 100);
+  const pct = Math.round((STREAK.current / STREAK.goal) * 100);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
-  const toggle = (label: string) =>
-    setCollapsed((prev) => ({ ...prev, [label]: !prev[label] }));
+  const toggle = (l: string) => setCollapsed((p) => ({ ...p, [l]: !p[l] }));
 
   return (
-    <div className="flex min-h-screen bg-[#F5F5F0] text-[#0D1B2A]">
-      {/* ── Sidebar ── */}
-      <aside className="hidden w-[212px] shrink-0 flex-col bg-[#07131F] lg:flex overflow-y-auto">
+    <div className="flex min-h-screen" style={{ background: "#07131F" }}>
 
-        {/* Logo + badge */}
-        <div className="border-b border-white/6 px-4 py-4 shrink-0">
-          <Link href="/app" className="block">
+      {/* ── Sidebar ── */}
+      <aside
+        className="hidden w-[216px] shrink-0 flex-col lg:flex overflow-y-auto"
+        style={{
+          background: "linear-gradient(180deg, #07131F 0%, #0B1F33 100%)",
+          borderRight: "1px solid rgba(47,127,134,0.1)",
+        }}
+      >
+
+        {/* Logo */}
+        <div className="shrink-0 border-b px-4 py-4" style={{ borderColor: "rgba(47,127,134,0.08)" }}>
+          <Link href="/app">
             <Image
               src="/brand/ximo-logo.png"
-              alt="ximo Academy"
+              alt="Ximo"
               width={100}
               height={32}
               className="h-7 w-auto object-contain"
               priority
             />
           </Link>
-          <div className="mt-2 flex items-center gap-1.5">
-            <span className="inline-flex items-center rounded-full border border-[#C9A84C]/25 bg-[#C9A84C]/10 px-2 py-0.5 text-[9px] font-bold tracking-widest text-[#C9A84C] uppercase">
-              Beta privada
-            </span>
-          </div>
+          <span
+            className="mt-2 inline-flex items-center rounded-full border px-2 py-0.5 text-[9px] font-bold tracking-widest uppercase"
+            style={{ borderColor: "rgba(201,168,76,0.2)", color: "#C9A84C", background: "rgba(201,168,76,0.07)" }}
+          >
+            App en desarrollo
+          </span>
         </div>
 
-        {/* Profile — links to /app/perfil */}
-        <div className="border-b border-white/6 px-3 py-3 shrink-0">
+        {/* Profile */}
+        <div className="shrink-0 border-b px-3 py-3" style={{ borderColor: "rgba(47,127,134,0.07)" }}>
           <Link
             href="/app/perfil"
-            className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 transition-colors hover:bg-white/5"
+            className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 transition-all duration-200 hover:bg-[rgba(47,127,134,0.1)]"
+            style={{ background: "rgba(47,127,134,0.05)" }}
           >
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#C9A84C]/15 text-[11px] font-black text-[#C9A84C]">
+            <div
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[11px] font-black"
+              style={{
+                background: "linear-gradient(135deg, rgba(201,168,76,0.18), rgba(201,168,76,0.07))",
+                color: "#C9A84C",
+                border: "1px solid rgba(201,168,76,0.18)",
+              }}
+            >
               MZ
             </div>
             <div className="min-w-0">
-              <p className="truncate text-xs font-semibold text-white/90">Manuel Zúñiga</p>
-              <p className="text-[10px] text-white/30">Nadador · 2027 · MX</p>
+              <p className="truncate text-xs font-semibold" style={{ color: "#F5F5F0" }}>Manuel Zúñiga</p>
+              <p className="text-[10px]" style={{ color: "rgba(127,175,178,0.55)" }}>Nadador · 2027 · MX</p>
             </div>
           </Link>
         </div>
 
         {/* Daily streak */}
-        <div className="border-b border-white/6 px-3 py-3 shrink-0">
-          <div className="rounded-xl border border-white/6 bg-white/4 px-3 py-2.5">
-            <div className="flex items-center justify-between mb-1.5">
-              <p className="text-[9px] font-bold text-white/35 uppercase tracking-wider">Racha diaria</p>
-              <span className="text-[11px] font-black text-[#C9A84C]">🔥 {STREAK.current}d</span>
+        <div className="shrink-0 border-b px-3 py-3" style={{ borderColor: "rgba(47,127,134,0.07)" }}>
+          <div
+            className="rounded-xl p-3"
+            style={{
+              background: "rgba(47,127,134,0.07)",
+              border: "1px solid rgba(47,127,134,0.14)",
+            }}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color: "rgba(127,175,178,0.45)" }}>
+                Racha diaria
+              </p>
+              <span className="text-[11px] font-black" style={{ color: "#C9A84C" }}>
+                {STREAK.current}d
+              </span>
             </div>
-            <div className="h-1 w-full overflow-hidden rounded-full bg-white/8">
+            <div className="h-1 w-full overflow-hidden rounded-full" style={{ background: "rgba(255,255,255,0.05)" }}>
               <div
-                className="h-full rounded-full bg-gradient-to-r from-[#C9A84C] to-[#e8c76a]"
-                style={{ width: `${streakPct}%` }}
+                className="h-full rounded-full ximo-progress-bar"
+                style={{
+                  width: `${pct}%`,
+                  background: "linear-gradient(90deg, #2F7F86, #C9A84C)",
+                  "--progress-width": `${pct}%`,
+                } as React.CSSProperties}
               />
             </div>
-            <p className="mt-1.5 text-[9px] text-white/25">
+            <p className="mt-1.5 text-[9px]" style={{ color: "rgba(127,175,178,0.3)" }}>
               {STREAK.goal - STREAK.current} días para la meta
             </p>
           </div>
         </div>
 
-        {/* Nav */}
+        {/* Nav groups */}
         <nav className="flex-1 px-2.5 py-3 space-y-0.5">
           {navGroups.map((group) => {
-            const isOpen = !collapsed[group.label];
+            const open = !collapsed[group.label];
             return (
-              <div key={group.label} className="mb-1">
+              <div key={group.label} className="mb-0.5">
                 <button
                   type="button"
                   onClick={() => toggle(group.label)}
-                  className="flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-[9px] font-bold tracking-widest text-white/25 uppercase hover:text-white/40 transition-colors"
+                  className="flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 transition-colors duration-150 hover:text-[rgba(127,175,178,0.65)]"
+                  style={{ color: "rgba(127,175,178,0.32)" }}
                 >
-                  <span>{group.label}</span>
-                  <span className="text-[10px] font-normal">{isOpen ? "˄" : "˅"}</span>
+                  <span className="text-[9px] font-bold tracking-widest uppercase">{group.label}</span>
+                  <span className="text-[10px]">{open ? "˄" : "˅"}</span>
                 </button>
-                {isOpen && (
+                {open && (
                   <div className="space-y-0.5">
                     {group.items.map((item) => {
                       const active = isActive(pathname, item.href);
@@ -139,18 +169,30 @@ export default function AppShell({ children }: { children: ReactNode }) {
                         <Link
                           key={item.href}
                           href={item.href}
-                          className={`flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-[12px] font-medium transition-all duration-150 ${
+                          className="flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-[12px] font-medium transition-all duration-150 hover:bg-[rgba(47,127,134,0.08)] hover:text-[rgba(255,255,255,0.65)]"
+                          style={
                             active
-                              ? "bg-[#2F7F86]/20 text-[#7FAFB2] border-l-2 border-[#2F7F86]"
-                              : "text-white/35 hover:bg-white/4 hover:text-white/70 border-l-2 border-transparent"
-                          }`}
+                              ? {
+                                  background: "rgba(47,127,134,0.16)",
+                                  color: "#7FAFB2",
+                                  borderLeft: "2px solid #2F7F86",
+                                  boxShadow: "inset 0 0 12px rgba(47,127,134,0.07)",
+                                }
+                              : {
+                                  color: "rgba(255,255,255,0.28)",
+                                  borderLeft: "2px solid transparent",
+                                }
+                          }
                         >
-                          <span className="w-3.5 text-center text-[10px] opacity-50 shrink-0">
+                          <span className="w-3.5 shrink-0 text-center text-[10px] opacity-50">
                             {item.icon}
                           </span>
                           <span className="flex-1 truncate">{item.label}</span>
                           {hasBadge && (
-                            <span className="rounded-full bg-[#2F7F86]/20 px-1.5 py-0.5 text-[9px] font-bold text-[#7FAFB2]">
+                            <span
+                              className="rounded-full px-1.5 py-0.5 text-[9px] font-bold"
+                              style={{ background: "rgba(47,127,134,0.18)", color: "#7FAFB2" }}
+                            >
                               {item.badge}
                             </span>
                           )}
@@ -164,36 +206,48 @@ export default function AppShell({ children }: { children: ReactNode }) {
           })}
         </nav>
 
-        {/* Footer */}
-        <div className="border-t border-white/6 px-3 py-3 shrink-0">
-          <p className="text-center text-[9px] font-medium tracking-wide text-white/15">
-            ximo Academy · México primero
+        {/* Subscription status */}
+        <div className="shrink-0 border-t px-3 py-3" style={{ borderColor: "rgba(47,127,134,0.07)" }}>
+          <div
+            className="mb-3 flex items-center gap-2 rounded-xl px-3 py-2"
+            style={{ background: "rgba(47,127,134,0.08)", border: "1px solid rgba(47,127,134,0.16)" }}
+          >
+            <div className="h-1.5 w-1.5 rounded-full shrink-0 ximo-glow-pulse" style={{ background: "#2F7F86" }} />
+            <span className="text-[10px] font-semibold" style={{ color: "rgba(127,175,178,0.65)" }}>
+              Ximo active
+            </span>
+          </div>
+          <p className="text-center text-[9px] font-medium tracking-wide" style={{ color: "rgba(255,255,255,0.1)" }}>
+            Ximo · México primero
           </p>
         </div>
       </aside>
 
       {/* ── Mobile top nav ── */}
       <div className="flex min-w-0 flex-1 flex-col">
-        <div className="flex items-center gap-3 border-b border-white/8 bg-[#07131F] px-3 py-2 lg:hidden">
+        <div
+          className="flex items-center gap-3 px-3 py-2 lg:hidden"
+          style={{ background: "#07131F", borderBottom: "1px solid rgba(47,127,134,0.1)" }}
+        >
           <Image
             src="/brand/ximo-logo.png"
-            alt="ximo Academy"
+            alt="Ximo"
             width={68}
             height={24}
             className="h-6 w-auto shrink-0 object-contain"
           />
-          <div className="flex flex-1 gap-1 overflow-x-auto pb-0.5">
-            {allNavItems.map((item) => {
+          <div className="flex flex-1 gap-1 overflow-x-auto pb-0.5 scrollbar-none">
+            {allItems.map((item) => {
               const active = isActive(pathname, item.href);
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`shrink-0 rounded-lg px-3 py-1.5 text-[11px] font-semibold whitespace-nowrap transition-colors ${
-                    active
-                      ? "bg-[#2F7F86]/20 text-[#7FAFB2]"
-                      : "text-white/40 hover:text-white/65"
-                  }`}
+                  className="shrink-0 rounded-lg px-3 py-1.5 text-[11px] font-semibold whitespace-nowrap transition-colors"
+                  style={{
+                    color: active ? "#7FAFB2" : "rgba(255,255,255,0.32)",
+                    background: active ? "rgba(47,127,134,0.14)" : "transparent",
+                  }}
                 >
                   {item.label}
                 </Link>
@@ -202,7 +256,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
 
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto" style={{ background: "#07131F" }}>
           <div className="mx-auto max-w-[1400px] p-4 sm:p-5 lg:p-6">
             {children}
           </div>

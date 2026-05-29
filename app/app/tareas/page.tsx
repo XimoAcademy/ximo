@@ -1,7 +1,7 @@
 "use client";
 
 // app/app/tareas/page.tsx
-// ximo Academy — Tareas: Centro diario de acción para atletas
+// Ximo — Tareas: Centro diario de acción para atletas
 
 import { useState } from "react";
 

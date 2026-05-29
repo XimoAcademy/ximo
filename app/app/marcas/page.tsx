@@ -206,7 +206,7 @@ export default function MarcasPage() {
       </Card>
 
       <footer className="rounded-xl border border-dashed border-[#0B1F33]/12 bg-white/40 px-4 py-2.5 text-center text-[11px] text-[#5E7080]">
-        Beta privada · Solo marcas curadas · Sin publicidad invasiva
+        Ximo · Solo marcas curadas · Sin publicidad invasiva
       </footer>
     </div>
   );
