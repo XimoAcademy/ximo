@@ -5,7 +5,7 @@ const CARD  = { background:"var(--surface)",  border:"1px solid var(--border)" }
 
 const courses = [
   { title:"Recruiting universitario desde cero",   desc:"Reglas NCAA, divisiones, calendario y cómo iniciar tu proceso como atleta internacional.",     status:"disponible pronto", lessons:8 },
-  { title:"Cómo escribirle a coaches",             desc:"Plantillas, estructura y personalización que genera respuestas reales.",                         status:"disponible pronto", lessons:6 },
+  { title:"Cómo escribirle a coaches",             desc:"Plantillas, estructura y personalización que genera respuestas.",                         status:"disponible pronto", lessons:6 },
   { title:"SAT / TOEFL para atletas",              desc:"Equilibra entrenamiento de élite con preparación académica internacional.",                      status:"próximamente",      lessons:10 },
   { title:"Cómo armar tu perfil deportivo",        desc:"Video, resume atlético y narrativa que destaca ante coaches.",                                   status:"próximamente",      lessons:7 },
   { title:"Marca personal para atletas",           desc:"Redes, contenido y presencia digital para atletas en proceso de recruiting.",                    status:"próximamente",      lessons:6 },

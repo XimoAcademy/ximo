@@ -181,6 +181,16 @@ h1, h2, h3, .font-display {
   word-spacing: 0.04em;
 }
 
+/* ── Thinner letterforms across the whole app ──
+   The UI leaned heavily on font-black/bold/semibold. Remap those
+   utilities to lighter weights for a more refined, readable feel.
+   One place controls the whole app. */
+.font-black    { font-weight: 600 !important; }
+.font-extrabold{ font-weight: 600 !important; }
+.font-bold     { font-weight: 500 !important; }
+.font-semibold { font-weight: 500 !important; }
+.font-medium   { font-weight: 450 !important; }
+
 /* Opt a specific element back to sans when a heading tag is used for UI chrome */
 .font-sans-ui { font-family: var(--font-geist-sans, system-ui, sans-serif) !important; letter-spacing: normal; }
 

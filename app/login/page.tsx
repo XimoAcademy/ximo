@@ -35,8 +35,8 @@ export default function LoginPage() {
         {/* Feature list */}
         <div className="relative space-y-7">
           {[
-            { icon: "◫", label: "Universidades NCAA", sub: "Encuentra programas reales alineados a tu nivel" },
-            { icon: "⬘", label: "Coaches reales", sub: "Construye relaciones y da seguimiento" },
+            { icon: "◫", label: "Universidades NCAA", sub: "Encuentra programas alineados a tu nivel" },
+            { icon: "⬘", label: "Coaches", sub: "Construye relaciones y da seguimiento" },
             { icon: "◑", label: "Progreso deportivo", sub: "Visualiza marcas y el camino hacia tus metas" },
             { icon: "◉", label: "Comunidad atleta", sub: "Avanza con otros atletas serios" },
           ].map((item) => (

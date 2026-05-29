@@ -65,7 +65,7 @@ export default function ProgresoPage() {
           </div>
           <div className="p-5">
             <p className="text-sm leading-relaxed" style={{ color:"var(--text-2)" }}>
-              Bajar el tiempo necesario para abrir más opciones universitarias reales.
+              Bajar el tiempo necesario para abrir más opciones universitarias.
             </p>
           </div>
         </div>

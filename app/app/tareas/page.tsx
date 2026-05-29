@@ -258,7 +258,7 @@ export default function TareasPage() {
                 Hoy
               </p>
               <h2 className="text-lg font-black leading-snug sm:text-xl" style={{ color:"#F2F6F4", maxWidth:"38ch" }}>
-                Pequeñas acciones diarias crean oportunidades reales.
+                Pequeñas acciones diarias crean oportunidades.
               </h2>
               <div className="mt-5 flex gap-6">
                 {[

@@ -62,7 +62,7 @@ export default function CorreosPage() {
         <div className="rounded-2xl p-4" style={{ background:"rgba(201,168,76,0.06)", border:"1px solid rgba(201,168,76,0.18)" }}>
           <p className="text-sm font-bold" style={{ color:"var(--gold)" }}>Consejo Ximo</p>
           <p className="mt-2 text-sm leading-relaxed" style={{ color:"var(--text-2)" }}>
-            Personaliza cada correo con tiempos reales, eventos principales y una pregunta concreta.
+            Personaliza cada correo con tus tiempos, eventos principales y una pregunta concreta.
             Los coaches responden más cuando ven preparación y claridad.
           </p>
         </div>
