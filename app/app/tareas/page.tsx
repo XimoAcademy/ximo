@@ -140,8 +140,8 @@ function TaskCard({ task }: { task: Task }) {
         <span>{task.relatedModule}</span>
       </div>
       <Link href={task.href}
-        className="ximo-btn-press mt-auto inline-flex w-fit items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition-opacity hover:opacity-80"
-        style={{ background:"rgba(30,206,206,0.14)", color:"var(--teal)", border:"1px solid rgba(30,206,206,0.22)" }}>
+        className="ximo-glass-btn teal mt-auto inline-flex w-fit items-center gap-1.5 text-xs"
+        style={{ padding: "0.5rem 1rem" }}>
         {task.href.split("/app/")[1]?.charAt(0).toUpperCase() + task.href.split("/app/")[1]?.slice(1)} →
       </Link>
     </div>

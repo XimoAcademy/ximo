@@ -187,9 +187,7 @@ export default function SettingsPage() {
             </div>
           ))}
         </div>
-        <Link href="/subscribe"
-          className="ximo-btn-press mt-4 block w-full rounded-xl py-2.5 text-center text-xs font-bold transition-opacity hover:opacity-80"
-          style={{ background:"var(--teal-bg)", border:"1px solid var(--teal-border)", color:"var(--teal)" }}>
+        <Link href="/subscribe" className="ximo-glass-btn dark mt-4 block w-full text-center text-xs">
           Ver planes →
         </Link>
       </div>
@@ -203,9 +201,7 @@ export default function SettingsPage() {
         <p className="text-xs" style={{ color:"var(--text-2)" }}>
           Tu acceso a Ximo está activo. Gestiona tu plan en cualquier momento.
         </p>
-        <button type="button"
-          className="ximo-btn-press mt-3 rounded-xl px-4 py-2 text-xs font-bold transition-opacity hover:opacity-80"
-          style={{ background:"var(--gold-bg)", border:"1px solid var(--gold-border)", color:"var(--gold)" }}>
+        <button type="button" className="ximo-glass-btn gold mt-3 text-xs">
           Gestionar plan
         </button>
       </div>

@@ -199,15 +199,11 @@ export default function PerfilPage() {
               ))}
             </div>
             <div className="mt-4 flex gap-2">
-              <button type="button"
-                className="ximo-btn-press flex-1 rounded-xl py-2.5 text-xs font-bold transition-all duration-200 hover:opacity-80"
-                style={{ background: "var(--border)", border: "1px solid var(--border-strong)", color: "var(--teal)" }}>
+              <button type="button" className="ximo-glass-btn teal flex-1 text-xs">
                 Gestionar plan
               </button>
               <Link href="/subscribe" className="flex-1">
-                <button type="button"
-                  className="ximo-btn-press w-full rounded-xl py-2.5 text-xs font-bold transition-all duration-200 hover:opacity-80"
-                  style={{ background: "transparent", border: "1px solid var(--border)", color: "var(--text-3)" }}>
+                <button type="button" className="ximo-glass-btn dark w-full text-xs">
                   Ver planes
                 </button>
               </Link>
@@ -237,9 +233,7 @@ export default function PerfilPage() {
             <p className="mb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-label)" }}>Visibilidad</p>
             <p className="mt-3 text-3xl font-black" style={{ color: "var(--teal-muted)" }}>12</p>
             <p className="text-xs" style={{ color: "var(--text-3)" }}>universidades con perfil activo</p>
-            <button type="button"
-              className="ximo-btn-press mt-4 w-full rounded-xl py-2.5 text-xs font-bold transition-all duration-200 hover:opacity-80"
-              style={{ background: "var(--border-subtle)", border: "1px solid var(--border-strong)", color: "rgba(127,175,178,0.7)" }}>
+            <button type="button" className="ximo-glass-btn dark mt-4 w-full text-xs">
               Copiar link de perfil
             </button>
           </div>
@@ -258,9 +252,7 @@ export default function PerfilPage() {
               </div>
             </div>
             <Link href="/app/promocionar">
-              <button type="button"
-                className="ximo-btn-press w-full rounded-xl py-2.5 text-xs font-bold transition-all duration-200 hover:opacity-90"
-                style={{ background: "rgba(201,168,76,0.12)", border: "1px solid rgba(201,168,76,0.25)", color: "var(--gold)" }}>
+              <button type="button" className="ximo-glass-btn gold w-full text-xs">
                 Promocionar con Ximo →
               </button>
             </Link>

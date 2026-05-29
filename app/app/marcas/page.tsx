@@ -98,11 +98,8 @@ export default function MarcasPage() {
                   <button
                     type="button"
                     disabled={b.status === "Pendiente de filtro"}
-                    className="rounded-xl px-3 py-2 text-[11px] font-bold transition-opacity hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
-                    style={b.status === "Activa"
-                      ? { background:"rgba(30,206,206,0.15)", color:"var(--teal)", border:"1px solid rgba(30,206,206,0.25)" }
-                      : { background:"rgba(201,168,76,0.1)", color:"var(--gold)", border:"1px solid rgba(201,168,76,0.2)" }
-                    }
+                    className={`ximo-glass-btn ${b.status === "Activa" ? "teal" : "gold"} text-[11px]`}
+                    style={{ padding: "0.5rem 0.9rem" }}
                   >
                     {b.cta}
                   </button>

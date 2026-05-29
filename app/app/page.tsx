@@ -98,14 +98,10 @@ export default function DashboardPage() {
               Convierte correos, dudas, tiempos y oportunidades en un camino claro.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
-              <Link href="/app/recruiting"
-                className="rounded-xl px-4 py-2 text-xs font-bold transition-all duration-200 hover:scale-105"
-                style={{ background: "var(--teal-muted)", color: "white", boxShadow: "0 0 16px rgba(47,127,134,0.4)" }}>
+              <Link href="/app/recruiting" className="ximo-glass-btn teal text-xs" style={{ padding: "0.55rem 1.1rem" }}>
                 Ver Recruiting {'->'}
               </Link>
-              <Link href="/app/tareas"
-                className="rounded-xl border px-4 py-2 text-xs font-bold transition-all duration-200 hover:scale-105"
-                style={{ borderColor: "rgba(201,168,76,0.25)", color: "var(--gold)", background: "rgba(201,168,76,0.06)" }}>
+              <Link href="/app/tareas" className="ximo-glass-btn gold text-xs" style={{ padding: "0.55rem 1.1rem" }}>
                 Tareas del día {'->'}
               </Link>
             </div>
@@ -248,9 +244,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
               ))}
-              <Link href="/app/comunidad"
-                className="block w-full rounded-xl py-2.5 text-center text-xs font-bold transition-all duration-200 hover:bg-[var(--surface-hover)]"
-                style={{ border: "1px dashed var(--border-strong)", color: "var(--teal)" }}>
+              <Link href="/app/comunidad" className="ximo-glass-btn dark block w-full text-center text-xs">
                 Ver toda la comunidad →
               </Link>
             </div>
@@ -311,9 +305,7 @@ export default function DashboardPage() {
                     style={{ border: "1px solid var(--border-strong)", color: "var(--teal-muted)", background: "var(--border-subtle)" }}>Activa</span>
                 </div>
               ))}
-              <Link href="/app/marcas"
-                className="mt-2 block w-full rounded-xl py-2.5 text-center text-xs font-bold transition-all duration-200 hover:bg-[rgba(47,127,134,0.25)]"
-                style={{ background: "var(--border)", color: "var(--teal)", border: "1px solid var(--border-strong)" }}>
+              <Link href="/app/marcas" className="ximo-glass-btn dark mt-2 block w-full text-center text-xs">
                 Explorar marcas →
               </Link>
             </div>
@@ -329,8 +321,8 @@ export default function DashboardPage() {
                 { label: "SAT/TOEFL",   href: "/app/sat-toefl" },
               ].map((link) => (
                 <Link key={link.href} href={link.href}
-                  className="rounded-xl px-3 py-2.5 text-center text-[11px] font-bold text-brand transition-all duration-200 hover:scale-105"
-                  style={{ background: "var(--surface-hover)", border: "1px solid var(--border-subtle)", color: "var(--text-2)" }}>
+                  className="ximo-glass-btn dark text-center text-[11px]"
+                  style={{ padding: "0.55rem 0.75rem" }}>
                   {link.label}
                 </Link>
               ))}

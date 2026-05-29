@@ -167,9 +167,7 @@ export default function PromocionarPage() {
               <strong>Revisión garantizada.</strong> Todas las promociones pasan por revisión manual antes de aparecer en la comunidad.
             </p>
           </div>
-          <button type="button"
-            className="w-full rounded-xl py-3 text-sm font-bold text-on-dark transition-all duration-200 hover:scale-[1.02]"
-            style={{ background:"linear-gradient(90deg,var(--teal-muted),#1F5F66)", boxShadow:"0 0 20px var(--border-strong)" }}>
+          <button type="button" className="ximo-glass-btn teal w-full text-sm">
             Enviar a revisión →
           </button>
         </div>
@@ -223,9 +221,7 @@ export default function PromocionarPage() {
           <p className="mt-3 text-[10px] text-center" style={{ color:"var(--text-label)" }}>
             Ubicación: Promociones filtradas dentro de Comunidad · Estimados de referencia
           </p>
-          <button type="button"
-            className="mt-3 w-full rounded-xl py-2.5 text-xs font-bold text-brand transition-all duration-200 hover:scale-[1.01]"
-            style={{ border:"1px solid var(--border-strong)", background:"var(--border-subtle)", color:"var(--teal)" }}>
+          <button type="button" className="ximo-glass-btn dark mt-3 w-full text-xs">
             Confirmar presupuesto →
           </button>
         </div>

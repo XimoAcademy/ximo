@@ -123,15 +123,7 @@ export default function LoginPage() {
               </button>
             </Link>
             <Link href="/register">
-              <button
-                type="button"
-                className="ximo-btn-press w-full rounded-xl py-3.5 text-sm font-bold transition-all duration-200 hover:opacity-80"
-                style={{
-                  background: "rgba(17,37,56,0.6)",
-                  border: "1px solid rgba(47,127,134,0.2)",
-                  color: "rgba(245,245,240,0.7)",
-                }}
-              >
+              <button type="button" className="ximo-glass-btn dark w-full text-sm">
                 Crear cuenta
               </button>
             </Link>
