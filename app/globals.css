@@ -579,7 +579,8 @@ select option {
    ══════════════════════════════════════════════════════════════ */
 
 .theme-light body {
-  background: var(--bg);
+  background: var(--app-bg);
+  background-attachment: fixed;
   color: var(--text);
 }
 
