@@ -2,7 +2,7 @@
 import { ProgressBar, SectionHeader } from "../components/ui";
 import ScrollReveal from "../../components/ScrollReveal";
 
-const CARD  = { background:"rgba(17,37,56,0.7)",  border:"1px solid rgba(47,127,134,0.14)" } as const;
+const CARD  = { background:"var(--surface)",  border:"1px solid var(--border)" } as const;
 
 const documents = [
   { name:"Transcript académico",       status:"listo",    importance:"alta",  note:"Traducción oficial lista y verificada" },
@@ -19,14 +19,14 @@ const documents = [
 
 function statusBadge(s: string) {
   if (s === "listo")    return { bg:"rgba(5,150,105,0.12)",   tc:"#6ee7b7",  label:"Listo" };
-  if (s === "revisar")  return { bg:"rgba(30,206,206,0.12)",  tc:"#1ECECE",  label:"Revisar" };
-  return                       { bg:"rgba(201,168,76,0.12)",  tc:"#C9A84C",  label:"Pendiente" };
+  if (s === "revisar")  return { bg:"rgba(30,206,206,0.12)",  tc:"var(--teal)",  label:"Revisar" };
+  return                       { bg:"rgba(201,168,76,0.12)",  tc:"var(--gold)",  label:"Pendiente" };
 }
 
 function importanceBadge(i: string) {
-  if (i === "alta")   return { bg:"rgba(47,127,134,0.12)",  tc:"rgba(127,175,178,0.7)", label:"Alta" };
-  if (i === "media")  return { bg:"rgba(47,127,134,0.07)",  tc:"rgba(127,175,178,0.5)", label:"Media" };
-  return                     { bg:"rgba(47,127,134,0.05)",  tc:"rgba(127,175,178,0.35)", label:"Baja" };
+  if (i === "alta")   return { bg:"var(--border)",  tc:"rgba(127,175,178,0.7)", label:"Alta" };
+  if (i === "media")  return { bg:"var(--surface-hover)",  tc:"var(--text-label)", label:"Media" };
+  return                     { bg:"var(--surface-hover)",  tc:"var(--text-label)", label:"Baja" };
 }
 
 export default function DocumentosPage() {
@@ -40,10 +40,10 @@ export default function DocumentosPage() {
       <div className="mb-5 rounded-2xl p-5" style={CARD}>
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-2xl font-black" style={{ color:"#1ECECE" }}>
-              {completed} <span className="text-base font-medium" style={{ color:"rgba(245,245,240,0.5)" }}>de {documents.length}</span>
+            <p className="text-2xl font-black" style={{ color:"var(--teal)" }}>
+              {completed} <span className="text-base font-medium" style={{ color:"var(--text-2)" }}>de {documents.length}</span>
             </p>
-            <p className="text-sm" style={{ color:"rgba(127,175,178,0.5)" }}>documentos preparados</p>
+            <p className="text-sm" style={{ color:"var(--text-label)" }}>documentos preparados</p>
           </div>
           <div className="w-full max-w-xs">
             <ProgressBar value={(completed / documents.length) * 100} />
@@ -65,14 +65,14 @@ export default function DocumentosPage() {
                     className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-sm font-bold"
                     style={doc.status === "listo"
                       ? { background:"rgba(5,150,105,0.15)", color:"#6ee7b7" }
-                      : { background:"rgba(47,127,134,0.08)", color:"rgba(127,175,178,0.5)" }
+                      : { background:"var(--border-subtle)", color:"var(--text-label)" }
                     }
                   >
                     {doc.status === "listo" ? "✓" : "·"}
                   </span>
                   <div>
-                    <p className="font-bold" style={{ color:"#F5F5F0" }}>{doc.name}</p>
-                    <p className="text-xs" style={{ color:"rgba(127,175,178,0.45)" }}>{doc.note}</p>
+                    <p className="font-bold" style={{ color:"var(--text)" }}>{doc.name}</p>
+                    <p className="text-xs" style={{ color:"var(--text-label)" }}>{doc.note}</p>
                   </div>
                 </div>
                 <div className="flex gap-2">

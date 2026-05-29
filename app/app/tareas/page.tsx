@@ -18,18 +18,18 @@ interface Task {
   href: string;
 }
 
-const CARD  = "rgba(17,37,56,0.78)";
-const BORDER = "rgba(47,127,134,0.14)";
+const CARD  = "var(--surface)";
+const BORDER = "var(--border)";
 
 // Priority & status → dark-safe tokens
 const P: Record<Priority, { bg: string; color: string; label: string }> = {
   alta:  { bg:"rgba(248,113,113,0.12)", color:"#f87171", label:"Alta" },
   media: { bg:"rgba(251,191,36,0.12)",  color:"#fbbf24", label:"Media" },
-  baja:  { bg:"rgba(30,206,206,0.10)",  color:"#1ECECE", label:"Baja" },
+  baja:  { bg:"rgba(30,206,206,0.10)",  color:"var(--teal)", label:"Baja" },
 };
 const S: Record<Status, { bg: string; color: string; label: string }> = {
   pendiente:     { bg:"rgba(127,175,178,0.10)", color:"rgba(127,175,178,0.7)", label:"Pendiente" },
-  "en progreso": { bg:"rgba(30,206,206,0.12)",  color:"#1ECECE",               label:"En progreso" },
+  "en progreso": { bg:"rgba(30,206,206,0.12)",  color:"var(--teal)",               label:"En progreso" },
   completada:    { bg:"rgba(5,150,105,0.12)",   color:"#6ee7b7",               label:"Completada" },
 };
 
@@ -77,9 +77,9 @@ function ProgressRing({ value, max, r = 38 }: { value: number; max: number; r?: 
   const offset = circ - (value / max) * circ;
   return (
     <svg height={r * 2} width={r * 2} style={{ transform: "rotate(-90deg)" }} aria-hidden>
-      <circle stroke="rgba(47,127,134,0.18)" strokeWidth={stroke} fill="none" r={norm} cx={r} cy={r} />
+      <circle stroke="var(--border)" strokeWidth={stroke} fill="none" r={norm} cx={r} cy={r} />
       <circle
-        stroke="#C9A84C" strokeWidth={stroke} fill="none"
+        stroke="var(--gold)" strokeWidth={stroke} fill="none"
         strokeDasharray={`${circ} ${circ}`}
         strokeDashoffset={offset}
         strokeLinecap="round"
@@ -105,15 +105,15 @@ function SectionTitle({ title, subtitle, count }: { title: string; subtitle?: st
   return (
     <div className="mb-4">
       <div className="flex items-baseline gap-2">
-        <h2 className="text-base font-black tracking-tight sm:text-lg" style={{ color:"#F5F5F0" }}>{title}</h2>
+        <h2 className="text-base font-black tracking-tight sm:text-lg" style={{ color:"var(--text)" }}>{title}</h2>
         {count !== undefined && (
           <span className="rounded-full px-2 py-0.5 text-[10px] font-bold"
-            style={{ background:"rgba(47,127,134,0.12)", color:"rgba(127,175,178,0.7)" }}>
+            style={{ background:"var(--border)", color:"rgba(127,175,178,0.7)" }}>
             {count}
           </span>
         )}
       </div>
-      {subtitle && <p className="mt-0.5 text-xs" style={{ color:"rgba(127,175,178,0.5)" }}>{subtitle}</p>}
+      {subtitle && <p className="mt-0.5 text-xs" style={{ color:"var(--text-label)" }}>{subtitle}</p>}
     </div>
   );
 }
@@ -129,10 +129,10 @@ function TaskCard({ task }: { task: Task }) {
         <Pill {...p} />
         <Pill {...s} />
       </div>
-      <p className="text-sm font-bold leading-snug" style={{ color:"#F5F5F0" }}>
+      <p className="text-sm font-bold leading-snug" style={{ color:"var(--text)" }}>
         {task.title}
       </p>
-      <div className="flex flex-wrap gap-3 text-[11px]" style={{ color:"rgba(127,175,178,0.55)" }}>
+      <div className="flex flex-wrap gap-3 text-[11px]" style={{ color:"var(--text-label)" }}>
         <span>{task.category}</span>
         <span style={{ color:"rgba(47,127,134,0.4)" }}>·</span>
         <span>{task.estimatedTime}</span>
@@ -141,7 +141,7 @@ function TaskCard({ task }: { task: Task }) {
       </div>
       <Link href={task.href}
         className="ximo-btn-press mt-auto inline-flex w-fit items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition-opacity hover:opacity-80"
-        style={{ background:"rgba(30,206,206,0.14)", color:"#1ECECE", border:"1px solid rgba(30,206,206,0.22)" }}>
+        style={{ background:"rgba(30,206,206,0.14)", color:"var(--teal)", border:"1px solid rgba(30,206,206,0.22)" }}>
         {task.href.split("/app/")[1]?.charAt(0).toUpperCase() + task.href.split("/app/")[1]?.slice(1)} →
       </Link>
     </div>
@@ -154,13 +154,13 @@ function UrgentCard({ task }: { task: typeof urgentTasks[0] }) {
     <div className="flex flex-col gap-2.5 rounded-2xl p-4 ximo-card-3d"
       style={{ background: CARD, border:"1px solid rgba(201,168,76,0.22)" }}>
       <div className="flex h-7 w-7 items-center justify-center rounded-lg text-xs font-black"
-        style={{ background:"rgba(201,168,76,0.12)", color:"#C9A84C" }}>
+        style={{ background:"rgba(201,168,76,0.12)", color:"var(--gold)" }}>
         !
       </div>
-      <p className="text-sm font-bold leading-snug" style={{ color:"#F5F5F0" }}>{task.title}</p>
-      <p className="text-xs" style={{ color:"rgba(127,175,178,0.5)" }}>{task.detail}</p>
+      <p className="text-sm font-bold leading-snug" style={{ color:"var(--text)" }}>{task.title}</p>
+      <p className="text-xs" style={{ color:"var(--text-label)" }}>{task.detail}</p>
       <span className="inline-flex w-fit items-center rounded-full px-2 py-0.5 text-[10px] font-bold"
-        style={{ background:"rgba(201,168,76,0.12)", color:"#C9A84C" }}>
+        style={{ background:"rgba(201,168,76,0.12)", color:"var(--gold)" }}>
         {task.deadline}
       </span>
     </div>
@@ -171,14 +171,14 @@ function UrgentCard({ task }: { task: typeof urgentTasks[0] }) {
 function ModuleCard({ m }: { m: typeof moduleGroups[0] }) {
   return (
     <Link href={m.href}
-      className="flex flex-col gap-2.5 rounded-2xl p-4 transition-all duration-200 hover:bg-[rgba(47,127,134,0.12)]"
+      className="flex flex-col gap-2.5 rounded-2xl p-4 transition-all duration-200 hover:bg-[var(--border)]"
       style={{ background: CARD, border:`1px solid ${BORDER}` }}>
-      <p className="text-sm font-black" style={{ color:"#F5F5F0" }}>{m.name}</p>
+      <p className="text-sm font-black" style={{ color:"var(--text)" }}>{m.name}</p>
       <span className="inline-flex w-fit items-center rounded-full px-2 py-0.5 text-[10px] font-bold"
-        style={{ background:"rgba(30,206,206,0.10)", color:"#1ECECE" }}>
+        style={{ background:"rgba(30,206,206,0.10)", color:"var(--teal)" }}>
         {m.count} {m.count !== 1 ? "tareas" : "tarea"}
       </span>
-      <p className="text-xs leading-snug" style={{ color:"rgba(127,175,178,0.5)" }}>{m.nextAction}</p>
+      <p className="text-xs leading-snug" style={{ color:"var(--text-label)" }}>{m.nextAction}</p>
     </Link>
   );
 }
@@ -193,8 +193,8 @@ function CompletedCard({ task }: { task: typeof completedTasks[0] }) {
         ✓
       </div>
       <div>
-        <p className="text-sm font-bold" style={{ color:"#F5F5F0" }}>{task.title}</p>
-        <p className="text-[11px]" style={{ color:"rgba(127,175,178,0.4)" }}>El {task.completedDay}</p>
+        <p className="text-sm font-bold" style={{ color:"var(--text)" }}>{task.title}</p>
+        <p className="text-[11px]" style={{ color:"var(--text-label)" }}>El {task.completedDay}</p>
       </div>
     </div>
   );
@@ -206,10 +206,10 @@ function DecisionCard({ d }: { d: typeof upcomingDecisions[0] }) {
   return (
     <div className="flex flex-col gap-2.5 rounded-2xl p-4 ximo-card-3d"
       style={{ background: CARD, border:`1px solid ${BORDER}` }}>
-      <p className="text-sm font-bold leading-snug" style={{ color:"#F5F5F0" }}>{d.title}</p>
+      <p className="text-sm font-bold leading-snug" style={{ color:"var(--text)" }}>{d.title}</p>
       <div className="flex flex-wrap gap-1.5">
         <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold"
-          style={{ background:"rgba(47,127,134,0.1)", color:"rgba(127,175,178,0.6)" }}>
+          style={{ background:"var(--border-subtle)", color:"var(--text-label)" }}>
           {d.deadline}
         </span>
         <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold"
@@ -233,8 +233,8 @@ export default function TareasPage() {
 
       {/* ── Header ── */}
       <div className="ximo-fade-up">
-        <h1 className="text-xl font-black tracking-tight sm:text-2xl" style={{ color:"#F5F5F0" }}>Tareas</h1>
-        <p className="mt-1 text-sm" style={{ color:"rgba(127,175,178,0.55)" }}>
+        <h1 className="text-xl font-black tracking-tight sm:text-2xl" style={{ color:"var(--text)" }}>Tareas</h1>
+        <p className="mt-1 text-sm" style={{ color:"var(--text-label)" }}>
           Tu centro diario. Sabe qué hacer hoy y no dejes escapar oportunidades.
         </p>
       </div>
@@ -257,7 +257,7 @@ export default function TareasPage() {
               <p className="mb-2 text-[11px] font-bold uppercase tracking-widest" style={{ color:"rgba(30,206,206,0.5)" }}>
                 Hoy
               </p>
-              <h2 className="text-lg font-black leading-snug sm:text-xl" style={{ color:"#F5F5F0", maxWidth:"38ch" }}>
+              <h2 className="text-lg font-black leading-snug sm:text-xl" style={{ color:"#F2F6F4", maxWidth:"38ch" }}>
                 Pequeñas acciones diarias crean oportunidades reales.
               </h2>
               <div className="mt-5 flex gap-6">
@@ -267,8 +267,8 @@ export default function TareasPage() {
                   { label:"Urgentes",     value: urgentTasks.length },
                 ].map((s) => (
                   <div key={s.label}>
-                    <p className="text-2xl font-black" style={{ color:"#F5F5F0" }}>{s.value}</p>
-                    <p className="text-[11px] font-semibold" style={{ color:"rgba(245,245,240,0.45)" }}>{s.label}</p>
+                    <p className="text-2xl font-black" style={{ color:"#F2F6F4" }}>{s.value}</p>
+                    <p className="text-[11px] font-semibold" style={{ color:"rgba(255,255,255,0.5)" }}>{s.label}</p>
                   </div>
                 ))}
               </div>
@@ -281,7 +281,7 @@ export default function TareasPage() {
               <div className="relative flex items-center justify-center">
                 <ProgressRing value={racha} max={meta} r={44} />
                 <div className="absolute text-center">
-                  <p className="text-lg font-black leading-none" style={{ color:"#C9A84C" }}>{racha}</p>
+                  <p className="text-lg font-black leading-none" style={{ color:"#E8CE4E" }}>{racha}</p>
                   <p className="text-[9px]" style={{ color:"rgba(255,255,255,0.4)" }}>días</p>
                 </div>
               </div>

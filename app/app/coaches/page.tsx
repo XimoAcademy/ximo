@@ -2,15 +2,15 @@
 import { SectionHeader } from "../components/ui";
 import ScrollReveal from "../../components/ScrollReveal";
 
-const CARD = { background:"rgba(17,37,56,0.7)",  border:"1px solid rgba(47,127,134,0.14)" } as const;
-const INNER = { background:"rgba(47,127,134,0.06)", border:"1px solid rgba(47,127,134,0.1)"  } as const;
+const CARD = { background:"var(--surface)",  border:"1px solid var(--border)" } as const;
+const INNER = { background:"var(--surface-hover)", border:"1px solid var(--border-subtle)"  } as const;
 
 function statusStyle(s: string): { background: string; color: string } {
   if (s.includes("alto") || s.includes("confirmado")) return { background:"rgba(5,150,105,0.12)",    color:"#6ee7b7" };
-  if (s.includes("claridad"))                          return { background:"rgba(201,168,76,0.12)",  color:"#C9A84C" };
+  if (s.includes("claridad"))                          return { background:"rgba(201,168,76,0.12)",  color:"var(--gold)" };
   if (s.includes("Aspiracional"))                     return { background:"rgba(251,191,36,0.12)",  color:"#fbbf24" };
-  if (s.includes("follow") || s.includes("Follow"))   return { background:"rgba(30,206,206,0.12)",  color:"#1ECECE" };
-  return { background:"rgba(47,127,134,0.1)", color:"rgba(127,175,178,0.6)" };
+  if (s.includes("follow") || s.includes("Follow"))   return { background:"rgba(30,206,206,0.12)",  color:"var(--teal)" };
+  return { background:"var(--border-subtle)", color:"var(--text-label)" };
 }
 
 const coaches = [
@@ -30,10 +30,10 @@ const messages = [
 
 function PriorityBadge({ p }: { p: string }) {
   const s = p === "Alta"
-    ? { background:"rgba(201,168,76,0.15)", color:"#C9A84C" }
+    ? { background:"rgba(201,168,76,0.15)", color:"var(--gold)" }
     : p === "Media"
-    ? { background:"rgba(30,206,206,0.12)",  color:"#1ECECE" }
-    : { background:"rgba(47,127,134,0.1)",   color:"rgba(127,175,178,0.5)" };
+    ? { background:"rgba(30,206,206,0.12)",  color:"var(--teal)" }
+    : { background:"var(--border-subtle)",   color:"var(--text-label)" };
   return <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={s}>Prioridad {p.toLowerCase()}</span>;
 }
 
@@ -47,8 +47,8 @@ export default function CoachesPage() {
 
       {/* Summary */}
       <div className="mb-5 rounded-2xl p-4" style={CARD}>
-        <p className="text-sm font-bold" style={{ color:"#F5F5F0" }}>Resumen</p>
-        <p className="mt-0.5 text-xs" style={{ color:"rgba(127,175,178,0.5)" }}>
+        <p className="text-sm font-bold" style={{ color:"var(--text)" }}>Resumen</p>
+        <p className="mt-0.5 text-xs" style={{ color:"var(--text-label)" }}>
           6 coaches en pipeline · 3 con interés alto · 2 esperando respuesta
         </p>
       </div>
@@ -62,9 +62,9 @@ export default function CoachesPage() {
             <div className="rounded-2xl p-4 sm:p-5 ximo-card-3d" style={CARD}>
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <h2 className="text-base font-black" style={{ color:"#F5F5F0" }}>{c.name}</h2>
-                  <p className="text-sm" style={{ color:"rgba(127,175,178,0.5)" }}>{c.university}</p>
-                  <p className="mt-0.5 text-xs" style={{ color:"rgba(127,175,178,0.35)" }}>{c.email}</p>
+                  <h2 className="text-base font-black" style={{ color:"var(--text)" }}>{c.name}</h2>
+                  <p className="text-sm" style={{ color:"var(--text-label)" }}>{c.university}</p>
+                  <p className="mt-0.5 text-xs" style={{ color:"var(--text-label)" }}>{c.email}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={ss}>{c.status}</span>
@@ -73,15 +73,15 @@ export default function CoachesPage() {
               </div>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <div className="rounded-xl p-3" style={INNER}>
-                  <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color:"rgba(127,175,178,0.45)" }}>Última interacción</p>
-                  <p className="mt-1 text-sm" style={{ color:"rgba(245,245,240,0.7)" }}>{c.last}</p>
+                  <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color:"var(--text-label)" }}>Última interacción</p>
+                  <p className="mt-1 text-sm" style={{ color:"var(--text-2)" }}>{c.last}</p>
                 </div>
                 <div className="rounded-xl p-3" style={INNER}>
-                  <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color:"rgba(127,175,178,0.45)" }}>Próximo follow-up</p>
-                  <p className="mt-1 text-sm font-semibold" style={{ color:"#1ECECE" }}>{c.next}</p>
+                  <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color:"var(--text-label)" }}>Próximo follow-up</p>
+                  <p className="mt-1 text-sm font-semibold" style={{ color:"var(--teal)" }}>{c.next}</p>
                 </div>
               </div>
-              <p className="mt-3 text-xs leading-relaxed" style={{ color:"rgba(127,175,178,0.45)" }}>{c.notes}</p>
+              <p className="mt-3 text-xs leading-relaxed" style={{ color:"var(--text-label)" }}>{c.notes}</p>
             </div>
             </ScrollReveal>
           );
@@ -94,9 +94,9 @@ export default function CoachesPage() {
         <div className="space-y-3">
           {messages.map((m) => (
             <div key={m.coach} className="rounded-xl p-4" style={INNER}>
-              <p className="text-sm font-bold" style={{ color:"#F5F5F0" }}>{m.coach}</p>
-              <p className="mt-2 text-sm leading-relaxed" style={{ color:"rgba(245,245,240,0.5)" }}>{m.preview}</p>
-              <button type="button" className="mt-3 text-xs font-semibold transition-opacity hover:opacity-70" style={{ color:"#1ECECE" }}>
+              <p className="text-sm font-bold" style={{ color:"var(--text)" }}>{m.coach}</p>
+              <p className="mt-2 text-sm leading-relaxed" style={{ color:"var(--text-2)" }}>{m.preview}</p>
+              <button type="button" className="mt-3 text-xs font-semibold transition-opacity hover:opacity-70" style={{ color:"var(--teal)" }}>
                 Usar plantilla →
               </button>
             </div>

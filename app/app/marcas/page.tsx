@@ -2,16 +2,16 @@
 import { SectionHeader } from "../components/ui";
 import ScrollReveal from "../../components/ScrollReveal";
 
-const CARD  = { background:"rgba(17,37,56,0.75)", border:"1px solid rgba(47,127,134,0.14)" } as const;
-const INNER = { background:"rgba(47,127,134,0.06)", border:"1px solid rgba(47,127,134,0.1)"  } as const;
+const CARD  = { background:"var(--surface)", border:"1px solid var(--border)" } as const;
+const INNER = { background:"var(--surface-hover)", border:"1px solid var(--border-subtle)"  } as const;
 
 type BrandStatus = "Activa" | "Próximamente" | "Pendiente de filtro";
 type Brand = { name:string; category:string; type:string; status:BrandStatus; description:string; reviewed:boolean; cta:string; };
 
 function statusStyle(s: BrandStatus): { background:string; color:string } {
   if (s === "Activa")              return { background:"rgba(5,150,105,0.12)",   color:"#6ee7b7" };
-  if (s === "Próximamente")        return { background:"rgba(201,168,76,0.12)",  color:"#C9A84C" };
-  return                                  { background:"rgba(47,127,134,0.1)",   color:"rgba(127,175,178,0.5)" };
+  if (s === "Próximamente")        return { background:"rgba(201,168,76,0.12)",  color:"var(--gold)" };
+  return                                  { background:"var(--border-subtle)",   color:"var(--text-label)" };
 }
 
 const brands: Brand[] = [
@@ -35,8 +35,8 @@ export default function MarcasPage() {
     <div className="space-y-5">
       {/* Header */}
       <div className="ximo-fade-up">
-        <h1 className="text-xl font-black tracking-tight sm:text-2xl" style={{ color:"#F5F5F0" }}>Marcas y oportunidades</h1>
-        <p className="mt-1 max-w-xl text-sm" style={{ color:"rgba(127,175,178,0.5)" }}>
+        <h1 className="text-xl font-black tracking-tight sm:text-2xl" style={{ color:"var(--text)" }}>Marcas y oportunidades</h1>
+        <p className="mt-1 max-w-xl text-sm" style={{ color:"var(--text-label)" }}>
           Un espacio para conectar atletas con marcas alineadas al deporte, rendimiento y crecimiento.
         </p>
       </div>
@@ -46,12 +46,12 @@ export default function MarcasPage() {
         <div className="flex gap-4 items-start p-4 sm:p-5"
           style={{ background:"linear-gradient(135deg, rgba(47,127,134,0.16), rgba(17,37,56,0.9))" }}>
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-base font-black"
-            style={{ background:"rgba(201,168,76,0.15)", color:"#C9A84C" }}>
+            style={{ background:"rgba(201,168,76,0.15)", color:"var(--gold)" }}>
             ◈
           </div>
           <div>
-            <p className="text-sm font-black" style={{ color:"#F5F5F0" }}>Filtro de calidad Ximo</p>
-            <p className="mt-1 max-w-xl text-xs leading-relaxed" style={{ color:"rgba(245,245,240,0.45)" }}>
+            <p className="text-sm font-black" style={{ color:"var(--text)" }}>Filtro de calidad Ximo</p>
+            <p className="mt-1 max-w-xl text-xs leading-relaxed" style={{ color:"var(--text-3)" }}>
               Toda marca o anuncio pasa por revisión interna antes de llegar a los atletas. Protegemos la comunidad de marcas que no cumplen con estándares de calidad y alineación con el deporte de alto rendimiento.
             </p>
           </div>
@@ -59,8 +59,8 @@ export default function MarcasPage() {
         <div className="flex flex-wrap gap-3 px-4 pb-4 sm:px-5">
           {["Sin anuncios invasivos","Solo productos validados","Alineados al deporte","Sin marcas cuestionables"].map((item) => (
             <div key={item} className="flex items-center gap-1.5">
-              <span className="h-1 w-1 rounded-full" style={{ background:"#1ECECE" }} />
-              <span className="text-xs font-semibold" style={{ color:"rgba(127,175,178,0.65)" }}>{item}</span>
+              <span className="h-1 w-1 rounded-full" style={{ background:"var(--teal)" }} />
+              <span className="text-xs font-semibold" style={{ color:"var(--text-label)" }}>{item}</span>
             </div>
           ))}
         </div>
@@ -77,31 +77,31 @@ export default function MarcasPage() {
               <div className="flex flex-col rounded-2xl p-4 sm:p-5 ximo-lift h-full" style={CARD}>
                 <div className="mb-3 flex items-start justify-between gap-2">
                   <div className="flex h-11 w-11 items-center justify-center rounded-xl text-base font-black"
-                    style={{ background:"rgba(47,127,134,0.12)", color:"#7FAFB2" }}>
+                    style={{ background:"var(--border)", color:"var(--teal)" }}>
                     {b.name.slice(0, 2).toUpperCase()}
                   </div>
                   <span className="rounded-full px-2.5 py-1 text-[10px] font-bold" style={ss}>{b.status}</span>
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-base font-black" style={{ color:"#F5F5F0" }}>{b.name}</h3>
+                  <h3 className="text-base font-black" style={{ color:"var(--text)" }}>{b.name}</h3>
                   <div className="mt-1.5 flex flex-wrap gap-1.5">
-                    <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background:"rgba(47,127,134,0.1)", color:"rgba(127,175,178,0.55)" }}>{b.category}</span>
-                    <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background:"rgba(30,206,206,0.1)", color:"#1ECECE" }}>{b.type}</span>
+                    <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background:"var(--border-subtle)", color:"var(--text-label)" }}>{b.category}</span>
+                    <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background:"rgba(30,206,206,0.1)", color:"var(--teal)" }}>{b.type}</span>
                   </div>
-                  <p className="mt-3 text-xs leading-relaxed" style={{ color:"rgba(245,245,240,0.42)" }}>{b.description}</p>
+                  <p className="mt-3 text-xs leading-relaxed" style={{ color:"var(--text-3)" }}>{b.description}</p>
                 </div>
-                <div className="mt-4 flex items-center justify-between gap-2 border-t pt-3" style={{ borderColor:"rgba(47,127,134,0.12)" }}>
+                <div className="mt-4 flex items-center justify-between gap-2 border-t pt-3" style={{ borderColor:"var(--border)" }}>
                   {b.reviewed
                     ? <span className="text-[10px] font-bold" style={{ color:"#6ee7b7" }}>✓ Revisado por Ximo</span>
-                    : <span className="text-[10px] font-bold" style={{ color:"rgba(127,175,178,0.4)" }}>Pendiente de filtro</span>
+                    : <span className="text-[10px] font-bold" style={{ color:"var(--text-label)" }}>Pendiente de filtro</span>
                   }
                   <button
                     type="button"
                     disabled={b.status === "Pendiente de filtro"}
                     className="rounded-xl px-3 py-2 text-[11px] font-bold transition-opacity hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
                     style={b.status === "Activa"
-                      ? { background:"rgba(30,206,206,0.15)", color:"#1ECECE", border:"1px solid rgba(30,206,206,0.25)" }
-                      : { background:"rgba(201,168,76,0.1)", color:"#C9A84C", border:"1px solid rgba(201,168,76,0.2)" }
+                      ? { background:"rgba(30,206,206,0.15)", color:"var(--teal)", border:"1px solid rgba(30,206,206,0.25)" }
+                      : { background:"rgba(201,168,76,0.1)", color:"var(--gold)", border:"1px solid rgba(201,168,76,0.2)" }
                     }
                   >
                     {b.cta}
@@ -116,10 +116,10 @@ export default function MarcasPage() {
 
       {/* Coming soon */}
       <div className="overflow-hidden rounded-2xl" style={CARD}>
-        <div className="p-5" style={{ background:"linear-gradient(135deg, rgba(47,127,134,0.14), rgba(17,37,56,0.95))" }}>
-          <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color:"#C9A84C" }}>Próximamente</p>
-          <p className="mt-1 text-base font-black" style={{ color:"#F5F5F0" }}>Oportunidades para suscriptores activos</p>
-          <p className="mt-1.5 max-w-xl text-xs" style={{ color:"rgba(245,245,240,0.4)" }}>
+        <div className="p-5" style={{ background:"linear-gradient(135deg, var(--border), rgba(17,37,56,0.95))" }}>
+          <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color:"var(--gold)" }}>Próximamente</p>
+          <p className="mt-1 text-base font-black" style={{ color:"var(--text)" }}>Oportunidades para suscriptores activos</p>
+          <p className="mt-1.5 max-w-xl text-xs" style={{ color:"var(--text-3)" }}>
             El ecosistema de marcas Ximo se expandirá. Tener una suscripción activa te da acceso prioritario.
           </p>
         </div>
@@ -128,7 +128,7 @@ export default function MarcasPage() {
             {futureItems.map((item) => (
               <div key={item} className="flex items-start gap-2.5 rounded-xl p-3" style={INNER}>
                 <span className="mt-1 h-1 w-1 shrink-0 rounded-full" style={{ background:"rgba(30,206,206,0.6)" }} />
-                <p className="text-xs font-semibold leading-snug" style={{ color:"rgba(245,245,240,0.6)" }}>{item}</p>
+                <p className="text-xs font-semibold leading-snug" style={{ color:"var(--text-2)" }}>{item}</p>
               </div>
             ))}
           </div>
@@ -141,7 +141,7 @@ export default function MarcasPage() {
         </div>
       </div>
 
-      <footer className="rounded-xl px-4 py-2.5 text-center text-[11px]" style={{ border:"1px dashed rgba(47,127,134,0.12)", color:"rgba(127,175,178,0.25)" }}>
+      <footer className="rounded-xl px-4 py-2.5 text-center text-[11px]" style={{ border:"1px dashed var(--border)", color:"rgba(127,175,178,0.25)" }}>
         Ximo · Solo marcas curadas · Sin publicidad invasiva
       </footer>
     </div>

@@ -2,8 +2,8 @@
 import { SectionHeader } from "../components/ui";
 import ScrollReveal from "../../components/ScrollReveal";
 
-const CARD  = { background:"rgba(17,37,56,0.7)",  border:"1px solid rgba(47,127,134,0.14)" } as const;
-const INNER = { background:"rgba(47,127,134,0.06)", border:"1px solid rgba(47,127,134,0.1)"  } as const;
+const CARD  = { background:"var(--surface)",  border:"1px solid var(--border)" } as const;
+const INNER = { background:"var(--surface-hover)", border:"1px solid var(--border-subtle)"  } as const;
 
 const satChecklist  = [
   { item:"Investigar fechas",          done:true  },
@@ -35,11 +35,11 @@ const resources = [
 function CheckRow({ item, done }: { item:string; done:boolean }) {
   return (
     <li className="flex items-center justify-between rounded-xl px-3 py-2.5" style={INNER}>
-      <span className="text-sm" style={{ color:"rgba(245,245,240,0.7)" }}>{item}</span>
+      <span className="text-sm" style={{ color:"var(--text-2)" }}>{item}</span>
       <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={
         done
           ? { background:"rgba(5,150,105,0.12)", color:"#6ee7b7" }
-          : { background:"rgba(201,168,76,0.12)", color:"#C9A84C" }
+          : { background:"rgba(201,168,76,0.12)", color:"var(--gold)" }
       }>
         {done ? "Listo" : "Pendiente"}
       </span>
@@ -73,11 +73,11 @@ export default function SatToeflPage() {
         <div className="grid gap-4 sm:grid-cols-3">
           {timeline.map((b) => (
             <div key={b.period} className="rounded-xl p-4" style={INNER}>
-              <p className="text-sm font-black" style={{ color:"#F5F5F0" }}>{b.period}</p>
+              <p className="text-sm font-black" style={{ color:"var(--text)" }}>{b.period}</p>
               <ul className="mt-3 space-y-2">
                 {b.items.map((item) => (
-                  <li key={item} className="flex items-start gap-2 text-xs" style={{ color:"rgba(127,175,178,0.55)" }}>
-                    <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full" style={{ background:"#C9A84C" }} />
+                  <li key={item} className="flex items-start gap-2 text-xs" style={{ color:"var(--text-label)" }}>
+                    <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full" style={{ background:"var(--gold)" }} />
                     {item}
                   </li>
                 ))}
@@ -96,10 +96,10 @@ export default function SatToeflPage() {
           {resources.map((r) => (
             <div key={r.name} className="rounded-xl px-3 py-2.5" style={INNER}>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-bold" style={{ color:"#F5F5F0" }}>{r.name}</span>
-                <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background:"rgba(47,127,134,0.1)", color:"rgba(127,175,178,0.6)" }}>{r.type}</span>
+                <span className="text-sm font-bold" style={{ color:"var(--text)" }}>{r.name}</span>
+                <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background:"var(--border-subtle)", color:"var(--text-label)" }}>{r.type}</span>
               </div>
-              <p className="mt-1 text-xs" style={{ color:"rgba(127,175,178,0.45)" }}>{r.desc}</p>
+              <p className="mt-1 text-xs" style={{ color:"var(--text-label)" }}>{r.desc}</p>
             </div>
           ))}
         </div>

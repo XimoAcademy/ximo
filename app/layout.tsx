@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Fraunces } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from "./providers/ThemeProvider";
 
@@ -13,11 +14,24 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// Display serif — Argent-style. Fraunces is a variable serif with the same
-// warm, high-contrast, elegant character as Argent CF. If you obtain the real
-// Argent CF font files, swap this single source and keep --font-display.
+// Argent CF — the brand display serif. Multiple weights for contextual use.
+const argent = localFont({
+  variable: "--font-argent",
+  display: "swap",
+  src: [
+    { path: "./fonts/argent-regular.otf",   weight: "400", style: "normal" },
+    { path: "./fonts/argent-italic.otf",     weight: "400", style: "italic" },
+    { path: "./fonts/argent-demibold.otf",   weight: "600", style: "normal" },
+    { path: "./fonts/argent-bold.otf",       weight: "700", style: "normal" },
+    { path: "./fonts/argent-extrabold.otf",  weight: "800", style: "normal" },
+    { path: "./fonts/argent-super.otf",      weight: "900", style: "normal" },
+  ],
+});
+
+// Fraunces — same-family serif used as a graceful fallback so accented
+// characters (á, é, í, ó, ú, ñ) the Argent demo lacks still render cleanly.
 const fraunces = Fraunces({
-  variable: "--font-display",
+  variable: "--font-fraunces",
   subsets: ["latin"],
   display: "swap",
   axes: ["SOFT", "opsz"],
@@ -48,7 +62,7 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${argent.variable} ${fraunces.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <head>

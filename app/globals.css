@@ -67,8 +67,10 @@
   --priority-low:    var(--teal);
   --priority-low-bg: var(--teal-bg);
 
-  /* ── Typography ── */
-  --font-display: var(--font-display, "Fraunces"), Georgia, "Times New Roman", serif;
+  /* ── Typography ──
+     Argent CF is the brand display serif. Fraunces covers any glyphs the
+     Argent demo lacks (accented Spanish chars). Georgia is the final fallback. */
+  --font-display: var(--font-argent), var(--font-fraunces), Georgia, "Times New Roman", serif;
 
   /* ── Tailwind bridge ── */
   --background:  var(--bg);
