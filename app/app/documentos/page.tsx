@@ -1,19 +1,20 @@
-import PageHeader from "../components/PageHeader";
+﻿import PageHeader from "../components/PageHeader";
 import { ProgressBar, SectionHeader } from "../components/ui";
+import ScrollReveal from "../../components/ScrollReveal";
 
 const CARD  = { background:"rgba(17,37,56,0.7)",  border:"1px solid rgba(47,127,134,0.14)" } as const;
 
 const documents = [
-  { name:"Transcript académico",       status:"listo",    importance:"alta",  note:"Traducción oficial lista y verificada" },
-  { name:"Perfil atlético",            status:"revisar",  importance:"alta",  note:"Actualizar logros y tiempos de marzo" },
-  { name:"Video deportivo",            status:"pendiente",importance:"alta",  note:"Subir clip de 50 libre · competencia reciente" },
+  { name:"Transcript acadÃ©mico",       status:"listo",    importance:"alta",  note:"TraducciÃ³n oficial lista y verificada" },
+  { name:"Perfil atlÃ©tico",            status:"revisar",  importance:"alta",  note:"Actualizar logros y tiempos de marzo" },
+  { name:"Video deportivo",            status:"pendiente",importance:"alta",  note:"Subir clip de 50 libre Â· competencia reciente" },
   { name:"Pasaporte",                  status:"listo",    importance:"media", note:"Vigente hasta 2029" },
-  { name:"SAT",                        status:"listo",    importance:"alta",  note:"Practice 1340 — listo para compartir" },
+  { name:"SAT",                        status:"listo",    importance:"alta",  note:"Practice 1340 â€” listo para compartir" },
   { name:"TOEFL",                      status:"pendiente",importance:"alta",  note:"Examen programado para junio" },
-  { name:"Cartas de recomendación",    status:"pendiente",importance:"media", note:"Solicitar a coach y director académico" },
+  { name:"Cartas de recomendaciÃ³n",    status:"pendiente",importance:"media", note:"Solicitar a coach y director acadÃ©mico" },
   { name:"Lista de universidades",     status:"listo",    importance:"media", note:"12 universidades curadas con prioridades" },
-  { name:"Historial de tiempos",       status:"listo",    importance:"alta",  note:"Temporada 2024–25 documentada" },
-  { name:"Información financiera",     status:"listo",    importance:"baja",  note:"FAFSA prep y estimado de need-based aid" },
+  { name:"Historial de tiempos",       status:"listo",    importance:"alta",  note:"Temporada 2024â€“25 documentada" },
+  { name:"InformaciÃ³n financiera",     status:"listo",    importance:"baja",  note:"FAFSA prep y estimado de need-based aid" },
 ];
 
 function statusBadge(s: string) {
@@ -52,11 +53,12 @@ export default function DocumentosPage() {
 
       <SectionHeader title="Checklist" subtitle="Estado de cada documento" />
       <div className="space-y-2.5">
-        {documents.map((doc) => {
+        {documents.map((doc, i) => {
           const s = statusBadge(doc.status);
           const imp = importanceBadge(doc.importance);
           return (
-            <div key={doc.name} className="rounded-2xl p-4 ximo-card-3d" style={CARD}>
+            <ScrollReveal key={doc.name} delay={i * 40}>
+            <div className="rounded-2xl p-4 ximo-card-3d" style={CARD}>
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <span
@@ -66,7 +68,7 @@ export default function DocumentosPage() {
                       : { background:"rgba(47,127,134,0.08)", color:"rgba(127,175,178,0.5)" }
                     }
                   >
-                    {doc.status === "listo" ? "✓" : "·"}
+                    {doc.status === "listo" ? "âœ“" : "Â·"}
                   </span>
                   <div>
                     <p className="font-bold" style={{ color:"#F5F5F0" }}>{doc.name}</p>
@@ -83,9 +85,11 @@ export default function DocumentosPage() {
                 </div>
               </div>
             </div>
+            </ScrollReveal>
           );
         })}
       </div>
     </>
   );
 }
+

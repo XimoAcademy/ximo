@@ -1,325 +1,549 @@
 "use client";
-// app/app/comunidad/page.tsx — dark premium social feed
+
+import { useState, useRef, type ChangeEvent } from "react";
 import Link from "next/link";
-import { useState } from "react";
-import { SectionHeader } from "../components/ui";
 
-type Tag = "Meta"|"Duda"|"Avance"|"Logro"|"Recruiting"|"Entrenamiento"|"Oficial"|"Marca";
-type FeedItem = { kind:"post"; data:Post } | { kind:"brand"; data:BrandCard };
+// ── Types ──────────────────────────────────────────────────────
+type Tag = "Meta" | "Avance" | "Logro" | "Duda" | "Recruiting" | "Entrenamiento" | "Oficial";
 
-interface Post { id:number; user:string; initials:string; bgC:string; textC:string; sport?:string; tag:Tag; time:string; text:string; likes:number; comments:number; answered?:boolean; official?:boolean; mediaPlaceholder?:string; replies?:{user:string;initials:string;text:string}[]; }
-interface BrandCard { id:number; brand:string; logo:string; category:string; headline:string; description:string; cta:string; format:string; }
+interface Post {
+  id: number;
+  user: string;
+  initials: string;
+  avatarBg: string;
+  avatarColor: string;
+  sport: string;
+  tag: Tag;
+  time: string;
+  text: string;
+  image?: string;       // data-URL or placeholder string
+  imageName?: string;
+  likes: number;
+  likedByMe: boolean;
+  comments: number;
+  official?: boolean;
+  replies?: { user: string; initials: string; text: string }[];
+}
 
-const TAG_S: Record<Tag,{bg:string;color:string}> = {
-  Meta:          { bg:"rgba(47,127,134,0.15)",   color:"#7FAFB2" },
-  Duda:          { bg:"rgba(251,191,36,0.12)",   color:"#fbbf24" },
-  Avance:        { bg:"rgba(5,150,105,0.12)",    color:"#6ee7b7" },
-  Logro:         { bg:"rgba(201,168,76,0.12)",   color:"#C9A84C" },
-  Recruiting:    { bg:"rgba(139,92,246,0.12)",   color:"#c4b5fd" },
-  Entrenamiento: { bg:"rgba(245,245,240,0.08)",  color:"rgba(245,245,240,0.6)" },
-  Oficial:       { bg:"rgba(201,168,76,0.2)",    color:"#C9A84C" },
-  Marca:         { bg:"rgba(47,127,134,0.1)",    color:"#7FAFB2" },
+// ── Tag palette ────────────────────────────────────────────────
+const TAG_STYLE: Record<Tag, { bg: string; color: string }> = {
+  Meta:          { bg:"rgba(30,206,206,0.12)",  color:"#1ECECE" },
+  Avance:        { bg:"rgba(5,150,105,0.12)",   color:"#6ee7b7" },
+  Logro:         { bg:"rgba(201,168,76,0.12)",  color:"#C9A84C" },
+  Duda:          { bg:"rgba(251,191,36,0.12)",  color:"#fbbf24" },
+  Recruiting:    { bg:"rgba(139,92,246,0.12)",  color:"#c4b5fd" },
+  Entrenamiento: { bg:"rgba(127,175,178,0.1)",  color:"rgba(127,175,178,0.8)" },
+  Oficial:       { bg:"rgba(201,168,76,0.2)",   color:"#C9A84C" },
 };
+const TAGS: Tag[] = ["Meta","Avance","Logro","Duda","Recruiting","Entrenamiento"];
 
-const FILTERS = ["Todo","Dudas","Avances","Logros","Recruiting","Entrenamiento","Marcas"] as const;
-type Filter = typeof FILTERS[number];
-const FILTER_TAG: Record<Filter,Tag|null> = { Todo:null, Dudas:"Duda", Avances:"Avance", Logros:"Logro", Recruiting:"Recruiting", Entrenamiento:"Entrenamiento", Marcas:null };
-
-const posts: Post[] = [
-  { id:1, user:"Ximo", initials:"XI", bgC:"rgba(201,168,76,0.15)", textC:"#C9A84C", tag:"Oficial", time:"Hace 2 h", official:true,
-    text:"Mejoramos la sección de Coaches: ahora puedes ver el estilo de cada entrenador y si tiene apertura activa. Revísalo.", likes:34, comments:12 },
-  { id:2, user:"Manny", initials:"MZ", bgC:"rgba(201,168,76,0.12)", textC:"#C9A84C", sport:"Nadador · 2027", tag:"Duda", time:"Hace 3 h",
-    text:"¿Qué es lo más difícil al contactar a un coach por primera vez? ¿Cómo saben si estás en su rango de tiempos?", likes:17, comments:9, answered:true,
-    replies:[{user:"Fer Swim",initials:"FS",text:"No saber si el nivel es suficiente. Esperé demasiado antes de escribir."},{user:"Valeria",initials:"VA",text:"El idioma. Escribir en inglés formal sin sonar robótico."}] },
-  { id:3, user:"Fer Swim", initials:"FS", bgC:"rgba(5,150,105,0.15)", textC:"#6ee7b7", sport:"Nadadora · 2026", tag:"Logro", time:"Hace 5 h",
-    text:"¡Nuevo PB en 50 libre: 25.1 SCY! Semanas de trabajo específico de salida dieron resultado 🔥", likes:22, comments:9,
-    mediaPlaceholder:"🏊  Clip de competencia · 50 libre · Meet GDL Invitational" },
-  { id:4, user:"Carlos Nado", initials:"CN", bgC:"rgba(47,127,134,0.15)", textC:"#7FAFB2", sport:"Nadador · 2026", tag:"Duda", time:"Hace 6 h",
-    text:"Mi tiempo en 50 libre es 26.8 SCY. ¿Es realista apuntar a D1? Estoy en clase 2026.", likes:8, comments:5, answered:true,
-    replies:[{user:"Manny",initials:"MZ",text:"D1 bajo puede aceptar 26.x. La tendencia importa más que el tiempo actual."},{user:"Fer Swim",initials:"FS",text:"Empecé con 26.5 y bajé a 25.1 en dos temporadas. El proceso funciona."}] },
-  { id:5, user:"Valeria", initials:"VA", bgC:"rgba(139,92,246,0.15)", textC:"#c4b5fd", sport:"Nadadora · 2027", tag:"Recruiting", time:"Hace 1 d",
-    text:"¿Cómo escriben un follow-up cuando el coach ya respondió pero sin avance? No quiero parecer pesada.", likes:14, comments:7, answered:true,
-    replies:[{user:"Manny",initials:"MZ",text:"Espera 2 semanas. Luego envía algo concreto: tiempo nuevo, meet próximo. No preguntes si sigue interesado."}] },
-  { id:6, user:"Diego", initials:"DM", bgC:"rgba(245,245,240,0.08)", textC:"rgba(245,245,240,0.7)", sport:"Nadador · 2027", tag:"Logro", time:"Hace 1 d",
-    text:"¡Un coach de D2 me respondió hoy! Llevo 3 semanas usando la plantilla de correos de ximo. Sí funciona 🙌", likes:31, comments:14 },
-  { id:7, user:"Manny", initials:"MZ", bgC:"rgba(201,168,76,0.12)", textC:"#C9A84C", sport:"Nadador · 2027", tag:"Entrenamiento", time:"Hace 2 d",
-    text:"Meta esta temporada: bajar el 100 mariposa a 58.0 SCY. Empiezo bloque de fuerza específica. ¿Alguien trabajando mariposa?", likes:11, comments:6,
-    mediaPlaceholder:"📊  Plan de entrenamiento · Bloque Fuerza Específica · 6 semanas" },
+// ── Initial feed data ──────────────────────────────────────────
+const INITIAL_POSTS: Post[] = [
+  {
+    id:1, user:"Ximo", initials:"XI", avatarBg:"rgba(201,168,76,0.18)", avatarColor:"#C9A84C",
+    sport:"Plataforma oficial", tag:"Oficial", time:"2 h",
+    text:"Mejoramos la sección de Coaches: ahora puedes ver el estilo de cada entrenador y si tiene apertura activa. Revísalo en tu dashboard.",
+    likes:34, likedByMe:false, comments:12, official:true,
+  },
+  {
+    id:2, user:"Manny Z.", initials:"MZ", avatarBg:"rgba(30,206,206,0.15)", avatarColor:"#1ECECE",
+    sport:"Nadador · 2027", tag:"Duda", time:"3 h",
+    text:"¿Qué es lo más difícil al contactar a un coach por primera vez? ¿Cómo saben si estás en su rango de tiempos?",
+    likes:17, likedByMe:false, comments:9,
+    replies:[
+      { user:"Fer Swim", initials:"FS", text:"No saber si el nivel es suficiente. Esperé demasiado antes de escribir." },
+      { user:"Valeria", initials:"VA", text:"El idioma. Escribir en inglés formal sin sonar robótico." },
+    ],
+  },
+  {
+    id:3, user:"Fer Swim", initials:"FS", avatarBg:"rgba(5,150,105,0.15)", avatarColor:"#6ee7b7",
+    sport:"Nadadora · 2026", tag:"Logro", time:"5 h",
+    text:"Nuevo PB en 50 libre: 25.1 SCY. Semanas de trabajo específico de salida dieron resultado. El proceso funciona.",
+    imageName:"Clip de competencia · 50 libre · GDL Invitational",
+    likes:22, likedByMe:false, comments:9,
+  },
+  {
+    id:4, user:"Carlos N.", initials:"CN", avatarBg:"rgba(47,127,134,0.15)", avatarColor:"#7FAFB2",
+    sport:"Nadador · 2026", tag:"Duda", time:"6 h",
+    text:"Mi tiempo en 50 libre es 26.8 SCY. ¿Es realista apuntar a D1? Estoy en clase 2026.",
+    likes:8, likedByMe:false, comments:5,
+    replies:[
+      { user:"Manny Z.", initials:"MZ", text:"D1 bajo puede aceptar 26.x. La tendencia importa más que el tiempo actual." },
+      { user:"Fer Swim", initials:"FS", text:"Empecé con 26.5 y bajé a 25.1 en dos temporadas. El proceso funciona." },
+    ],
+  },
+  {
+    id:5, user:"Valeria G.", initials:"VG", avatarBg:"rgba(139,92,246,0.15)", avatarColor:"#c4b5fd",
+    sport:"Nadadora · 2027", tag:"Recruiting", time:"1 d",
+    text:"¿Cómo escriben un follow-up cuando el coach ya respondió pero sin avance? No quiero parecer pesada.",
+    likes:14, likedByMe:false, comments:7,
+    replies:[{ user:"Manny Z.", initials:"MZ", text:"Espera 2 semanas. Luego envía algo concreto: tiempo nuevo, meet próximo. No preguntes si sigue interesado." }],
+  },
+  {
+    id:6, user:"Diego M.", initials:"DM", avatarBg:"rgba(127,175,178,0.12)", avatarColor:"rgba(127,175,178,0.8)",
+    sport:"Nadador · 2027", tag:"Logro", time:"1 d",
+    text:"Un coach de D2 me respondió hoy. Llevo 3 semanas usando la plantilla de correos de Ximo. Funciona.",
+    likes:31, likedByMe:false, comments:14,
+  },
+  {
+    id:7, user:"Manny Z.", initials:"MZ", avatarBg:"rgba(30,206,206,0.15)", avatarColor:"#1ECECE",
+    sport:"Nadador · 2027", tag:"Meta", time:"2 d",
+    text:"Meta esta temporada: bajar el 100 mariposa a 58.0 SCY. Empiezo bloque de fuerza específica. ¿Alguien trabajando mariposa?",
+    imageName:"Plan de entrenamiento · Bloque Fuerza · 6 semanas",
+    likes:11, likedByMe:false, comments:6,
+  },
 ];
 
-const brands: BrandCard[] = [
-  { id:101, brand:"Aquasport MX",  logo:"🏊", category:"Equipo deportivo",          format:"Oferta",   headline:"Trajes de competencia para atletas en recruiting", description:"Descuento exclusivo para atletas ximo. Trajes técnicos de alto rendimiento.", cta:"Ver oportunidad" },
-  { id:102, brand:"GNC Sport",     logo:"💊", category:"Suplementos y recuperación", format:"Producto", headline:"Protocolo de recuperación para alto rendimiento",   description:"Suplementos validados para nadadores, sin sustancias prohibidas.", cta:"Ver oportunidad" },
-  { id:103, brand:"Arena México",  logo:"⚡", category:"Equipo deportivo",          format:"Producto", headline:"Lentes y gorras de competencia — 2025",             description:"Arena busca atletas ximo para probar su nueva línea antes del lanzamiento.", cta:"Ver oportunidad" },
-  { id:104, brand:"Recov+",        logo:"🧊", category:"Recuperación",              format:"Oferta",   headline:"Herramientas de recuperación activa",               description:"Compresión, foam rolling y protocolos de baño de contraste.", cta:"Ver oportunidad" },
-];
+const SURFACE = "rgba(17,37,56,0.78)";
+const BORDER  = "rgba(47,127,134,0.14)";
 
-const feed: FeedItem[] = [
-  {kind:"post",data:posts[0]},{kind:"post",data:posts[1]},{kind:"brand",data:brands[0]},
-  {kind:"post",data:posts[2]},{kind:"post",data:posts[3]},{kind:"brand",data:brands[1]},
-  {kind:"post",data:posts[4]},{kind:"post",data:posts[5]},{kind:"brand",data:brands[2]},
-  {kind:"post",data:posts[6]},{kind:"brand",data:brands[3]},
-];
+// ── Post composer ──────────────────────────────────────────────
+function Composer({ onPost }: { onPost: (text: string, tag: Tag, imageName?: string) => void }) {
+  const [text, setText]           = useState("");
+  const [tag, setTag]             = useState<Tag>("Meta");
+  const [imageName, setImageName] = useState<string | undefined>();
+  const [dragging, setDragging]   = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
-const hotTopics = [
-  {label:"Tiempos D1 realistas 2025",count:23},{label:"Correo de follow-up",count:18},
-  {label:"Becas parciales vs completas",count:14},{label:"SAT para atletas",count:11},{label:"Visitas oficiales",count:9},
-];
+  const submit = () => {
+    if (!text.trim()) return;
+    onPost(text.trim(), tag, imageName);
+    setText("");
+    setImageName(undefined);
+  };
 
-const top5 = [
-  {name:"Manny",initials:"MZ",metric:"12d racha",me:true},
-  {name:"Fer Swim",initials:"FS",metric:"10d racha",me:false},
-  {name:"Carlos Nado",initials:"CN",metric:"9d racha",me:false},
-  {name:"Valeria",initials:"VA",metric:"7d racha",me:false},
-  {name:"Diego",initials:"DM",metric:"5d racha",me:false},
-];
+  const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (f) setImageName(f.name);
+  };
 
-const CARD = { background:"rgba(17,37,56,0.85)", border:"1px solid rgba(47,127,134,0.12)", boxShadow:"0 4px 24px rgba(0,0,0,0.3)" };
-
-function PostCard({ post, likes, setLikes }: { post:Post; likes:number; setLikes:(n:number)=>void }) {
-  const [open,setOpen] = useState(false);
-  const t = TAG_S[post.tag];
   return (
-    <div className="rounded-2xl p-4 ximo-lift" style={CARD}>
+    <div className="rounded-2xl p-4 sm:p-5" style={{ background: SURFACE, border:`1.5px solid ${BORDER}` }}>
       <div className="flex gap-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[11px] font-black"
-          style={{ background:post.bgC, color:post.textC }}>
+        {/* Avatar */}
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-black"
+          style={{ background:"rgba(30,206,206,0.15)", color:"#1ECECE", border:"1px solid rgba(30,206,206,0.2)" }}>
+          MZ
+        </div>
+        <div className="flex-1 min-w-0">
+          <textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="¿Qué está pasando en tu camino deportivo?"
+            rows={3}
+            className="w-full resize-none rounded-xl bg-transparent p-0 text-sm outline-none placeholder:text-[rgba(127,175,178,0.35)]"
+            style={{ color:"#F5F5F0" }}
+            onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) submit(); }}
+          />
+
+          {/* Image preview */}
+          {imageName && (
+            <div className="mb-3 flex items-center gap-2 rounded-xl px-3 py-2"
+              style={{ background:"rgba(30,206,206,0.08)", border:"1px solid rgba(30,206,206,0.18)" }}>
+              <span className="text-[11px] font-semibold truncate flex-1" style={{ color:"#1ECECE" }}>
+                {imageName}
+              </span>
+              <button type="button" onClick={() => setImageName(undefined)}
+                className="text-xs transition-opacity hover:opacity-60" style={{ color:"rgba(127,175,178,0.5)" }}>
+                ×
+              </button>
+            </div>
+          )}
+
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t pt-3"
+            style={{ borderColor:"rgba(47,127,134,0.1)" }}>
+
+            {/* Tag picker */}
+            <div className="flex flex-wrap gap-1.5">
+              {TAGS.map((t) => {
+                const s = TAG_STYLE[t];
+                const active = tag === t;
+                return (
+                  <button key={t} type="button" onClick={() => setTag(t)}
+                    className="rounded-full px-2.5 py-0.5 text-[10px] font-bold transition-all duration-150"
+                    style={{
+                      background: active ? s.bg : "transparent",
+                      color: active ? s.color : "rgba(127,175,178,0.4)",
+                      border: active ? `1px solid ${s.color}40` : "1px solid rgba(47,127,134,0.12)",
+                    }}>
+                    {t}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex items-center gap-2">
+              {/* Media upload */}
+              <input ref={fileRef} type="file" accept="image/*,video/*" className="hidden" onChange={handleFile} />
+              <button type="button" onClick={() => fileRef.current?.click()}
+                className="flex h-8 w-8 items-center justify-center rounded-xl transition-opacity hover:opacity-70"
+                style={{ background:"rgba(47,127,134,0.08)", border:"1px solid rgba(47,127,134,0.15)", color:"#7FAFB2" }}
+                title="Adjuntar imagen o video">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                  <rect x="1" y="3" width="12" height="9" rx="1.5"/>
+                  <circle cx="4.5" cy="6" r="1"/>
+                  <path d="M1 10l3-3 2.5 2.5L9 7.5 13 12"/>
+                </svg>
+              </button>
+
+              {/* Character count */}
+              <span className="text-[10px] tabular-nums"
+                style={{ color: text.length > 240 ? "#f87171" : "rgba(127,175,178,0.35)" }}>
+                {280 - text.length}
+              </span>
+
+              {/* Post button */}
+              <button type="button" onClick={submit}
+                disabled={!text.trim() || text.length > 280}
+                className="ximo-btn-press rounded-xl px-4 py-2 text-xs font-black transition-opacity hover:opacity-90 disabled:opacity-35 disabled:cursor-not-allowed"
+                style={{ background:"#1ECECE", color:"#07131F" }}>
+                Publicar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Post card ──────────────────────────────────────────────────
+function PostCard({
+  post,
+  onLike,
+}: {
+  post: Post;
+  onLike: (id: number) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ts = TAG_STYLE[post.tag];
+
+  return (
+    <article className="rounded-2xl transition-all duration-200 hover:border-[rgba(47,127,134,0.25)]"
+      style={{ background: SURFACE, border:`1px solid ${BORDER}` }}>
+
+      {/* Main content */}
+      <div className="flex gap-3 p-4">
+        {/* Avatar */}
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-black"
+          style={{ background: post.avatarBg, color: post.avatarColor,
+            border: post.official ? "1.5px solid rgba(201,168,76,0.4)" : "none" }}>
           {post.initials}
         </div>
+
+        {/* Body */}
         <div className="flex-1 min-w-0">
-          <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
-            <p className="text-sm font-bold text-white">{post.user}</p>
-            {post.official && <span className="rounded-full px-2 py-0.5 text-[9px] font-black uppercase" style={{ background:"rgba(201,168,76,0.2)", color:"#C9A84C" }}>Oficial</span>}
-            {post.sport && <span className="text-[10px]" style={{ color:"rgba(127,175,178,0.45)" }}>{post.sport}</span>}
-            <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background:t.bg, color:t.color }}>{post.tag}</span>
-            <span className="ml-auto text-[10px]" style={{ color:"rgba(127,175,178,0.35)" }}>{post.time}</span>
-          </div>
-          <p className="text-sm leading-relaxed" style={{ color:"rgba(245,245,240,0.75)" }}>{post.text}</p>
-          {post.mediaPlaceholder && (
-            <div className="mt-2.5 rounded-xl px-4 py-2.5 text-xs" style={{ background:"rgba(47,127,134,0.08)", border:"1px solid rgba(47,127,134,0.12)", color:"rgba(127,175,178,0.6)" }}>
-              {post.mediaPlaceholder}
-            </div>
-          )}
-          <div className="mt-3 flex items-center gap-0.5 flex-wrap">
-            <button type="button" onClick={() => setLikes(likes + 1)}
-              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-colors duration-150 hover:text-[#C9A84C]"
-              style={{ color:"rgba(127,175,178,0.5)" }}>
-              ♥ {likes}
-            </button>
-            <button type="button" onClick={() => setOpen(!open)}
-              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-colors duration-150 hover:text-[#7FAFB2]"
-              style={{ color:"rgba(127,175,178,0.5)" }}>
-              ↩ {post.comments}
-            </button>
-            <button type="button"
-              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-colors"
-              style={{ color:"rgba(127,175,178,0.5)" }}>
-              ↗ Compartir
-            </button>
-            {post.answered && (
-              <span className="ml-auto flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold"
-                style={{ border:"1px solid rgba(5,150,105,0.2)", background:"rgba(5,150,105,0.1)", color:"#6ee7b7" }}>
-                ✓ Respondido
+          {/* Meta row */}
+          <div className="mb-1.5 flex flex-wrap items-center gap-2">
+            <span className="text-sm font-black" style={{ color:"#F5F5F0" }}>{post.user}</span>
+            {post.official && (
+              <span className="text-[9px] font-bold rounded-full px-1.5 py-0.5"
+                style={{ background:"rgba(201,168,76,0.15)", color:"#C9A84C" }}>
+                Oficial
               </span>
             )}
+            <span className="text-[11px]" style={{ color:"rgba(127,175,178,0.45)" }}>
+              {post.sport}
+            </span>
+            <span className="text-[11px]" style={{ color:"rgba(127,175,178,0.3)" }}>·</span>
+            <span className="text-[11px]" style={{ color:"rgba(127,175,178,0.35)" }}>{post.time}</span>
+            <span className="rounded-full px-2 py-0.5 text-[10px] font-bold ml-auto"
+              style={{ background: ts.bg, color: ts.color }}>
+              {post.tag}
+            </span>
           </div>
-          {open && post.replies && (
-            <div className="mt-3 space-y-2 border-l-2 pl-3" style={{ borderColor:"rgba(47,127,134,0.2)" }}>
-              {post.replies.map(r => (
-                <div key={r.user} className="flex gap-2">
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[9px] font-black"
-                    style={{ background:"rgba(47,127,134,0.12)", color:"#7FAFB2" }}>{r.initials}</div>
-                  <div>
-                    <p className="text-[11px] font-bold text-white">{r.user}</p>
-                    <p className="text-[11px] leading-relaxed" style={{ color:"rgba(127,175,178,0.55)" }}>{r.text}</p>
-                  </div>
-                </div>
-              ))}
-              <div className="flex gap-2 mt-2">
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[9px] font-black"
-                  style={{ background:"rgba(201,168,76,0.12)", color:"#C9A84C" }}>MZ</div>
-                <div className="flex-1 rounded-lg px-3 py-1.5 text-[11px]"
-                  style={{ border:"1px solid rgba(47,127,134,0.12)", color:"rgba(127,175,178,0.4)", background:"rgba(47,127,134,0.04)" }}>
-                  Escribe una respuesta…
-                </div>
-              </div>
+
+          {/* Text */}
+          <p className="text-sm leading-relaxed" style={{ color:"rgba(245,245,240,0.8)" }}>
+            {post.text}
+          </p>
+
+          {/* Media preview */}
+          {post.imageName && (
+            <div className="mt-3 flex items-center gap-2.5 rounded-xl px-3 py-2.5"
+              style={{ background:"rgba(47,127,134,0.07)", border:"1px solid rgba(47,127,134,0.14)" }}>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#7FAFB2" strokeWidth="1.5" strokeLinecap="round">
+                <rect x="1" y="3" width="12" height="9" rx="1.5"/>
+                <circle cx="4.5" cy="6" r="1"/>
+                <path d="M1 10l3-3 2.5 2.5L9 7.5 13 12"/>
+              </svg>
+              <span className="text-[11px] font-semibold" style={{ color:"rgba(127,175,178,0.65)" }}>
+                {post.imageName}
+              </span>
             </div>
           )}
-        </div>
-      </div>
-    </div>
-  );
-}
 
-function BrandFeed({ b }: { b:BrandCard }) {
-  return (
-    <div className="rounded-2xl p-4" style={{ background:"rgba(17,37,56,0.9)", border:"1px solid rgba(47,127,134,0.2)", boxShadow:"0 0 20px rgba(47,127,134,0.08),0 4px 24px rgba(0,0,0,0.35)" }}>
-      <div className="flex items-center gap-2 mb-3">
-        <span className="text-[9px] font-bold tracking-widest uppercase" style={{ color:"rgba(127,175,178,0.4)" }}>Anuncio filtrado para atletas ximo</span>
-        <span className="ml-auto rounded-full px-2 py-0.5 text-[9px] font-bold"
-          style={{ border:"1px solid rgba(47,127,134,0.25)", background:"rgba(47,127,134,0.1)", color:"#7FAFB2" }}>✓ Marca verificada</span>
-      </div>
-      <div className="flex gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-xl"
-          style={{ background:"rgba(47,127,134,0.1)", border:"1px solid rgba(47,127,134,0.15)" }}>{b.logo}</div>
-        <div className="flex-1 min-w-0">
-          <div className="flex flex-wrap items-center gap-1.5 mb-1">
-            <p className="text-sm font-bold text-white">{b.brand}</p>
-            <span className="rounded-full px-2 py-0.5 text-[9px] font-semibold" style={{ background:"rgba(47,127,134,0.08)", color:"rgba(127,175,178,0.5)", border:"1px solid rgba(47,127,134,0.1)" }}>{b.category}</span>
-            <span className="rounded-full px-2 py-0.5 text-[9px] font-semibold" style={{ background:"rgba(47,127,134,0.08)", color:"rgba(127,175,178,0.5)", border:"1px solid rgba(47,127,134,0.1)" }}>{b.format}</span>
-            <span className="rounded-full px-2 py-0.5 text-[9px] font-bold" style={{ background:"rgba(47,127,134,0.12)", color:"#7FAFB2", border:"1px solid rgba(47,127,134,0.2)" }}>Campaña activa</span>
-          </div>
-          <p className="text-sm font-semibold leading-snug mb-1 text-white">{b.headline}</p>
-          <p className="text-xs leading-relaxed mb-3" style={{ color:"rgba(127,175,178,0.5)" }}>{b.description}</p>
-          <div className="flex items-center gap-3">
-            <button type="button"
-              className="rounded-xl px-4 py-1.5 text-[11px] font-bold text-white transition-all duration-200 hover:scale-105"
-              style={{ background:"#2F7F86", boxShadow:"0 0 12px rgba(47,127,134,0.3)" }}>
-              {b.cta} →
+          {/* Action bar */}
+          <div className="mt-3 flex items-center gap-1" style={{ borderTop:"1px solid rgba(47,127,134,0.08)", paddingTop:"10px" }}>
+            {/* Like */}
+            <button type="button" onClick={() => onLike(post.id)}
+              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-all duration-150 hover:bg-[rgba(248,113,113,0.08)]"
+              style={{ color: post.likedByMe ? "#f87171" : "rgba(127,175,178,0.5)" }}>
+              <svg width="13" height="13" viewBox="0 0 13 13" fill={post.likedByMe ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.5">
+                <path d="M6.5 11S1 7.5 1 4a2.5 2.5 0 0 1 5.5 0A2.5 2.5 0 0 1 12 4c0 3.5-5.5 7-5.5 7Z"/>
+              </svg>
+              {post.likes}
             </button>
-            <span className="text-[10px]" style={{ color:"rgba(127,175,178,0.35)" }}>Revisado por ximo</span>
+
+            {/* Comment */}
+            <button type="button" onClick={() => setOpen(!open)}
+              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-all duration-150 hover:bg-[rgba(30,206,206,0.06)]"
+              style={{ color:"rgba(127,175,178,0.5)" }}>
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                <path d="M11 7.5A4.5 4.5 0 0 1 2 6a4.5 4.5 0 0 1 9 1.5v0A1.5 1.5 0 0 1 9.5 9L7 11.5V9H4.5"/>
+              </svg>
+              {post.comments}
+            </button>
+
+            {/* Share */}
+            <button type="button"
+              className="ml-auto flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-all duration-150 hover:bg-[rgba(47,127,134,0.08)]"
+              style={{ color:"rgba(127,175,178,0.4)" }}>
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                <path d="M8 2l3 3-3 3M11 5H5a3 3 0 0 0 0 6h1"/>
+              </svg>
+              Compartir
+            </button>
           </div>
         </div>
       </div>
-    </div>
-  );
-}
 
-export default function ComunidadPage() {
-  const [tab,setTab] = useState<Filter>("Todo");
-  const [likes,setLikes] = useState<Record<number,number>>(Object.fromEntries(posts.map(p=>[p.id,p.likes])));
-
-  const visible = feed.filter(item => {
-    if (tab==="Todo") return true;
-    if (tab==="Marcas") return item.kind==="brand";
-    if (item.kind==="brand") return false;
-    const t = FILTER_TAG[tab];
-    return (item.data as Post).tag === t;
-  });
-
-  return (
-    <div className="grid gap-5 xl:grid-cols-[1fr_256px]">
-      <div className="space-y-4 min-w-0">
-        <div className="ximo-fade-up">
-          <h1 className="text-xl font-black text-white sm:text-2xl" style={{ textShadow:"0 2px 12px rgba(47,127,134,0.3)" }}>Comunidad</h1>
-          <p className="mt-1 text-sm" style={{ color:"rgba(127,175,178,0.55)" }}>Atletas compartiendo metas, avances y dudas reales.</p>
-        </div>
-
-        {/* Composer */}
-        <div className="rounded-2xl p-4 ximo-fade-up delay-100" style={CARD}>
-          <div className="flex gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[11px] font-black"
-              style={{ background:"rgba(201,168,76,0.12)", color:"#C9A84C" }}>MZ</div>
-            <div className="flex-1">
-              <div className="w-full rounded-xl px-4 py-3 text-sm cursor-text"
-                style={{ background:"rgba(47,127,134,0.05)", border:"1px solid rgba(47,127,134,0.12)", color:"rgba(127,175,178,0.4)" }}>
-                Comparte una foto, meta, duda o avance…
+      {/* Replies */}
+      {open && post.replies && post.replies.length > 0 && (
+        <div className="border-t px-4 pb-3 pt-3 space-y-3"
+          style={{ borderColor:"rgba(47,127,134,0.1)" }}>
+          {post.replies.map((r) => (
+            <div key={r.user} className="flex gap-2.5">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[10px] font-black"
+                style={{ background:"rgba(47,127,134,0.1)", color:"#7FAFB2" }}>
+                {r.initials}
               </div>
-              <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                {(["Meta","Duda","Avance","Logro","Recruiting","Entrenamiento"] as Tag[]).map(tag => {
-                  const t = TAG_S[tag];
-                  return <button key={tag} type="button"
-                    className="rounded-full px-2.5 py-1 text-[10px] font-bold transition-opacity hover:opacity-80"
-                    style={{ background:t.bg, color:t.color }}>{tag}</button>;
-                })}
-                <button type="button"
-                  className="ml-auto rounded-xl px-4 py-1.5 text-[11px] font-bold text-white transition-all duration-200 hover:scale-105"
-                  style={{ background:"#2F7F86" }}>Publicar</button>
+              <div className="flex-1 rounded-xl px-3 py-2"
+                style={{ background:"rgba(47,127,134,0.06)", border:"1px solid rgba(47,127,134,0.1)" }}>
+                <p className="text-[11px] font-bold mb-0.5" style={{ color:"rgba(127,175,178,0.8)" }}>{r.user}</p>
+                <p className="text-xs leading-relaxed" style={{ color:"rgba(245,245,240,0.65)" }}>{r.text}</p>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Filters */}
-        <div className="flex gap-1.5 overflow-x-auto pb-0.5 ximo-fade-up delay-100">
-          {FILTERS.map(f => (
-            <button key={f} type="button" onClick={() => setTab(f)}
-              className="shrink-0 rounded-xl px-3.5 py-2 text-[11px] font-bold transition-all duration-200"
-              style={tab===f
-                ? { background:"rgba(47,127,134,0.25)", color:"#7FAFB2", border:"1px solid rgba(47,127,134,0.3)", boxShadow:"0 0 12px rgba(47,127,134,0.2)" }
-                : { background:"rgba(17,37,56,0.6)", color:"rgba(127,175,178,0.45)", border:"1px solid rgba(47,127,134,0.1)" }}>
-              {f}
-            </button>
           ))}
         </div>
+      )}
+    </article>
+  );
+}
 
-        {visible.map(item =>
-          item.kind==="post"
-            ? <PostCard key={`p${item.data.id}`} post={item.data as Post}
-                likes={likes[(item.data as Post).id]} setLikes={n=>setLikes(p=>({...p,[(item.data as Post).id]:n}))} />
-            : <BrandFeed key={`b${item.data.id}`} b={item.data as BrandCard} />
-        )}
+// ── Filter bar ─────────────────────────────────────────────────
+const FILTERS = ["Todo", "Metas", "Avances", "Logros", "Dudas", "Recruiting"] as const;
+type Filter = typeof FILTERS[number];
+const FILTER_TAG: Record<Filter, Tag | null> = {
+  Todo:null, Metas:"Meta", Avances:"Avance", Logros:"Logro", Dudas:"Duda", Recruiting:"Recruiting"
+};
 
-        {visible.length===0 && (
-          <div className="rounded-2xl py-8 text-center text-sm" style={{ border:"1px dashed rgba(47,127,134,0.15)", color:"rgba(127,175,178,0.35)" }}>
-            No hay publicaciones en esta categoría todavía.
-          </div>
-        )}
-        <div className="rounded-2xl py-3 text-center text-xs" style={{ border:"1px dashed rgba(47,127,134,0.12)", color:"rgba(127,175,178,0.25)" }}>
-          Comunidad Ximo · Solo atletas con suscripción activa
+// ── Sidebar widgets ────────────────────────────────────────────
+const TRENDING = [
+  { label:"#50libre",         posts:24 },
+  { label:"#NCAARechazado",   posts:18 },
+  { label:"#Mariposa",        posts:15 },
+  { label:"#CorreoCoach",     posts:12 },
+  { label:"#D1México",        posts:9 },
+];
+
+const SUGGESTIONS = [
+  { initials:"FS", name:"Fer Swim",   sport:"Nadadora · 2026", bg:"rgba(5,150,105,0.15)",   color:"#6ee7b7" },
+  { initials:"VG", name:"Valeria G.", sport:"Nadadora · 2027", bg:"rgba(139,92,246,0.15)",  color:"#c4b5fd" },
+  { initials:"DM", name:"Diego M.",   sport:"Nadador · 2027",  bg:"rgba(127,175,178,0.12)", color:"rgba(127,175,178,0.8)" },
+];
+
+// ── Main page ──────────────────────────────────────────────────
+export default function ComunidadPage() {
+  const [posts, setPosts]       = useState<Post[]>(INITIAL_POSTS);
+  const [filter, setFilter]     = useState<Filter>("Todo");
+  const [following, setFollowing] = useState<Set<string>>(new Set());
+
+  const handleLike = (id: number) => {
+    setPosts((prev) =>
+      prev.map((p) =>
+        p.id === id
+          ? { ...p, likedByMe: !p.likedByMe, likes: p.likedByMe ? p.likes - 1 : p.likes + 1 }
+          : p
+      )
+    );
+  };
+
+  const handlePost = (text: string, tag: Tag, imageName?: string) => {
+    const newPost: Post = {
+      id: Date.now(),
+      user: "Manny Z.",
+      initials: "MZ",
+      avatarBg: "rgba(30,206,206,0.15)",
+      avatarColor: "#1ECECE",
+      sport: "Nadador · 2027",
+      tag,
+      time: "Ahora",
+      text,
+      imageName,
+      likes: 0,
+      likedByMe: false,
+      comments: 0,
+    };
+    setPosts((prev) => [newPost, ...prev]);
+  };
+
+  const filtered = filter === "Todo"
+    ? posts
+    : posts.filter((p) => p.tag === FILTER_TAG[filter]);
+
+  return (
+    <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
+
+      {/* ── Left: feed ── */}
+      <div className="min-w-0 space-y-4">
+
+        {/* Composer */}
+        <Composer onPost={handlePost} />
+
+        {/* Filter bar */}
+        <div className="flex gap-1.5 overflow-x-auto pb-1">
+          {FILTERS.map((f) => {
+            const active = filter === f;
+            return (
+              <button key={f} type="button" onClick={() => setFilter(f)}
+                className="shrink-0 rounded-xl px-3.5 py-2 text-xs font-bold transition-all duration-150"
+                style={{
+                  background: active ? "rgba(30,206,206,0.14)" : "rgba(47,127,134,0.05)",
+                  border: active ? "1px solid rgba(30,206,206,0.35)" : "1px solid rgba(47,127,134,0.12)",
+                  color: active ? "#1ECECE" : "rgba(127,175,178,0.55)",
+                }}>
+                {f}
+              </button>
+            );
+          })}
         </div>
+
+        {/* Feed */}
+        <div className="space-y-3">
+          {filtered.length === 0 ? (
+            <div className="rounded-2xl py-12 text-center"
+              style={{ background: SURFACE, border:`1px solid ${BORDER}` }}>
+              <p className="text-sm font-bold" style={{ color:"rgba(127,175,178,0.4)" }}>
+                Sin publicaciones en esta categoría.
+              </p>
+            </div>
+          ) : (
+            filtered.map((p) => (
+              <PostCard key={p.id} post={p} onLike={handleLike} />
+            ))
+          )}
+        </div>
+
+        <p className="py-3 text-center text-[10px]" style={{ color:"rgba(127,175,178,0.25)" }}>
+          Comunidad Ximo · Solo atletas con suscripción activa
+        </p>
       </div>
 
-      {/* Right */}
-      <div className="space-y-4">
-        {[{
-          title:"Temas activos", subtitle:"Esta semana",
-          content:<div className="space-y-1.5">{hotTopics.map((t,i)=>(
-            <div key={t.label} className="flex items-center gap-2.5 rounded-xl px-3 py-2 cursor-pointer transition-all duration-150 hover:bg-[rgba(47,127,134,0.06)]"
-              style={{ border:"1px solid rgba(47,127,134,0.08)" }}>
-              <span className="w-4 text-center text-[10px] font-black" style={{ color:"rgba(127,175,178,0.35)" }}>#{i+1}</span>
-              <p className="flex-1 text-[11px] font-semibold text-white leading-snug">{t.label}</p>
-              <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background:"rgba(47,127,134,0.1)", color:"#7FAFB2" }}>{t.count}</span>
-            </div>
-          ))}</div>
-        },{
-          title:"Ranking positivo", subtitle:"Racha más larga",
-          content:<div className="space-y-1.5">{top5.map((a,i)=>(
-            <div key={a.name} className="flex items-center gap-2.5 rounded-xl px-3 py-2.5"
-              style={a.me ? { background:"rgba(201,168,76,0.1)", border:"1px solid rgba(201,168,76,0.2)" } : { border:"1px solid rgba(47,127,134,0.08)" }}>
-              <span className="w-4 text-center text-[10px] font-black" style={{ color:"rgba(127,175,178,0.35)" }}>#{i+1}</span>
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-[10px] font-black"
-                style={{ background:"rgba(47,127,134,0.12)", color:"#7FAFB2" }}>{a.initials}</div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[11px] font-bold text-white truncate">{a.name} {a.me && <span style={{color:"#C9A84C"}}>(tú)</span>}</p>
-                <p className="text-[10px]" style={{ color:"rgba(127,175,178,0.4)" }}>{a.metric}</p>
-              </div>
-            </div>
-          ))}</div>
-        }].map(s => (
-          <div key={s.title} className="rounded-2xl p-4" style={CARD}>
-            <SectionHeader dark title={s.title} subtitle={s.subtitle} />
-            {s.content}
-          </div>
-        ))}
+      {/* ── Right: sidebar ── */}
+      <aside className="hidden space-y-4 lg:block">
 
-        {/* Streak */}
-        <div className="rounded-2xl overflow-hidden" style={{ border:"1px solid rgba(47,127,134,0.15)", boxShadow:"0 0 24px rgba(47,127,134,0.1)" }}>
-          <div className="p-4" style={{ background:"linear-gradient(135deg,rgba(47,127,134,0.2),rgba(47,127,134,0.05))" }}>
-            <p className="text-xs font-black text-white">🔥 Racha comunitaria</p>
-            <p className="mt-0.5 text-[10px]" style={{ color:"rgba(127,175,178,0.45)" }}>7 días activos seguidos</p>
-          </div>
-          <div className="p-4" style={{ background:"rgba(17,37,56,0.8)" }}>
-            <p className="text-[11px] italic leading-relaxed" style={{ color:"rgba(127,175,178,0.5)" }}>"Pequeñas acciones diarias crean oportunidades reales."</p>
-            <div className="mt-3 h-1 w-full overflow-hidden rounded-full" style={{ background:"rgba(47,127,134,0.1)" }}>
-              <div className="h-full w-[23%] rounded-full" style={{ background:"linear-gradient(90deg,#2F7F86,#C9A84C)" }} />
-            </div>
-            <p className="mt-1.5 text-[10px]" style={{ color:"rgba(127,175,178,0.3)" }}>7 de 30 días</p>
+        {/* Search */}
+        <div className="flex items-center gap-2 rounded-xl px-3.5 py-2.5"
+          style={{ background: SURFACE, border:`1px solid ${BORDER}` }}>
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="#7FAFB2" strokeWidth="1.5" strokeLinecap="round">
+            <circle cx="5.5" cy="5.5" r="4"/><path d="M9.5 9.5l2.5 2.5"/>
+          </svg>
+          <input type="text" placeholder="Buscar en la comunidad"
+            className="flex-1 bg-transparent text-xs outline-none placeholder:text-[rgba(127,175,178,0.35)]"
+            style={{ color:"rgba(245,245,240,0.7)" }} />
+        </div>
+
+        {/* Stats */}
+        <div className="rounded-2xl p-4" style={{ background: SURFACE, border:`1px solid ${BORDER}` }}>
+          <p className="mb-3 text-[10px] font-bold uppercase tracking-widest" style={{ color:"rgba(127,175,178,0.5)" }}>
+            Comunidad
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { label:"Atletas",      value:"47" },
+              { label:"Posts hoy",    value: String(posts.length) },
+              { label:"Respuestas",   value:"38" },
+              { label:"Deportes",     value:"3" },
+            ].map(({ label, value }) => (
+              <div key={label} className="rounded-xl px-2.5 py-2 text-center"
+                style={{ background:"rgba(47,127,134,0.06)", border:"1px solid rgba(47,127,134,0.1)" }}>
+                <p className="text-lg font-black" style={{ color:"#1ECECE" }}>{value}</p>
+                <p className="text-[9px] font-semibold" style={{ color:"rgba(127,175,178,0.45)" }}>{label}</p>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Brand CTA */}
-        <div className="rounded-2xl p-4 text-center" style={CARD}>
-          <p className="text-base mb-1">🏷</p>
-          <p className="text-xs font-black text-white">¿Representas una marca?</p>
-          <p className="mt-1 text-[10px] leading-relaxed" style={{ color:"rgba(127,175,178,0.45)" }}>Conecta con atletas de forma curada.</p>
+        {/* Trending */}
+        <div className="rounded-2xl p-4" style={{ background: SURFACE, border:`1px solid ${BORDER}` }}>
+          <p className="mb-3 text-[10px] font-bold uppercase tracking-widest" style={{ color:"rgba(127,175,178,0.5)" }}>
+            Tendencias
+          </p>
+          <div className="space-y-2">
+            {TRENDING.map(({ label, posts: cnt }, i) => (
+              <button key={label} type="button"
+                className="flex w-full items-center justify-between rounded-xl px-2.5 py-2 transition-colors hover:bg-[rgba(47,127,134,0.08)]"
+                style={{ border:"1px solid transparent" }}>
+                <div className="flex items-center gap-2">
+                  <span className="w-4 text-center text-[10px] font-black" style={{ color:"rgba(127,175,178,0.3)" }}>
+                    #{i+1}
+                  </span>
+                  <span className="text-xs font-bold" style={{ color:"rgba(245,245,240,0.7)" }}>{label}</span>
+                </div>
+                <span className="text-[10px]" style={{ color:"rgba(127,175,178,0.4)" }}>{cnt} posts</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Suggested athletes */}
+        <div className="rounded-2xl p-4" style={{ background: SURFACE, border:`1px solid ${BORDER}` }}>
+          <p className="mb-3 text-[10px] font-bold uppercase tracking-widest" style={{ color:"rgba(127,175,178,0.5)" }}>
+            Atletas activos
+          </p>
+          <div className="space-y-3">
+            {SUGGESTIONS.map((a) => (
+              <div key={a.name} className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-[10px] font-black"
+                  style={{ background: a.bg, color: a.color }}>
+                  {a.initials}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold truncate" style={{ color:"#F5F5F0" }}>{a.name}</p>
+                  <p className="text-[10px]" style={{ color:"rgba(127,175,178,0.45)" }}>{a.sport}</p>
+                </div>
+                <button type="button"
+                  onClick={() => setFollowing((prev) => {
+                    const next = new Set(prev);
+                    next.has(a.name) ? next.delete(a.name) : next.add(a.name);
+                    return next;
+                  })}
+                  className="rounded-xl px-2.5 py-1 text-[10px] font-bold transition-all duration-150"
+                  style={following.has(a.name)
+                    ? { background:"rgba(30,206,206,0.12)", color:"#1ECECE", border:"1px solid rgba(30,206,206,0.25)" }
+                    : { background:"rgba(47,127,134,0.08)", color:"rgba(127,175,178,0.6)", border:"1px solid rgba(47,127,134,0.14)" }}>
+                  {following.has(a.name) ? "Siguiendo" : "Seguir"}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Brand opportunity CTA */}
+        <div className="rounded-2xl p-4"
+          style={{ background:"rgba(201,168,76,0.06)", border:"1px solid rgba(201,168,76,0.18)" }}>
+          <p className="text-xs font-black mb-1.5" style={{ color:"#C9A84C" }}>¿Tu marca apoya atletas?</p>
+          <p className="text-[11px] leading-relaxed mb-3" style={{ color:"rgba(245,245,240,0.45)" }}>
+            Conecta con atletas serios en proceso de recruiting.
+          </p>
           <Link href="/app/promocionar"
-            className="mt-3 inline-flex w-full items-center justify-center rounded-xl px-4 py-2 text-xs font-bold text-white transition-all duration-200 hover:scale-105"
-            style={{ background:"rgba(47,127,134,0.15)", border:"1px solid rgba(47,127,134,0.25)" }}>
-            Soy una marca →
+            className="block text-center rounded-xl py-2 text-xs font-bold transition-opacity hover:opacity-80"
+            style={{ background:"rgba(201,168,76,0.12)", color:"#C9A84C", border:"1px solid rgba(201,168,76,0.22)" }}>
+            Promocionar con Ximo →
           </Link>
         </div>
-      </div>
+      </aside>
     </div>
   );
 }

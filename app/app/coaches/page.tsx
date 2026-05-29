@@ -1,5 +1,6 @@
-import PageHeader from "../components/PageHeader";
+﻿import PageHeader from "../components/PageHeader";
 import { SectionHeader } from "../components/ui";
+import ScrollReveal from "../../components/ScrollReveal";
 
 const CARD = { background:"rgba(17,37,56,0.7)",  border:"1px solid rgba(47,127,134,0.14)" } as const;
 const INNER = { background:"rgba(47,127,134,0.06)", border:"1px solid rgba(47,127,134,0.1)"  } as const;
@@ -13,18 +14,18 @@ function statusStyle(s: string): { background: string; color: string } {
 }
 
 const coaches = [
-  { name:"Coach Dylan",    university:"Niagara University",   email:"dylan.s@niagara.edu",      status:"Requiere claridad de beca",  last:"Correo inicial · Mar 10 — sin respuesta",           next:"Mar 25 — follow-up con tiempos y pregunta sobre beca", priority:"Alta",  notes:"Pendiente aclarar beca oficial antes de avanzar." },
-  { name:"Coach Lucy",     university:"LIU",                  email:"lucy.m@liu.edu",            status:"Interés alto",               last:"Respondió · Mar 18 — quiere ver video actualizado",  next:"Enviar actualizaciones de verano · esta semana",       priority:"Alta",  notes:"Buena comunicación. Priorizar envío de marcas recientes." },
-  { name:"Coach Boyle",    university:"Towson University",    email:"boyle.t@towson.edu",        status:"Interés confirmado",         last:"Llamada intro · Mar 20 — interés confirmado",        next:"Seguimiento de llamada · confirmar visita campus",     priority:"Alta",  notes:"Visita campus tentativa para abril." },
-  { name:"Coach Crispino", university:"Princeton",            email:"crispino@princeton.edu",    status:"Aspiracional",               last:"Sin contacto directo aún",                            next:"Volver a contactar en otoño con mejores tiempos",     priority:"Baja",  notes:"Reach school. Mejorar marcas antes de primer contacto." },
-  { name:"Coach Adam",     university:"Le Moyne",             email:"adam.r@lemoyne.edu",        status:"Follow-up necesario",        last:"Correo enviado · Mar 5 — sin respuesta",             next:"Abr 1 — segundo follow-up con perfil completo",        priority:"Media", notes:"Opción D2 sólida con buena claridad de beca parcial." },
-  { name:"Coach Husson",   university:"Husson University",    email:"husson.swim@husson.edu",    status:"Esperando respuesta",        last:"Primer correo · Mar 15",                              next:"Mar 30 — follow-up si no responde",                    priority:"Media", notes:"D3 con opciones académicas y deportivas balanceadas." },
+  { name:"Coach Dylan",    university:"Niagara University",   email:"dylan.s@niagara.edu",      status:"Requiere claridad de beca",  last:"Correo inicial Â· Mar 10 â€” sin respuesta",           next:"Mar 25 â€” follow-up con tiempos y pregunta sobre beca", priority:"Alta",  notes:"Pendiente aclarar beca oficial antes de avanzar." },
+  { name:"Coach Lucy",     university:"LIU",                  email:"lucy.m@liu.edu",            status:"InterÃ©s alto",               last:"RespondiÃ³ Â· Mar 18 â€” quiere ver video actualizado",  next:"Enviar actualizaciones de verano Â· esta semana",       priority:"Alta",  notes:"Buena comunicaciÃ³n. Priorizar envÃ­o de marcas recientes." },
+  { name:"Coach Boyle",    university:"Towson University",    email:"boyle.t@towson.edu",        status:"InterÃ©s confirmado",         last:"Llamada intro Â· Mar 20 â€” interÃ©s confirmado",        next:"Seguimiento de llamada Â· confirmar visita campus",     priority:"Alta",  notes:"Visita campus tentativa para abril." },
+  { name:"Coach Crispino", university:"Princeton",            email:"crispino@princeton.edu",    status:"Aspiracional",               last:"Sin contacto directo aÃºn",                            next:"Volver a contactar en otoÃ±o con mejores tiempos",     priority:"Baja",  notes:"Reach school. Mejorar marcas antes de primer contacto." },
+  { name:"Coach Adam",     university:"Le Moyne",             email:"adam.r@lemoyne.edu",        status:"Follow-up necesario",        last:"Correo enviado Â· Mar 5 â€” sin respuesta",             next:"Abr 1 â€” segundo follow-up con perfil completo",        priority:"Media", notes:"OpciÃ³n D2 sÃ³lida con buena claridad de beca parcial." },
+  { name:"Coach Husson",   university:"Husson University",    email:"husson.swim@husson.edu",    status:"Esperando respuesta",        last:"Primer correo Â· Mar 15",                              next:"Mar 30 â€” follow-up si no responde",                    priority:"Media", notes:"D3 con opciones acadÃ©micas y deportivas balanceadas." },
 ];
 
 const messages = [
-  { coach:"Coach Dylan · Niagara",   preview:"Estimado Coach Dylan, quería dar seguimiento a mi correo anterior y compartir mis tiempos actualizados. También me gustaría entender las opciones de beca disponibles para atletas internacionales…" },
-  { coach:"Coach Lucy · LIU",        preview:"Coach Lucy, gracias por su respuesta. Adjunto mi video actualizado de 50 y 100 libre, junto con mi perfil atlético actualizado…" },
-  { coach:"Coach Boyle · Towson",    preview:"Coach Boyle, fue un placer hablar con usted. Confirmo mi disponibilidad para la visita al campus y quería preguntar qué documentos debo preparar…" },
+  { coach:"Coach Dylan Â· Niagara",   preview:"Estimado Coach Dylan, querÃ­a dar seguimiento a mi correo anterior y compartir mis tiempos actualizados. TambiÃ©n me gustarÃ­a entender las opciones de beca disponibles para atletas internacionalesâ€¦" },
+  { coach:"Coach Lucy Â· LIU",        preview:"Coach Lucy, gracias por su respuesta. Adjunto mi video actualizado de 50 y 100 libre, junto con mi perfil atlÃ©tico actualizadoâ€¦" },
+  { coach:"Coach Boyle Â· Towson",    preview:"Coach Boyle, fue un placer hablar con usted. Confirmo mi disponibilidad para la visita al campus y querÃ­a preguntar quÃ© documentos debo prepararâ€¦" },
 ];
 
 function PriorityBadge({ p }: { p: string }) {
@@ -41,23 +42,24 @@ export default function CoachesPage() {
     <>
       <PageHeader
         title="Coaches"
-        subtitle="Organiza conversaciones, respuestas, llamadas, follow-ups y próximos mensajes."
+        subtitle="Organiza conversaciones, respuestas, llamadas, follow-ups y prÃ³ximos mensajes."
       />
 
       {/* Summary */}
       <div className="mb-5 rounded-2xl p-4" style={CARD}>
         <p className="text-sm font-bold" style={{ color:"#F5F5F0" }}>Resumen</p>
         <p className="mt-0.5 text-xs" style={{ color:"rgba(127,175,178,0.5)" }}>
-          6 coaches en pipeline · 3 con interés alto · 2 esperando respuesta
+          6 coaches en pipeline Â· 3 con interÃ©s alto Â· 2 esperando respuesta
         </p>
       </div>
 
       {/* Coach cards */}
       <div className="mb-5 space-y-3">
-        {coaches.map((c) => {
+        {coaches.map((c, i) => {
           const ss = statusStyle(c.status);
           return (
-            <div key={c.name} className="rounded-2xl p-4 sm:p-5 ximo-card-3d" style={CARD}>
+            <ScrollReveal key={c.name} delay={i * 55}>
+            <div className="rounded-2xl p-4 sm:p-5 ximo-card-3d" style={CARD}>
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <h2 className="text-base font-black" style={{ color:"#F5F5F0" }}>{c.name}</h2>
@@ -71,30 +73,31 @@ export default function CoachesPage() {
               </div>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <div className="rounded-xl p-3" style={INNER}>
-                  <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color:"rgba(127,175,178,0.45)" }}>Última interacción</p>
+                  <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color:"rgba(127,175,178,0.45)" }}>Ãšltima interacciÃ³n</p>
                   <p className="mt-1 text-sm" style={{ color:"rgba(245,245,240,0.7)" }}>{c.last}</p>
                 </div>
                 <div className="rounded-xl p-3" style={INNER}>
-                  <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color:"rgba(127,175,178,0.45)" }}>Próximo follow-up</p>
+                  <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color:"rgba(127,175,178,0.45)" }}>PrÃ³ximo follow-up</p>
                   <p className="mt-1 text-sm font-semibold" style={{ color:"#1ECECE" }}>{c.next}</p>
                 </div>
               </div>
               <p className="mt-3 text-xs leading-relaxed" style={{ color:"rgba(127,175,178,0.45)" }}>{c.notes}</p>
             </div>
+            </ScrollReveal>
           );
         })}
       </div>
 
       {/* Suggested messages */}
       <div className="rounded-2xl p-4 sm:p-5" style={CARD}>
-        <SectionHeader title="Próximo mensaje sugerido" subtitle="Borradores listos para personalizar y enviar" />
+        <SectionHeader title="PrÃ³ximo mensaje sugerido" subtitle="Borradores listos para personalizar y enviar" />
         <div className="space-y-3">
           {messages.map((m) => (
             <div key={m.coach} className="rounded-xl p-4" style={INNER}>
               <p className="text-sm font-bold" style={{ color:"#F5F5F0" }}>{m.coach}</p>
               <p className="mt-2 text-sm leading-relaxed" style={{ color:"rgba(245,245,240,0.5)" }}>{m.preview}</p>
               <button type="button" className="mt-3 text-xs font-semibold transition-opacity hover:opacity-70" style={{ color:"#1ECECE" }}>
-                Usar plantilla →
+                Usar plantilla â†’
               </button>
             </div>
           ))}
@@ -103,3 +106,4 @@ export default function CoachesPage() {
     </>
   );
 }
+

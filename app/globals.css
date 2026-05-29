@@ -323,10 +323,61 @@ body {
 }
 
 /* ══════════════════════════════════════════════════════════════
+   SCROLL REVEAL — IntersectionObserver-driven
+   Elements default to visible (SSR safe).
+   JS adds sr-init → hidden, then sr-visible → shown.
+   ══════════════════════════════════════════════════════════════ */
+
+.sr-init {
+  transition: opacity 0.5s cubic-bezier(0.22,1,0.36,1),
+              transform 0.5s cubic-bezier(0.22,1,0.36,1);
+}
+
+.sr-init.sr-up    { opacity: 0; transform: translateY(20px); }
+.sr-init.sr-fade  { opacity: 0; transform: none; }
+.sr-init.sr-left  { opacity: 0; transform: translateX(-18px); }
+.sr-init.sr-right { opacity: 0; transform: translateX(18px); }
+
+.sr-visible {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   LIGHT THEME — surface and text overrides applied via .theme-light
+   Cards and panels use CSS vars, so they respond automatically.
+   ══════════════════════════════════════════════════════════════ */
+
+.theme-light body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Card glass surfaces respect the var */
+.theme-light .ximo-glass {
+  background: rgba(255,255,255,0.88);
+  border-color: var(--border);
+}
+.theme-light .ximo-card-3d:hover {
+  box-shadow: 0 8px 32px rgba(11,138,150,0.12), 0 0 0 1px var(--border);
+}
+.theme-light ::-webkit-scrollbar-thumb {
+  background: var(--teal-bg);
+}
+
+/* ══════════════════════════════════════════════════════════════
    REDUCED MOTION
    All animations collapse to a simple crossfade or instant.
    ══════════════════════════════════════════════════════════════ */
 @media (prefers-reduced-motion: reduce) {
+  .sr-init {
+    transition: opacity 0.15s ease;
+  }
+  .sr-init.sr-up,
+  .sr-init.sr-left,
+  .sr-init.sr-right {
+    transform: none;
+  }
   .ximo-fade-up,
   .ximo-fade-in,
   .ximo-zoom-enter,

@@ -2,6 +2,7 @@
 // app/app/page.tsx — Ximo Dashboard
 import Link from "next/link";
 import { Badge, Card, ProgressBar, SectionHeader } from "./components/ui";
+import ScrollReveal from "../components/ScrollReveal";
 
 const stats = [
   { label: "Universidades", value: "12", sub: "3 en seguimiento",  icon: "◫", href: "/app/universidades", color: "#2F7F86" },
@@ -128,8 +129,9 @@ export default function DashboardPage() {
       {/* ── Stats ── */}
       <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
         {stats.map((s, i) => (
-          <Link key={s.label} href={s.href}>
-            <DarkCard className={`p-4 ximo-lift ximo-fade-up delay-${(i + 1) * 100}`}>
+          <ScrollReveal key={s.label} delay={i * 60}>
+          <Link href={s.href}>
+            <DarkCard className="p-4 ximo-lift h-full">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-[10px] font-bold uppercase tracking-wide" style={{ color: "rgba(127,175,178,0.5)" }}>{s.label}</p>
                 <span className="text-[11px] opacity-30 text-white">{s.icon}</span>
@@ -138,6 +140,7 @@ export default function DashboardPage() {
               <p className="mt-0.5 text-[11px]" style={{ color: "rgba(127,175,178,0.4)" }}>{s.sub}</p>
             </DarkCard>
           </Link>
+          </ScrollReveal>
         ))}
       </div>
 
