@@ -505,19 +505,54 @@ html { scroll-behavior: smooth; }
    Keeps the element's own padding & border-radius — only skins the surface,
    so layouts never shift. Add `.active` for the selected/teal state. */
 .ximo-glass-chip {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   background:
-    linear-gradient(180deg, rgba(255,255,255,0.20), rgba(255,255,255,0.02) 55%, rgba(0,0,0,0.06)),
+    linear-gradient(180deg, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.06) 28%, rgba(255,255,255,0) 54%, rgba(0,0,0,0.12) 100%),
     var(--surface);
-  backdrop-filter: blur(14px) saturate(180%);
-  -webkit-backdrop-filter: blur(14px) saturate(180%);
-  border: 1px solid var(--border);
+  backdrop-filter: blur(18px) saturate(200%);
+  -webkit-backdrop-filter: blur(18px) saturate(200%);
+  border: 1px solid rgba(255,255,255,0.28);
   color: var(--text-2);
-  box-shadow: inset 0 1.5px 0 rgba(255,255,255,0.30), inset 0 -4px 8px rgba(0,0,0,0.14), 0 3px 10px rgba(0,0,0,0.18);
+  box-shadow:
+    inset 0 1.5px 1px rgba(255,255,255,0.6),
+    inset 0 0 0 1px rgba(255,255,255,0.08),
+    inset 0 -8px 16px rgba(0,0,0,0.22),
+    0 6px 18px rgba(0,0,0,0.28);
   transition: box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease, transform 0.16s ease;
 }
+/* specular highlight — same glossy reflection as the buttons */
+.ximo-glass-chip::before {
+  content: "";
+  position: absolute;
+  left: 5%; right: 5%; top: 1px;
+  height: 38%;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255,255,255,0.78) 0%, rgba(255,255,255,0.12) 62%, transparent 100%);
+  opacity: 0.7;
+  pointer-events: none;
+  z-index: 0;
+}
+.ximo-glass-chip::after {
+  content: "";
+  position: absolute;
+  left: 14%; right: 14%; bottom: 1px;
+  height: 24%;
+  border-radius: inherit;
+  background: linear-gradient(0deg, rgba(255,255,255,0.24) 0%, transparent 100%);
+  opacity: 0.45;
+  pointer-events: none;
+  z-index: 0;
+}
+.ximo-glass-chip > * { position: relative; z-index: 1; }
 .ximo-glass-chip:hover {
   color: var(--text);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.24), 0 4px 12px rgba(0,0,0,0.22);
+  box-shadow:
+    inset 0 1.5px 1px rgba(255,255,255,0.7),
+    inset 0 0 0 1px rgba(255,255,255,0.12),
+    inset 0 -8px 16px rgba(0,0,0,0.22),
+    0 8px 22px rgba(0,0,0,0.32);
 }
 .ximo-glass-chip.active {
   background:
