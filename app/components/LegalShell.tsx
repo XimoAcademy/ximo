@@ -73,7 +73,6 @@ export default function LegalShell({
         <div className="mt-12 flex flex-wrap items-center gap-4 border-t pt-6 text-xs" style={{ borderColor: "var(--border)", color: "var(--text-label)" }}>
           <Link href="/terminos" className="font-semibold transition-opacity hover:opacity-70" style={{ color: "var(--teal)" }}>Términos</Link>
           <Link href="/privacidad" className="font-semibold transition-opacity hover:opacity-70" style={{ color: "var(--teal)" }}>Privacidad</Link>
-          <Link href="/login" className="transition-opacity hover:opacity-70">Iniciar sesión</Link>
           <Link href="/" className="transition-opacity hover:opacity-70">Inicio</Link>
         </div>
       </div>
