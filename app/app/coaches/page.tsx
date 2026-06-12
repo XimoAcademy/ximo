@@ -1,109 +1,100 @@
-﻿import PageHeader from "../components/PageHeader";
-import { SectionHeader } from "../components/ui";
+import Link from "next/link";
+import PageHeader from "../components/PageHeader";
+import { StatusBadge, EmptyState, StatCard, InnerTile } from "../components/ui";
 import ScrollReveal from "../../components/ScrollReveal";
+import { getCoaches, getUniversityOptions, type CoachRow } from "@/lib/data/coaches";
+import AddCoachForm from "./AddCoachForm";
 
-const CARD = { background:"var(--surface)",  border:"1px solid var(--border)" } as const;
-const INNER = { background:"var(--surface-hover)", border:"1px solid var(--border-subtle)"  } as const;
+export const dynamic = "force-dynamic";
 
-function statusStyle(s: string): { background: string; color: string } {
-  if (s.includes("alto") || s.includes("confirmado")) return { background:"rgba(5,150,105,0.12)",    color:"#6ee7b7" };
-  if (s.includes("claridad"))                          return { background:"rgba(201,168,76,0.12)",  color:"var(--gold)" };
-  if (s.includes("Aspiracional"))                     return { background:"rgba(251,191,36,0.12)",  color:"#fbbf24" };
-  if (s.includes("follow") || s.includes("Follow"))   return { background:"rgba(30,206,206,0.12)",  color:"var(--teal)" };
-  return { background:"var(--border-subtle)", color:"var(--text-label)" };
+const STATUS_TONE: Record<string, "neutral" | "info" | "gold" | "success" | "error" | "warning"> = {
+  "Sin contactar": "neutral",
+  Contactado: "info",
+  "Esperando respuesta": "warning",
+  Respondió: "gold",
+  "Interés alto": "success",
+  "Interés confirmado": "success",
+  "Llamada agendada": "info",
+  Descartado: "error",
+};
+
+function fmtDate(ts: string | null): string | null {
+  if (!ts) return null;
+  return new Date(ts).toLocaleDateString("es-MX", { day: "numeric", month: "short" });
 }
 
-const coaches = [
-  { name:"Coach Dylan",    university:"Niagara University",   email:"dylan.s@niagara.edu",      status:"Requiere claridad de beca",  last:"Correo inicial · Mar 10 — sin respuesta",           next:"Mar 25 — follow-up con tiempos y pregunta sobre beca", priority:"Alta",  notes:"Pendiente aclarar beca oficial antes de avanzar." },
-  { name:"Coach Lucy",     university:"LIU",                  email:"lucy.m@liu.edu",            status:"Interés alto",               last:"Respondió · Mar 18 — quiere ver video actualizado",  next:"Enviar actualizaciones de verano · esta semana",       priority:"Alta",  notes:"Buena comunicación. Priorizar envío de marcas recientes." },
-  { name:"Coach Boyle",    university:"Towson University",    email:"boyle.t@towson.edu",        status:"Interés confirmado",         last:"Llamada intro · Mar 20 — interés confirmado",        next:"Seguimiento de llamada · confirmar visita campus",     priority:"Alta",  notes:"Visita campus tentativa para abril." },
-  { name:"Coach Crispino", university:"Princeton",            email:"crispino@princeton.edu",    status:"Aspiracional",               last:"Sin contacto directo aún",                            next:"Volver a contactar en otoño con mejores tiempos",     priority:"Baja",  notes:"Reach school. Mejorar marcas antes de primer contacto." },
-  { name:"Coach Adam",     university:"Le Moyne",             email:"adam.r@lemoyne.edu",        status:"Follow-up necesario",        last:"Correo enviado · Mar 5 — sin respuesta",             next:"Abr 1 — segundo follow-up con perfil completo",        priority:"Media", notes:"Opción D2 sólida con buena claridad de beca parcial." },
-  { name:"Coach Husson",   university:"Husson University",    email:"husson.swim@husson.edu",    status:"Esperando respuesta",        last:"Primer correo · Mar 15",                              next:"Mar 30 — follow-up si no responde",                    priority:"Media", notes:"D3 con opciones académicas y deportivas balanceadas." },
-];
-
-const messages = [
-  { coach:"Coach Dylan · Niagara",   preview:"Estimado Coach Dylan, quería dar seguimiento a mi correo anterior y compartir mis tiempos actualizados. También me gustaría entender las opciones de beca disponibles para atletas internacionales…" },
-  { coach:"Coach Lucy · LIU",        preview:"Coach Lucy, gracias por su respuesta. Adjunto mi video actualizado de 50 y 100 libre, junto con mi perfil atlético actualizado…" },
-  { coach:"Coach Boyle · Towson",    preview:"Coach Boyle, fue un placer hablar con usted. Confirmo mi disponibilidad para la visita al campus y quería preguntar qué documentos debo preparar…" },
-];
-
-function PriorityBadge({ p }: { p: string }) {
-  const s = p === "Alta"
-    ? { background:"rgba(201,168,76,0.15)", color:"var(--gold)" }
-    : p === "Media"
-    ? { background:"rgba(30,206,206,0.12)",  color:"var(--teal)" }
-    : { background:"var(--border-subtle)",   color:"var(--text-label)" };
-  return <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={s}>Prioridad {p.toLowerCase()}</span>;
-}
-
-export default function CoachesPage() {
+function CoachCard({ c }: { c: CoachRow }) {
+  const next = fmtDate(c.next_follow_up_at);
+  const last = fmtDate(c.last_contact_at);
   return (
-    <>
-      <PageHeader
-        title="Coaches"
-        subtitle="Organiza conversaciones, respuestas, llamadas, follow-ups y próximos mensajes."
-      />
-
-      {/* Summary */}
-      <div className="mb-5 rounded-2xl p-4" style={CARD}>
-        <p className="text-sm font-bold" style={{ color:"var(--text)" }}>Resumen</p>
-        <p className="mt-0.5 text-xs" style={{ color:"var(--text-label)" }}>
-          6 coaches en pipeline · 3 con interés alto · 2 esperando respuesta
-        </p>
-      </div>
-
-      {/* Coach cards */}
-      <div className="mb-5 space-y-3">
-        {coaches.map((c, i) => {
-          const ss = statusStyle(c.status);
-          return (
-            <ScrollReveal key={c.name} delay={i * 55}>
-            <div className="rounded-2xl p-4 sm:p-5 ximo-card-3d" style={CARD}>
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <h2 className="text-base font-black" style={{ color:"var(--text)" }}>{c.name}</h2>
-                  <p className="text-sm" style={{ color:"var(--text-label)" }}>{c.university}</p>
-                  <p className="mt-0.5 text-xs" style={{ color:"var(--text-label)" }}>{c.email}</p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={ss}>{c.status}</span>
-                  <PriorityBadge p={c.priority} />
-                </div>
-              </div>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <div className="rounded-xl p-3" style={INNER}>
-                  <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color:"var(--text-label)" }}>Última interacción</p>
-                  <p className="mt-1 text-sm" style={{ color:"var(--text-2)" }}>{c.last}</p>
-                </div>
-                <div className="rounded-xl p-3" style={INNER}>
-                  <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color:"var(--text-label)" }}>Próximo follow-up</p>
-                  <p className="mt-1 text-sm font-semibold" style={{ color:"var(--teal)" }}>{c.next}</p>
-                </div>
-              </div>
-              <p className="mt-3 text-xs leading-relaxed" style={{ color:"var(--text-label)" }}>{c.notes}</p>
-            </div>
-            </ScrollReveal>
-          );
-        })}
-      </div>
-
-      {/* Suggested messages */}
-      <div className="rounded-2xl p-4 sm:p-5" style={CARD}>
-        <SectionHeader title="Próximo mensaje sugerido" subtitle="Borradores listos para personalizar y enviar" />
-        <div className="space-y-3">
-          {messages.map((m) => (
-            <div key={m.coach} className="rounded-xl p-4" style={INNER}>
-              <p className="text-sm font-bold" style={{ color:"var(--text)" }}>{m.coach}</p>
-              <p className="mt-2 text-sm leading-relaxed" style={{ color:"var(--text-2)" }}>{m.preview}</p>
-              <button type="button" className="ximo-glass-chip mt-3 rounded-xl px-3 py-2 text-xs font-semibold" style={{ color:"var(--teal)" }}>
-                Usar plantilla →
-              </button>
-            </div>
-          ))}
+    <Link href={`/app/coaches/${c.id}`} className="block rounded-2xl p-4 sm:p-5 ximo-card-3d"
+      style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h2 className="text-base font-black" style={{ color: "var(--text)" }}>{c.name}</h2>
+          <p className="text-sm" style={{ color: "var(--text-label)" }}>
+            {[c.role, c.university?.name].filter(Boolean).join(" · ") || "Sin universidad vinculada"}
+          </p>
+          {c.email && <p className="mt-0.5 text-xs" style={{ color: "var(--text-label)" }}>{c.email}</p>}
         </div>
+        {c.status && <StatusBadge tone={STATUS_TONE[c.status] ?? "neutral"}>{c.status}</StatusBadge>}
       </div>
-    </>
+      {(last || next) && (
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <InnerTile className="px-3 py-2.5">
+            <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color: "var(--text-label)" }}>Último contacto</p>
+            <p className="mt-0.5 text-sm" style={{ color: "var(--text-2)" }}>{last ?? "—"}</p>
+          </InnerTile>
+          <InnerTile className="px-3 py-2.5">
+            <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color: "var(--text-label)" }}>Próximo follow-up</p>
+            <p className="mt-0.5 text-sm font-semibold" style={{ color: "var(--teal)" }}>{next ?? "Por agendar"}</p>
+          </InnerTile>
+        </div>
+      )}
+      {c.notes && <p className="mt-3 line-clamp-2 text-xs leading-relaxed" style={{ color: "var(--text-label)" }}>{c.notes}</p>}
+    </Link>
   );
 }
 
+export default async function CoachesPage() {
+  const [{ rows }, universities] = await Promise.all([getCoaches(), getUniversityOptions()]);
+
+  const interested = rows.filter((c) => ["Interés alto", "Interés confirmado"].includes(c.status ?? "")).length;
+  const waiting = rows.filter((c) => c.status === "Esperando respuesta").length;
+
+  return (
+    <>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <PageHeader
+          title="Coaches"
+          subtitle="Tu CRM de entrenadores (Gestor de Relaciones con Coaches): registra conversaciones, respuestas, llamadas y follow-ups con cada programa NCAA."
+        />
+        <AddCoachForm universities={universities} />
+      </div>
+
+      {rows.length === 0 ? (
+        <EmptyState
+          title="Tu CRM de coaches está vacío"
+          text="El CRM (Gestor de Relaciones con Coaches) te permite llevar el seguimiento de cada entrenador: conversaciones, respuestas y próximos pasos. Agrega tu primer coach o encuéntralo en el directorio NCAA."
+          action="Ver directorio NCAA"
+          actionHref="/app/directorio"
+        />
+      ) : (
+        <>
+          <div className="mb-5 grid grid-cols-3 gap-3">
+            <StatCard label="En pipeline" value={rows.length} />
+            <StatCard label="Con interés" value={interested} accent="gold" />
+            <StatCard label="Esperando respuesta" value={waiting} accent="text" />
+          </div>
+          <div className="space-y-3">
+            {rows.map((c, i) => (
+              <ScrollReveal key={c.id} delay={i * 40}>
+                <CoachCard c={c} />
+              </ScrollReveal>
+            ))}
+          </div>
+        </>
+      )}
+    </>
+  );
+}

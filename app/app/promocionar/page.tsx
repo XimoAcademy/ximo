@@ -1,8 +1,9 @@
 "use client";
 
-// app/app/promocionar/page.tsx — dark premium brand ad manager (visual only)
+// app/app/promocionar/page.tsx — brand ad submission (real)
 import Link from "next/link";
 import { SectionHeader } from "../components/ui";
+import BrandAdForm from "./BrandAdForm";
 
 const steps = [
   { n:"01", title:"Envía tu anuncio",        text:"Completa el formulario con tu marca, formato y descripción del anuncio." },
@@ -14,15 +15,11 @@ const steps = [
 const oppTypes = [
   { icon:"🏷", label:"Descuentos",               text:"Precios especiales para atletas Ximo." },
   { icon:"🤝", label:"Patrocinios",              text:"Apoya atletas a cambio de visibilidad." },
-  { icon:"🧪", label:"Pruebas de producto",      text:"Atletas prueban y dan feedback real." },
+  { icon:"🧪", label:"Pruebas de producto",      text:"Atletas prueban y dan feedback." },
   { icon:"💊", label:"Suplementos/recuperación", text:"Nutrición validada, sin sustancias prohibidas." },
   { icon:"🎽", label:"Equipo deportivo",         text:"Trajes, lentes, gorras, equipo técnico." },
   { icon:"🎓", label:"Becas o apoyos",           text:"Apoyos económicos para atletas en desarrollo." },
 ];
-
-const cats   = ["Equipo deportivo","Suplementos y nutrición","Recuperación","Tecnología deportiva","Educación y becas","Salud y bienestar","Otro"];
-const fmts   = ["Foto","Video","Texto","Oferta","Producto"];
-const optypes = ["Descuento exclusivo","Patrocinio de atleta","Prueba de producto","Equipo gratuito","Beca o apoyo","Colaboración de contenido"];
 
 const budgets = [
   { price:"$250 MXN", days:"3 días",  reach:"500–900 atletas",     hot:false },
@@ -37,31 +34,6 @@ const statuses = [
 ];
 
 const CARD = { background:"var(--surface)", border:"1px solid var(--border)", boxShadow:"0 4px 24px rgba(0,0,0,0.4)" };
-
-function FakeField({ label, placeholder, tall=false }: { label:string; placeholder:string; tall?:boolean }) {
-  return (
-    <div>
-      <label className="block text-[11px] font-bold uppercase tracking-wider mb-1.5" style={{ color:"var(--text-label)" }}>{label}</label>
-      <div className={`w-full rounded-xl px-4 py-2.5 text-sm ${tall?"min-h-[80px]":""}`}
-        style={{ background:"var(--surface-hover)", border:"1px solid var(--border)", color:"var(--text-label)" }}>
-        {placeholder}
-      </div>
-    </div>
-  );
-}
-
-function PillSelect({ options }: { options:string[] }) {
-  return (
-    <div className="flex flex-wrap gap-1.5">
-      {options.map(o => (
-        <span key={o} className="rounded-full px-2.5 py-1 text-[10px] font-medium cursor-pointer transition-all duration-150 hover:bg-[var(--border)] hover:text-[var(--teal)]"
-          style={{ background:"var(--surface-hover)", border:"1px solid var(--border)", color:"var(--text-label)" }}>
-          {o}
-        </span>
-      ))}
-    </div>
-  );
-}
 
 export default function PromocionarPage() {
   return (
@@ -80,7 +52,7 @@ export default function PromocionarPage() {
               Envía tu anuncio a revisión y conecta con atletas de forma limpia, útil y alineada al deporte.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
-              {["Revisión garantizada","Sin spam","Solo marcas deportivas","Comunidad real"].map(tag => (
+              {["Revisión garantizada","Sin spam","Solo marcas deportivas","Comunidad"].map(tag => (
                 <span key={tag} className="rounded-full px-3 py-1 text-[10px] font-bold"
                   style={{ border:"1px solid var(--hero-panel-bd)", background:"var(--hero-panel)", color:"var(--text-label)" }}>
                   {tag}
@@ -137,39 +109,8 @@ export default function PromocionarPage() {
       {/* Form */}
       <div className="ximo-fade-up delay-200">
         <SectionHeader dark title="Enviar anuncio a revisión" subtitle="El equipo Ximo te responde en 48–72 horas." />
-        <div className="rounded-2xl p-5 sm:p-6 space-y-4" style={CARD}>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <FakeField label="Nombre de la marca" placeholder="Tu marca…" />
-            <FakeField label="Contacto"            placeholder="email@marca.com" />
-          </div>
-          <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider mb-1.5" style={{ color:"var(--text-label)" }}>Categoría</label>
-            <PillSelect options={cats} />
-          </div>
-          <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider mb-1.5" style={{ color:"var(--text-label)" }}>Formato del anuncio</label>
-            <PillSelect options={fmts} />
-          </div>
-          <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider mb-1.5" style={{ color:"var(--text-label)" }}>Tipo de oportunidad</label>
-            <PillSelect options={optypes} />
-          </div>
-          <FakeField label="Producto o servicio"  placeholder="Nombre del producto…" />
-          <FakeField label="Descripción del anuncio" placeholder="¿Cómo beneficia tu producto a los atletas?" tall />
-          <div className="grid gap-4 sm:grid-cols-2">
-            <FakeField label="Link de referencia" placeholder="https://tumarca.com" />
-            <FakeField label="Público objetivo"   placeholder="Nadadores 16–22 años…" />
-          </div>
-          <div className="rounded-xl flex items-start gap-2.5 px-4 py-3"
-            style={{ border:"1px solid rgba(201,168,76,0.2)", background:"rgba(201,168,76,0.06)" }}>
-            <span className="text-base mt-0.5 shrink-0">🔒</span>
-            <p className="text-xs leading-relaxed" style={{ color:"rgba(201,168,76,0.7)" }}>
-              <strong>Revisión garantizada.</strong> Todas las promociones pasan por revisión manual antes de aparecer en la comunidad.
-            </p>
-          </div>
-          <button type="button" className="ximo-glass-btn teal w-full text-sm">
-            Enviar a revisión →
-          </button>
+        <div className="rounded-2xl p-5 sm:p-6" style={CARD}>
+          <BrandAdForm />
         </div>
       </div>
 
@@ -221,9 +162,9 @@ export default function PromocionarPage() {
           <p className="mt-3 text-[10px] text-center" style={{ color:"var(--text-label)" }}>
             Ubicación: Promociones filtradas dentro de Comunidad · Estimados de referencia
           </p>
-          <button type="button" className="ximo-glass-btn dark mt-3 w-full text-xs">
+          <Link href="/app/promocionar/campana" className="ximo-glass-btn dark mt-3 block w-full text-center text-xs">
             Confirmar presupuesto →
-          </button>
+          </Link>
         </div>
       </div>
 

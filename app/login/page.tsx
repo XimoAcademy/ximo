@@ -1,21 +1,27 @@
-import Image from "next/image";
+import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
+import Emblem from "../components/Emblem";
+import LoginForm from "./LoginForm";
+
+export const metadata: Metadata = {
+  title: "Iniciar sesión",
+  description: "Entra a tu cuenta de Ximo y continúa tu camino al college deportivo.",
+};
 
 export default function LoginPage() {
   return (
-    <div className="flex min-h-screen" style={{ background: "#07131F" }}>
+    <div className="relative flex min-h-screen">
 
       {/* ── Left panel — decorative ── */}
-      <div className="relative hidden overflow-hidden lg:flex lg:w-[44%] xl:w-[48%] flex-col justify-between p-14"
-        style={{
-          background: "linear-gradient(160deg, #0B1F33 0%, #07131F 60%, #0B1F33 100%)",
-          borderRight: "1px solid rgba(47,127,134,0.1)",
-        }}>
-
+      <div
+        className="relative hidden overflow-hidden lg:flex lg:w-[44%] xl:w-[48%] flex-col justify-between p-14"
+        style={{ background: "var(--hero-bg)", borderRight: "1px solid var(--border-subtle)" }}
+      >
         {/* Ambient orbs */}
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute" style={{ width: 500, height: 500, top: "-10%", left: "-10%", background: "radial-gradient(circle, rgba(47,127,134,0.18) 0%, transparent 65%)", filter: "blur(60px)" }} />
-          <div className="absolute" style={{ width: 400, height: 400, bottom: "0%", right: "-5%", background: "radial-gradient(circle, rgba(201,168,76,0.12) 0%, transparent 65%)", filter: "blur(60px)" }} />
+          <div className="absolute" style={{ width: 500, height: 500, top: "-10%", left: "-10%", background: "radial-gradient(circle, var(--teal-bg) 0%, transparent 65%)", filter: "blur(60px)" }} />
+          <div className="absolute" style={{ width: 400, height: 400, bottom: "0%", right: "-5%", background: "radial-gradient(circle, var(--gold-bg) 0%, transparent 65%)", filter: "blur(60px)" }} />
         </div>
 
         {/* Grid overlay */}
@@ -23,10 +29,10 @@ export default function LoginPage() {
 
         {/* Logo */}
         <div className="relative">
-          <Image src="/brand/ximo-logo.png" alt="Ximo" width={110} height={36} className="h-9 w-auto object-contain" priority />
+          <Emblem size={88} />
           <span
             className="mt-3 inline-flex items-center rounded-full px-2.5 py-0.5 text-[9px] font-bold tracking-widest uppercase"
-            style={{ border: "1px solid rgba(201,168,76,0.25)", color: "#C9A84C", background: "rgba(201,168,76,0.08)" }}
+            style={{ border: "1px solid var(--gold-border)", color: "var(--gold)", background: "var(--gold-bg)" }}
           >
             Suscripción activa
           </span>
@@ -41,16 +47,16 @@ export default function LoginPage() {
             { icon: "◉", label: "Comunidad atleta", sub: "Avanza con otros atletas serios" },
           ].map((item) => (
             <div key={item.label} className="flex items-start gap-3.5">
-              <span className="mt-0.5 text-base shrink-0" style={{ color: "#C9A84C" }}>{item.icon}</span>
+              <span className="mt-0.5 text-base shrink-0" style={{ color: "var(--gold)" }}>{item.icon}</span>
               <div>
-                <p className="text-sm font-bold" style={{ color: "#F5F5F0" }}>{item.label}</p>
-                <p className="mt-0.5 text-xs leading-relaxed" style={{ color: "rgba(245,245,240,0.38)" }}>{item.sub}</p>
+                <p className="text-sm font-bold" style={{ color: "var(--text)" }}>{item.label}</p>
+                <p className="mt-0.5 text-xs leading-relaxed" style={{ color: "var(--text-2)" }}>{item.sub}</p>
               </div>
             </div>
           ))}
         </div>
 
-        <p className="relative text-[10px] font-medium tracking-wide" style={{ color: "rgba(255,255,255,0.15)" }}>
+        <p className="relative text-[10px] font-medium tracking-wide" style={{ color: "var(--text-3)" }}>
           Ximo · México primero
         </p>
       </div>
@@ -60,107 +66,18 @@ export default function LoginPage() {
         <div className="w-full max-w-[400px]">
 
           {/* Mobile logo */}
-          <div className="mb-10 text-center lg:hidden">
-            <Image src="/brand/ximo-logo.png" alt="Ximo" width={110} height={38} className="mx-auto h-10 w-auto object-contain" priority />
+          <div className="mb-10 flex justify-center lg:hidden">
+            <Emblem size={64} />
           </div>
 
-          {/* Heading */}
-          <div className="ximo-fade-up mb-8">
-            <h1 className="text-3xl font-black" style={{ color: "#F5F5F0" }}>
-              Inicia sesión en Ximo
-            </h1>
-            <p className="mt-2 text-sm leading-relaxed" style={{ color: "rgba(245,245,240,0.45)" }}>
-              Entra a tu cuenta para continuar con tu dashboard deportivo.
-            </p>
-          </div>
-
-          {/* Form */}
-          <div className="ximo-fade-up delay-100 space-y-4">
-            <div>
-              <label htmlFor="email" className="mb-2 block text-[10px] font-bold uppercase tracking-widest" style={{ color: "rgba(127,175,178,0.6)" }}>
-                Correo electrónico
-              </label>
-              <input
-                id="email"
-                type="email"
-                placeholder="atleta@ejemplo.com"
-                className="w-full rounded-xl px-4 py-3.5 text-sm outline-none transition-all duration-200 focus:ring-2"
-                style={{
-                  background: "rgba(17,37,56,0.8)",
-                  border: "1px solid rgba(47,127,134,0.2)",
-                  color: "#F5F5F0",
-                }}
-              />
-            </div>
-            <div>
-              <div className="mb-2 flex items-center justify-between">
-                <label htmlFor="password" className="block text-[10px] font-bold uppercase tracking-widest" style={{ color: "rgba(127,175,178,0.6)" }}>
-                  Contraseña
-                </label>
-                <span className="text-[10px] font-semibold cursor-pointer transition-opacity hover:opacity-70" style={{ color: "#7FAFB2" }}>
-                  ¿Olvidaste tu contraseña?
-                </span>
-              </div>
-              <input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                className="w-full rounded-xl px-4 py-3.5 text-sm outline-none transition-all duration-200 focus:ring-2"
-                style={{
-                  background: "rgba(17,37,56,0.8)",
-                  border: "1px solid rgba(47,127,134,0.2)",
-                  color: "#F5F5F0",
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Buttons */}
-          <div className="ximo-fade-up delay-200 mt-6 space-y-3">
-            <Link href="/app">
-              <button type="button" className="ximo-glass-btn teal w-full text-sm">
-                Entrar
-              </button>
-            </Link>
-            <Link href="/register">
-              <button type="button" className="ximo-glass-btn dark w-full text-sm">
-                Crear cuenta
-              </button>
-            </Link>
-          </div>
-
-          {/* Subscription validation block */}
-          <div
-            className="ximo-fade-up delay-300 mt-8 rounded-2xl p-4"
-            style={{
-              background: "rgba(47,127,134,0.06)",
-              border: "1px solid rgba(47,127,134,0.15)",
-            }}
-          >
-            <div className="flex items-start gap-3">
-              <div
-                className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px]"
-                style={{ background: "rgba(47,127,134,0.15)", color: "#7FAFB2" }}
-              >
-                ✓
-              </div>
-              <div>
-                <p className="text-xs font-bold" style={{ color: "#7FAFB2" }}>Validación de suscripción</p>
-                <p className="mt-1 text-[11px] leading-relaxed" style={{ color: "rgba(245,245,240,0.4)" }}>
-                  Después de iniciar sesión, Ximo verificará si tu plan mensual o anual está activo.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <p className="ximo-fade-up delay-400 mt-4 text-center text-[10px]" style={{ color: "rgba(245,245,240,0.22)" }}>
-            Tu acceso se valida con una suscripción activa.
-          </p>
+          <Suspense fallback={null}>
+            <LoginForm />
+          </Suspense>
 
           {/* Nav links */}
-          <div className="ximo-fade-up delay-500 mt-8 flex items-center justify-center gap-5 text-[10px] font-medium" style={{ color: "rgba(245,245,240,0.3)" }}>
+          <div className="ximo-fade-up delay-500 mt-8 flex items-center justify-center gap-5 text-[10px] font-medium" style={{ color: "var(--text-3)" }}>
             <Link href="/" className="transition-opacity hover:opacity-70">Página principal</Link>
-            <span style={{ color: "rgba(47,127,134,0.3)" }}>·</span>
+            <span style={{ color: "var(--border-strong)" }}>·</span>
             <Link href="/build-log" className="transition-opacity hover:opacity-70">Build log</Link>
           </div>
         </div>

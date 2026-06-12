@@ -20,9 +20,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<AppTheme>("dark");
   const [resolved, setResolved] = useState<"dark" | "light">("dark");
 
-  // Hydrate from localStorage on mount
+  // Hydrate from localStorage on mount. This must stay a mount effect (not a
+  // lazy initializer): the server renders with "dark", so reading localStorage
+  // during the first client render would cause a hydration mismatch. The
+  // pre-paint inline script in the root layout already prevents a visual flash.
   useEffect(() => {
     const stored = (localStorage.getItem("ximo-theme") as AppTheme) ?? "dark";
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- SSR hydration from an external store
     setThemeState(stored);
   }, []);
 

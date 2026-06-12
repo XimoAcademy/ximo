@@ -1,54 +1,97 @@
-﻿import PageHeader from "../components/PageHeader";
+import Link from "next/link";
+import PageHeader from "../components/PageHeader";
+import { GlassPanel, ProgressPill, StatusBadge } from "../components/ui";
 import ScrollReveal from "../../components/ScrollReveal";
+import { COURSES, CATEGORIES, courseProgress, currentLesson } from "./courseData";
+import { getCompletedLessons } from "@/lib/data/courses";
 
-const CARD  = { background:"var(--surface)",  border:"1px solid var(--border)" } as const;
+export const dynamic = "force-dynamic";
 
-const courses = [
-  { title:"Recruiting universitario desde cero",   desc:"Reglas NCAA, divisiones, calendario y cómo iniciar tu proceso como atleta internacional.",     status:"disponible pronto", lessons:8 },
-  { title:"Cómo escribirle a coaches",             desc:"Plantillas, estructura y personalización que genera respuestas.",                         status:"disponible pronto", lessons:6 },
-  { title:"SAT / TOEFL para atletas",              desc:"Equilibra entrenamiento de élite con preparación académica internacional.",                      status:"próximamente",      lessons:10 },
-  { title:"Cómo armar tu perfil deportivo",        desc:"Video, resume atlético y narrativa que destaca ante coaches.",                                   status:"próximamente",      lessons:7 },
-  { title:"Marca personal para atletas",           desc:"Redes, contenido y presencia digital para atletas en proceso de recruiting.",                    status:"próximamente",      lessons:6 },
-  { title:"Mentalidad y disciplina",               desc:"Hábitos, enfoque y resiliencia en el camino universitario.",                                     status:"próximamente",      lessons:5 },
-];
+export default async function CursosPage() {
+  const completed = await getCompletedLessons();
+  const started = COURSES.filter((c) => courseProgress(c, completed).done > 0).length;
 
-export default function CursosPage() {
   return (
     <>
       <PageHeader title="Cursos" subtitle="Aprende el proceso que muchos atletas tienen que descubrir solos." />
 
-      {/* Promo banner */}
-      <div className="mb-5 rounded-2xl p-5" style={{ ...CARD, background:"linear-gradient(135deg, rgba(201,168,76,0.1), var(--border-subtle))", border:"1px solid rgba(201,168,76,0.2)" }}>
-        <p className="text-sm font-bold" style={{ color:"var(--gold)" }}>Acceso anticipado</p>
-        <p className="mt-1 text-sm leading-relaxed" style={{ color:"var(--text-2)" }}>
-          Los suscriptores activos tendrán prioridad para acceder a los primeros contenidos.
-        </p>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        {courses.map((c, i) => (
-          <ScrollReveal key={c.title} delay={i * 50}>
-          <div key={c.title} className="flex flex-col rounded-2xl p-4 sm:p-5 ximo-card-3d" style={CARD}>
-            <div className="mb-2 flex items-start justify-between gap-2">
-              <h2 className="text-sm font-black" style={{ color:"var(--text)" }}>{c.title}</h2>
-              <span className="rounded-full px-2 py-0.5 text-[10px] font-bold shrink-0" style={
-                c.status === "disponible pronto"
-                  ? { background:"rgba(201,168,76,0.12)", color:"var(--gold)" }
-                  : { background:"var(--border-subtle)", color:"var(--text-label)" }
-              }>
-                {c.status}
-              </span>
+      {/* Continue banner */}
+      <ScrollReveal>
+        <GlassPanel tone="gold" className="mb-5 p-5 sm:p-6">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="text-sm font-black" style={{ color: "var(--gold)" }}>
+                Continúa donde lo dejaste
+              </p>
+              <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>
+                Vas {started} de {COURSES.length} cursos en progreso. Cada lección se desbloquea al completar la anterior.
+              </p>
             </div>
-            <p className="mb-4 flex-1 text-sm leading-relaxed" style={{ color:"var(--text-3)" }}>{c.desc}</p>
-            <p className="text-[11px]" style={{ color:"var(--text-label)" }}>{c.lessons} lecciones</p>
-            <button type="button" className="ximo-glass-chip mt-3 rounded-xl px-3 py-2 text-xs font-semibold" style={{ color:"var(--teal)" }} disabled>
-              Acceso próximamente →
-            </button>
+            {(() => {
+              const c = COURSES[0];
+              const lesson = currentLesson(c, completed);
+              return (
+                <Link href={`/app/cursos/${c.id}/${lesson.id}`} className="ximo-glass-btn gold shiny text-xs">
+                  Continuar curso →
+                </Link>
+              );
+            })()}
           </div>
-          </ScrollReveal>
+        </GlassPanel>
+      </ScrollReveal>
+
+      {/* Category chips */}
+      <div className="mb-5 flex flex-wrap gap-1.5">
+        {CATEGORIES.map((cat) => (
+          <span key={cat} className="ximo-glass-chip rounded-full px-3 py-1.5 text-[11px] font-bold">
+            {cat}
+          </span>
         ))}
       </div>
+
+      {/* Course grid */}
+      <div className="grid gap-4 sm:grid-cols-2">
+        {COURSES.map((c, i) => {
+          const p = courseProgress(c, completed);
+          const started = p.done > 0;
+          const lesson = currentLesson(c, completed);
+          return (
+            <ScrollReveal key={c.id} delay={i * 50}>
+              <Link href={`/app/cursos/${c.id}`} className="block h-full">
+                <GlassPanel className="flex h-full flex-col p-5">
+                  <div className="mb-2 flex items-start justify-between gap-2">
+                    <StatusBadge tone="info">{c.category}</StatusBadge>
+                    {started ? (
+                      <StatusBadge tone="success">{p.pct}% completado</StatusBadge>
+                    ) : (
+                      <StatusBadge tone="neutral">Nuevo</StatusBadge>
+                    )}
+                  </div>
+
+                  <h2 className="text-base font-black leading-snug" style={{ color: "var(--text)" }}>
+                    {c.title}
+                  </h2>
+                  <p className="mt-1.5 mb-4 flex-1 text-sm leading-relaxed" style={{ color: "var(--text-3)" }}>
+                    {c.summary}
+                  </p>
+
+                  <div className="mb-3">
+                    <ProgressPill value={p.pct} label={`${p.done}/${p.total} lecciones`} />
+                  </div>
+
+                  <span className="ximo-glass-btn teal text-center text-xs">
+                    {started ? `Continuar · ${lesson.title}` : "Empezar curso"}
+                  </span>
+                </GlassPanel>
+              </Link>
+            </ScrollReveal>
+          );
+        })}
+      </div>
+
+      <p className="mt-6 text-center text-[10px]" style={{ color: "var(--text-3)" }}>
+        Agregamos nuevas lecciones y videos cada mes.
+      </p>
     </>
   );
 }
-

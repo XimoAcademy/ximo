@@ -1,4 +1,5 @@
-﻿import PageHeader from "../components/PageHeader";
+﻿import Link from "next/link";
+import PageHeader from "../components/PageHeader";
 import { SectionHeader } from "../components/ui";
 import ScrollReveal from "../../components/ScrollReveal";
 
@@ -25,24 +26,18 @@ const timeline = [
   { period:"Antes de aplicar",  items:["TOEFL oficial — Junio","Enviar scores a NCAA Eligibility Center","Confirmar requisitos por universidad"] },
 ];
 const resources = [
-  { name:"Khan Academy SAT",      type:"SAT",    desc:"Prep oficial gratuita" },
-  { name:"PrepScholar SAT",       type:"SAT",    desc:"Plan personalizado" },
-  { name:"Magoosh TOEFL",         type:"TOEFL",  desc:"Lecciones en video" },
-  { name:"ETS TOEFL Official",    type:"TOEFL",  desc:"Material oficial" },
-  { name:"Cursos Ximo SAT/TOEFL", type:"Ximo",   desc:"Próximamente en Cursos" },
+  { name:"Khan Academy SAT",      type:"SAT",    desc:"Prep oficial gratuita — totalmente gratis",    href:"https://www.khanacademy.org/digital-sat",                          external:true  },
+  { name:"PrepScholar SAT",       type:"SAT",    desc:"Guía de práctica gratuita",                    href:"https://blog.prepscholar.com/the-ultimate-sat-study-guide-for-sat-prep", external:true  },
+  { name:"Magoosh TOEFL",         type:"TOEFL",  desc:"Recursos gratuitos + lecciones en video",      href:"https://magoosh.com/toefl/best-free-toefl-resources/",            external:true  },
+  { name:"ETS TOEFL Official",    type:"TOEFL",  desc:"Material oficial de ETS — simulacros gratis",  href:"https://www.ets.org/toefl/test-takers/ibt/prepare.html",          external:true  },
+  { name:"Cursos Ximo SAT/TOEFL", type:"Ximo",   desc:"Próximamente en Cursos",                       href:"/app/cursos",                                                     external:false },
 ];
 
-function CheckRow({ item, done }: { item:string; done:boolean }) {
+function CheckRow({ item }: { item: string; done?: boolean }) {
   return (
-    <li className="flex items-center justify-between rounded-xl px-3 py-2.5" style={INNER}>
-      <span className="text-sm" style={{ color:"var(--text-2)" }}>{item}</span>
-      <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={
-        done
-          ? { background:"rgba(5,150,105,0.12)", color:"#6ee7b7" }
-          : { background:"rgba(201,168,76,0.12)", color:"var(--gold)" }
-      }>
-        {done ? "Listo" : "Pendiente"}
-      </span>
+    <li className="flex items-start gap-2.5 rounded-xl px-3 py-2.5" style={INNER}>
+      <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full" style={{ background: "var(--teal)" }} />
+      <span className="text-sm" style={{ color: "var(--text-2)" }}>{item}</span>
     </li>
   );
 }
@@ -56,11 +51,11 @@ export default function SatToeflPage() {
       <ScrollReveal>
       <div className="mb-5 grid gap-5 lg:grid-cols-2">
         <div className="rounded-2xl p-4 sm:p-5" style={CARD}>
-          <SectionHeader title="Checklist SAT" subtitle="Score objetivo: 1350+" />
+          <SectionHeader title="Pasos para el SAT" subtitle="Score objetivo: 1350+" />
           <ul className="space-y-2">{satChecklist.map((c) => <CheckRow key={c.item} {...c} />)}</ul>
         </div>
         <div className="rounded-2xl p-4 sm:p-5" style={CARD}>
-          <SectionHeader title="Checklist TOEFL" subtitle="Score objetivo: 90+" />
+          <SectionHeader title="Pasos para el TOEFL" subtitle="Score objetivo: 90+" />
           <ul className="space-y-2">{toeflChecklist.map((c) => <CheckRow key={c.item} {...c} />)}</ul>
         </div>
       </div>
@@ -93,15 +88,31 @@ export default function SatToeflPage() {
       <div className="rounded-2xl p-4 sm:p-5" style={CARD}>
         <SectionHeader title="Recursos" subtitle="Herramientas recomendadas" />
         <div className="grid gap-3 sm:grid-cols-2">
-          {resources.map((r) => (
-            <div key={r.name} className="rounded-xl px-3 py-2.5" style={INNER}>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-bold" style={{ color:"var(--text)" }}>{r.name}</span>
-                <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background:"var(--border-subtle)", color:"var(--text-label)" }}>{r.type}</span>
+          {resources.map((r) => {
+            const inner = (
+              <div className="flex h-full flex-col">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-bold" style={{ color:"var(--text)" }}>{r.name}</span>
+                  <div className="flex items-center gap-1.5">
+                    {r.external && <span className="text-[9px]" style={{ color:"var(--text-3)" }}>↗</span>}
+                    <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background:"var(--border-subtle)", color:"var(--text-label)" }}>{r.type}</span>
+                  </div>
+                </div>
+                <p className="mt-1 text-xs" style={{ color:"var(--text-label)" }}>{r.desc}</p>
               </div>
-              <p className="mt-1 text-xs" style={{ color:"var(--text-label)" }}>{r.desc}</p>
-            </div>
-          ))}
+            );
+            return r.external ? (
+              <a key={r.name} href={r.href} target="_blank" rel="noopener noreferrer"
+                className="block rounded-xl px-3 py-2.5 transition-colors hover:bg-[var(--teal-bg)]" style={INNER}>
+                {inner}
+              </a>
+            ) : (
+              <Link key={r.name} href={r.href}
+                className="block rounded-xl px-3 py-2.5 transition-colors hover:bg-[var(--teal-bg)]" style={INNER}>
+                {inner}
+              </Link>
+            );
+          })}
         </div>
       </div>
       </ScrollReveal>

@@ -1,3 +1,6 @@
+import Link from "next/link";
+import ScrollReveal from "../components/ScrollReveal";
+
 const platforms = [
   {
     name: "Instagram",
@@ -33,11 +36,12 @@ export default function BuildLog() {
   return (
     <main className="min-h-screen bg-[#F5F5F0] px-6 py-20 text-[#0B1F33]">
       <section className="mx-auto max-w-6xl">
-        <a href="/" className="text-sm font-bold text-[#1D4ED8]">
+        <Link href="/" className="text-sm font-bold text-[#1D4ED8]">
           ← Volver al inicio
-        </a>
+        </Link>
 
-        <div className="mt-12 max-w-4xl">
+        <ScrollReveal className="mt-12 max-w-4xl">
+        <div>
           <p className="text-sm font-bold tracking-[0.25em] text-[#C9A84C]">
             DETRÁS DE ximo
           </p>
@@ -55,15 +59,16 @@ export default function BuildLog() {
             todo se irá documentando en Instagram, TikTok, YouTube y Zoop.
           </p>
         </div>
+        </ScrollReveal>
 
         <div className="mt-14 grid gap-5 md:grid-cols-2">
-          {platforms.map((platform) => (
+          {platforms.map((platform, i) => (
+            <ScrollReveal key={platform.name} delay={(i % 2) * 90} className="h-full">
             <a
-              key={platform.name}
               href={platform.link}
               target="_blank"
               rel="noreferrer"
-              className="group rounded-3xl border border-black/5 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
+              className="group block h-full rounded-3xl border border-black/5 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
             >
               <div className="flex items-start justify-between gap-6">
                 <div>
@@ -89,10 +94,12 @@ export default function BuildLog() {
                 {platform.text}
               </p>
             </a>
+            </ScrollReveal>
           ))}
         </div>
 
-        <div className="mt-16 rounded-3xl bg-[#0B1F33] p-8 text-white md:p-10">
+        <ScrollReveal className="mt-16" delay={60}>
+        <div className="rounded-3xl bg-[#0B1F33] p-8 text-white md:p-10">
           <p className="text-sm font-bold tracking-[0.25em] text-[#C9A84C]">
             ACCESO FUNDADOR
           </p>
@@ -116,6 +123,7 @@ export default function BuildLog() {
             Entrar al acceso fundador
           </a>
         </div>
+        </ScrollReveal>
       </section>
     </main>
   );

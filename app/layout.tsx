@@ -37,12 +37,47 @@ const fraunces = Fraunces({
   axes: ["SOFT", "opsz"],
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://ximo.app";
+const description =
+  "Tu camino deportivo, organizado. Ximo ayuda a atletas mexicanos a llegar a universidades de Estados Unidos: recruiting, coaches, becas, tiempos y comunidad en un solo lugar.";
+
 export const metadata: Metadata = {
-  title: "Ximo — Live the Dream",
-  description: "Tu camino deportivo, organizado. Plataforma de recruiting para atletas mexicanos.",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Ximo — Tu camino al college deportivo",
+    template: "%s · Ximo",
+  },
+  description,
+  applicationName: "Ximo",
+  keywords: [
+    "Ximo",
+    "recruiting universitario",
+    "becas deportivas",
+    "natación NCAA",
+    "atletas mexicanos",
+    "college deportivo Estados Unidos",
+    "swimming recruiting",
+  ],
+  authors: [{ name: "Ximo" }],
+  icons: { icon: "/brand/ximo-logo.png", apple: "/brand/ximo-logo.png" },
+  openGraph: {
+    type: "website",
+    locale: "es_MX",
+    siteName: "Ximo",
+    title: "Ximo — Tu camino al college deportivo",
+    description,
+    url: siteUrl,
+    images: [{ url: "/brand/ximo-logo.png", width: 512, height: 512, alt: "Ximo" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Ximo — Tu camino al college deportivo",
+    description,
+    images: ["/brand/ximo-logo.png"],
+  },
 };
 
-// Inline script runs synchronously before first paint — prevents flash of wrong theme
+// Inline script runs synchronously before first paint — prevents flash of wrong theme/lang
 const themeScript = `
 (function(){
   try {
@@ -52,6 +87,8 @@ const themeScript = `
       if (!window.matchMedia('(prefers-color-scheme: dark)').matches)
         document.documentElement.classList.add('theme-light');
     }
+    var lang = localStorage.getItem('ximo-lang');
+    if (lang === 'en' || lang === 'es') document.documentElement.lang = lang;
   } catch(e) {}
 })();
 `;

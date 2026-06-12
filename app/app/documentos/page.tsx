@@ -1,95 +1,116 @@
-﻿import PageHeader from "../components/PageHeader";
-import { ProgressBar, SectionHeader } from "../components/ui";
+import Link from "next/link";
+import PageHeader from "../components/PageHeader";
+import { ProgressBar, StatusBadge, GlassPanel } from "../components/ui";
 import ScrollReveal from "../../components/ScrollReveal";
+import { getDocuments, type DocumentRow } from "@/lib/data/documents";
+import AddDocumentForm from "./AddDocumentForm";
+import { setDocumentStatusAction, seedDocumentChecklistAction } from "./actions";
 
-const CARD  = { background:"var(--surface)",  border:"1px solid var(--border)" } as const;
+export const dynamic = "force-dynamic";
 
-const documents = [
-  { name:"Transcript académico",       status:"listo",    importance:"alta",  note:"Traducción oficial lista y verificada" },
-  { name:"Perfil atlético",            status:"revisar",  importance:"alta",  note:"Actualizar logros y tiempos de marzo" },
-  { name:"Video deportivo",            status:"pendiente",importance:"alta",  note:"Subir clip de 50 libre · competencia reciente" },
-  { name:"Pasaporte",                  status:"listo",    importance:"media", note:"Vigente hasta 2029" },
-  { name:"SAT",                        status:"listo",    importance:"alta",  note:"Practice 1340 — listo para compartir" },
-  { name:"TOEFL",                      status:"pendiente",importance:"alta",  note:"Examen programado para junio" },
-  { name:"Cartas de recomendación",    status:"pendiente",importance:"media", note:"Solicitar a coach y director académico" },
-  { name:"Lista de universidades",     status:"listo",    importance:"media", note:"12 universidades curadas con prioridades" },
-  { name:"Historial de tiempos",       status:"listo",    importance:"alta",  note:"Temporada 2024–25 documentada" },
-  { name:"Información financiera",     status:"listo",    importance:"baja",  note:"FAFSA prep y estimado de need-based aid" },
-];
+const STATUS_TONE: Record<string, "success" | "info" | "gold"> = {
+  listo: "success",
+  revisar: "info",
+  pendiente: "gold",
+};
+const STATUS_LABEL: Record<string, string> = { listo: "Listo", revisar: "Revisar", pendiente: "Pendiente" };
+const NEXT_STATUS: Record<string, string> = { pendiente: "revisar", revisar: "listo", listo: "pendiente" };
 
-function statusBadge(s: string) {
-  if (s === "listo")    return { bg:"rgba(5,150,105,0.12)",   tc:"#6ee7b7",  label:"Listo" };
-  if (s === "revisar")  return { bg:"rgba(30,206,206,0.12)",  tc:"var(--teal)",  label:"Revisar" };
-  return                       { bg:"rgba(201,168,76,0.12)",  tc:"var(--gold)",  label:"Pendiente" };
-}
-
-function importanceBadge(i: string) {
-  if (i === "alta")   return { bg:"var(--border)",  tc:"rgba(127,175,178,0.7)", label:"Alta" };
-  if (i === "media")  return { bg:"var(--surface-hover)",  tc:"var(--text-label)", label:"Media" };
-  return                     { bg:"var(--surface-hover)",  tc:"var(--text-label)", label:"Baja" };
-}
-
-export default function DocumentosPage() {
-  const completed = documents.filter((d) => d.status === "listo").length;
-
+function DocRow({ doc }: { doc: DocumentRow }) {
+  const status = doc.status ?? "pendiente";
+  const done = status === "listo";
   return (
-    <>
-      <PageHeader title="Documentos" subtitle="Ten listo todo lo que un coach o universidad puede pedirte." />
-
-      {/* Progress summary */}
-      <div className="mb-5 rounded-2xl p-5" style={CARD}>
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="text-2xl font-black" style={{ color:"var(--teal)" }}>
-              {completed} <span className="text-base font-medium" style={{ color:"var(--text-2)" }}>de {documents.length}</span>
-            </p>
-            <p className="text-sm" style={{ color:"var(--text-label)" }}>documentos preparados</p>
+    <div className="rounded-2xl p-4 ximo-card-3d" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Link href={`/app/documentos/${doc.id}`} className="flex min-w-0 items-center gap-3 group">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-sm font-bold"
+            style={done ? { background: "rgba(5,150,105,0.15)", color: "var(--success)" } : { background: "var(--border-subtle)", color: "var(--text-label)" }}>
+            {done ? "✓" : "·"}
+          </span>
+          <div className="min-w-0">
+            <p className="truncate font-bold transition-colors group-hover:text-[var(--teal)]" style={{ color: "var(--text)" }}>{doc.title}</p>
+            {doc.notes && <p className="truncate text-xs" style={{ color: "var(--text-label)" }}>{doc.notes}</p>}
           </div>
-          <div className="w-full max-w-xs">
-            <ProgressBar value={(completed / documents.length) * 100} />
-          </div>
+        </Link>
+        <div className="flex items-center gap-2">
+          {doc.type && <StatusBadge tone="neutral">{doc.type}</StatusBadge>}
+          {doc.file_url && <StatusBadge tone="info">archivo</StatusBadge>}
+          {(() => {
+            const nextStatus = NEXT_STATUS[status] ?? "revisar";
+            const blockedByFile = nextStatus === "listo" && !doc.file_url;
+            if (blockedByFile) {
+              return (
+                <Link
+                  href={`/app/documentos/${doc.id}`}
+                  title="Sube el archivo primero para marcarlo como listo"
+                  className="ximo-glass-chip rounded-full px-3 py-1 text-[11px] font-semibold"
+                  style={{ color: "var(--text-label)", border: "1px dashed var(--border)" }}
+                >
+                  Subir archivo →
+                </Link>
+              );
+            }
+            return (
+              <form action={setDocumentStatusAction}>
+                <input type="hidden" name="id" value={doc.id} />
+                <input type="hidden" name="status" value={nextStatus} />
+                <button className="ximo-glass-chip rounded-full px-3 py-1 text-[11px] font-semibold" style={{ color: STATUS_TONE[status] === "success" ? "var(--success)" : "var(--teal)" }}>
+                  {STATUS_LABEL[status] ?? status}
+                </button>
+              </form>
+            );
+          })()}
         </div>
       </div>
-
-      <SectionHeader title="Checklist" subtitle="Estado de cada documento" />
-      <div className="space-y-2.5">
-        {documents.map((doc, i) => {
-          const s = statusBadge(doc.status);
-          const imp = importanceBadge(doc.importance);
-          return (
-            <ScrollReveal key={doc.name} delay={i * 40}>
-            <div className="rounded-2xl p-4 ximo-card-3d" style={CARD}>
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <span
-                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-sm font-bold"
-                    style={doc.status === "listo"
-                      ? { background:"rgba(5,150,105,0.15)", color:"#6ee7b7" }
-                      : { background:"var(--border-subtle)", color:"var(--text-label)" }
-                    }
-                  >
-                    {doc.status === "listo" ? "✓" : "·"}
-                  </span>
-                  <div>
-                    <p className="font-bold" style={{ color:"var(--text)" }}>{doc.name}</p>
-                    <p className="text-xs" style={{ color:"var(--text-label)" }}>{doc.note}</p>
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background:imp.bg, color:imp.tc }}>
-                    {imp.label}
-                  </span>
-                  <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background:s.bg, color:s.tc }}>
-                    {s.label}
-                  </span>
-                </div>
-              </div>
-            </div>
-            </ScrollReveal>
-          );
-        })}
-      </div>
-    </>
+    </div>
   );
 }
 
+export default async function DocumentosPage() {
+  const { rows } = await getDocuments();
+  const completed = rows.filter((d) => d.status === "listo").length;
+  const pct = rows.length ? (completed / rows.length) * 100 : 0;
+
+  return (
+    <>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <PageHeader title="Documentos" subtitle="Ten listo todo lo que un coach o universidad pueda pedirte." />
+        <AddDocumentForm />
+      </div>
+
+      {rows.length === 0 ? (
+        <GlassPanel tone="teal" className="px-6 py-12 text-center">
+          <p className="text-sm font-black" style={{ color: "var(--text)" }}>Empieza tu checklist de documentos</p>
+          <p className="mx-auto mt-1.5 max-w-md text-xs leading-relaxed" style={{ color: "var(--text-label)" }}>
+            Carga el checklist estándar de reclutamiento (transcript, video, perfil atlético, SAT/TOEFL y más) y ve marcando cada uno a medida que lo prepares.
+          </p>
+          <form action={seedDocumentChecklistAction} className="mt-5">
+            <button className="ximo-glass-btn teal text-xs">Cargar checklist estándar</button>
+          </form>
+        </GlassPanel>
+      ) : (
+        <>
+          <div className="mb-5 rounded-2xl p-5" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <p className="text-2xl font-black" style={{ color: "var(--teal)" }}>
+                  {completed} <span className="text-base font-medium" style={{ color: "var(--text-2)" }}>de {rows.length}</span>
+                </p>
+                <p className="text-sm" style={{ color: "var(--text-label)" }}>documentos preparados</p>
+              </div>
+              <div className="w-full max-w-xs"><ProgressBar value={pct} /></div>
+            </div>
+          </div>
+
+          <div className="space-y-2.5">
+            {rows.map((doc, i) => (
+              <ScrollReveal key={doc.id} delay={i * 30}>
+                <DocRow doc={doc} />
+              </ScrollReveal>
+            ))}
+          </div>
+        </>
+      )}
+    </>
+  );
+}

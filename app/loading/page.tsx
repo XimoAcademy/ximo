@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Emblem from "../components/Emblem";
 
 export default function LoadingPage() {
   const router = useRouter();
@@ -58,14 +58,7 @@ export default function LoadingPage() {
           {/* Logo medallion — fills the ring */}
           <div className="ximo-logo-appear relative z-10 overflow-hidden rounded-full"
             style={{ width: 176, height: 176, boxShadow: "0 0 32px rgba(30,206,206,0.3)" }}>
-            <Image
-              src="/brand/ximo-logo.png"
-              alt="Ximo"
-              width={176}
-              height={176}
-              className="h-full w-full object-cover"
-              priority
-            />
+            <Emblem size={176} rounded />
           </div>
         </div>
 
@@ -88,7 +81,7 @@ export default function LoadingPage() {
       </div>
 
       <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-24"
-        style={{ background: "linear-gradient(to top, #07131F, transparent)" }} />
+        style={{ background: "linear-gradient(to top, var(--bg), transparent)" }} />
     </div>
   );
 }

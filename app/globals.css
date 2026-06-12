@@ -49,6 +49,15 @@
   --grad-lime:     #B6D45A;
   --grad-gold:     #E8CE4E;
 
+  /* ── Dark-mode living background ──
+     A high-energy animated gradient (teal → gold) sits at the very back.
+     A premium dark gray/navy MASK is layered on top so the colour reads
+     controlled, muted and cinematic instead of raw/bright. Glass panels
+     and content stack above. These power body::before / body::after. */
+  --dark-grad-a:   #7EFFD4;   /* moving teal  (energy stop A) */
+  --dark-grad-b:   #FFD700;   /* moving gold  (energy stop B) */
+  --dark-mask:     rgba(9, 21, 27, 0.82);   /* dark gray-navy overlay → premium, readable */
+
   /* ── Semantic states ── */
   --success:       #6ee7b7;
   --success-bg:    rgba(5, 150, 105, 0.12);
@@ -166,15 +175,79 @@
 }
 
 /* ── Base ── */
+/* html holds the base canvas colour (themable) so the fixed gradient layers
+   below always have something solid behind them. */
+html {
+  background: var(--bg);
+  transition: background 0.4s ease;
+}
+
 body {
-  background: var(--app-bg);
-  background-attachment: fixed;
+  position: relative;
+  background: transparent;       /* DARK: stays clear so the gradient layers show through */
   color: var(--text);
   font-family: var(--font-geist-sans, system-ui, Arial, sans-serif);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   transition: color 0.4s ease;
 }
+
+/* ══════════════════════════════════════════════════════════════
+   DARK MODE — LIVING BACKGROUND
+   Layer 1 (::before): animated teal→gold gradient with lots of motion.
+   Layer 2 (::after) : dark gray/navy mask + faint corner ambience, so the
+                       colour feels premium, controlled and readable.
+   Both are position:fixed and sit behind all content (negative z-index).
+   Light mode disables them entirely (see .theme-light overrides below).
+   ══════════════════════════════════════════════════════════════ */
+body::before {
+  content: "";
+  position: fixed;
+  /* An oversized layer centred on the viewport. Sized past the viewport
+     diagonal so rotation/scale never reveals an edge. Painted ONCE, then
+     moved purely by the compositor (transform) — no per-frame repaint, so
+     the backdrop-filter glass above it stays smooth even on phones. */
+  top: 50%;
+  left: 50%;
+  width: 170vmax;
+  height: 170vmax;
+  margin: -85vmax 0 0 -85vmax;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(42% 42% at 28% 30%, var(--dark-grad-a) 0%, transparent 60%),
+    radial-gradient(46% 46% at 72% 68%, var(--dark-grad-b) 0%, transparent 62%),
+    linear-gradient(115deg, var(--dark-grad-a) 0%, var(--dark-grad-b) 100%);
+  filter: saturate(116%);
+  transform-origin: center;
+  will-change: transform;
+  animation: ximo-dark-flow 44s linear infinite;
+}
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(135% 105% at 50% -12%, rgba(126,255,212,0.10) 0%, transparent 52%),
+    radial-gradient(120% 95% at 100% 105%, rgba(255,215,0,0.09) 0%, transparent 48%),
+    var(--dark-mask);
+}
+
+/* ── Calmer backdrop for the dashboard ──
+   Brand surfaces (intro/login/subscribe) stay cinematic; the data-dense app
+   shell gets an extra soft scrim over the animated gradient so content reads
+   focused and the "tool disappears into the task". Dark mode only. */
+.ximo-app-scrim::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: rgba(9, 21, 27, 0.55);
+}
+.theme-light .ximo-app-scrim::after { display: none; }
 
 /* ── Display serif (Argent-style) for all headings & brand text ──
    Body, labels, data stay on the sans for product legibility.
@@ -227,8 +300,8 @@ h1, h2, h3, .font-display {
    ══════════════════════════════════════════════════════════════ */
 
 @keyframes ximo-fade-up {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(16px); filter: blur(5px); }
+  to   { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
 @keyframes ximo-fade-in {
   from { opacity: 0; }
@@ -268,6 +341,14 @@ h1, h2, h3, .font-display {
   50%  { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
+/* Dark-mode living background: a slow swirl + breathing scale of the teal &
+   gold blobs. Transform-only (rotate + scale) so it runs on the compositor —
+   constant organic motion with no layout/paint cost. */
+@keyframes ximo-dark-flow {
+  0%   { transform: rotate(0deg)   scale(1); }
+  50%  { transform: rotate(180deg) scale(1.12); }
+  100% { transform: rotate(360deg) scale(1); }
+}
 @keyframes ximo-soft-grid-fade {
   from { opacity: 0; }
   to   { opacity: 1; }
@@ -294,7 +375,7 @@ h1, h2, h3, .font-display {
    ══════════════════════════════════════════════════════════════ */
 
 /* ── Reveal animations — use sparingly; conveys content loading, not decoration ── */
-.ximo-fade-up    { animation: ximo-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+.ximo-fade-up    { animation: ximo-fade-up 0.7s cubic-bezier(0.22,1,0.36,1) both; }
 .ximo-fade-in    { animation: ximo-fade-in 0.4s ease both; }
 .ximo-zoom-enter { animation: ximo-zoom-enter 0.6s cubic-bezier(0.22,1,0.36,1) both; }
 .ximo-scale-in   { animation: ximo-scale-in 0.5s cubic-bezier(0.22,1,0.36,1) both; }
@@ -340,21 +421,22 @@ h1, h2, h3, .font-display {
   transform-origin: left;
 }
 
-/* ── Card interactions — 200ms per product register ── */
+/* ── Content cards — LIQUID GLASS, STABLE ──
+   Per design rule: only buttons/CTAs move on hover. Content cards never
+   levitate or grow — they stay put and only deepen their glass depth/glow
+   so users can always tell a card from a button. */
 .ximo-card-3d {
-  transition: transform 0.2s cubic-bezier(0.22,1,0.36,1), box-shadow 0.2s ease;
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
 }
 .ximo-card-3d:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 40px rgba(0,0,0,0.35), 0 0 0 1px var(--border);
+  box-shadow: 0 14px 44px rgba(0,0,0,0.42), 0 0 0 1px var(--border-strong);
 }
 
 .ximo-lift {
-  transition: transform 0.2s cubic-bezier(0.22,1,0.36,1), box-shadow 0.2s ease;
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
 }
 .ximo-lift:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+  box-shadow: 0 12px 38px rgba(0,0,0,0.34), 0 0 0 1px var(--border);
 }
 
 /* ── Glass surface ── */
@@ -396,6 +478,24 @@ h1, h2, h3, .font-display {
 
 /* ── Smooth scrolling app-wide ── */
 html { scroll-behavior: smooth; }
+
+/* ══════════════════════════════════════════════════════════════
+   KEYBOARD FOCUS — visible ring on every interactive element.
+   :focus-visible only fires for keyboard nav, so mouse users never
+   see it. Uses the themed teal token → reads on both dark & light.
+   ══════════════════════════════════════════════════════════════ */
+a:focus-visible,
+button:focus-visible,
+select:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+[role="switch"]:focus-visible,
+[tabindex]:focus-visible,
+.ximo-glass-btn:focus-visible,
+.ximo-glass-chip:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
 
 /* ══════════════════════════════════════════════════════════════
    LIQUID GLASS BUTTONS
@@ -610,18 +710,22 @@ select option {
    ══════════════════════════════════════════════════════════════ */
 
 .sr-init {
-  transition: opacity 0.5s cubic-bezier(0.22,1,0.36,1),
-              transform 0.5s cubic-bezier(0.22,1,0.36,1);
+  transition: opacity 0.85s cubic-bezier(0.22,1,0.36,1),
+              transform 0.85s cubic-bezier(0.22,1,0.36,1),
+              filter 0.85s cubic-bezier(0.22,1,0.36,1);
+  will-change: opacity, transform, filter;
 }
 
-.sr-init.sr-up    { opacity: 0; transform: translateY(20px); }
-.sr-init.sr-fade  { opacity: 0; transform: none; }
-.sr-init.sr-left  { opacity: 0; transform: translateX(-18px); }
-.sr-init.sr-right { opacity: 0; transform: translateX(18px); }
+/* Content softly floats upward while fading in + a gentle blur-to-clear. */
+.sr-init.sr-up    { opacity: 0; transform: translateY(26px); filter: blur(6px); }
+.sr-init.sr-fade  { opacity: 0; transform: none;             filter: blur(5px); }
+.sr-init.sr-left  { opacity: 0; transform: translateX(-22px); filter: blur(5px); }
+.sr-init.sr-right { opacity: 0; transform: translateX(22px);  filter: blur(5px); }
 
 .sr-visible {
   opacity: 1 !important;
   transform: none !important;
+  filter: none !important;
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -633,6 +737,11 @@ select option {
   background: var(--app-bg);
   background-attachment: fixed;
   color: var(--text);
+}
+/* Light mode keeps its existing palette — no animated dark layers. */
+.theme-light body::before,
+.theme-light body::after {
+  display: none;
 }
 
 /* ── Light mode: intensify glass buttons so they show strong colour
@@ -690,12 +799,14 @@ select option {
   .ximo-glass-btn { transition: none; }
   .ximo-glass-btn:hover { transform: none; }
   .sr-init {
-    transition: opacity 0.15s ease;
+    transition: opacity 0.2s ease;
   }
   .sr-init.sr-up,
+  .sr-init.sr-fade,
   .sr-init.sr-left,
   .sr-init.sr-right {
     transform: none;
+    filter: none;
   }
   .ximo-fade-up,
   .ximo-fade-in,
@@ -716,6 +827,9 @@ select option {
   .ximo-soft-grid {
     animation: none;
   }
+  body::before {
+    animation: none;
+  }
   .ximo-card-3d,
   .ximo-lift {
     transition: none;
@@ -724,4 +838,97 @@ select option {
     animation: none;
     width: var(--progress-width, 100%);
   }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   FORM INPUTS — shared themed control used across every module
+   form (tasks, universities, coaches, documents, emails, profile…).
+   Reads CSS vars so it works in dark + light. Teal focus ring.
+   ────────────────────────────────────────────────────────────── */
+.ximo-input {
+  display: block;
+  width: 100%;
+  border-radius: 0.75rem;
+  padding: 0.6rem 0.85rem;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--text);
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.ximo-input::placeholder { color: var(--text-3); }
+.ximo-input:hover { border-color: var(--border-strong); }
+.ximo-input:focus,
+.ximo-input:focus-visible {
+  outline: none;
+  border-color: var(--teal-border);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px var(--teal-bg);
+}
+/* native select arrow */
+select.ximo-input {
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--text-label) 50%),
+    linear-gradient(135deg, var(--text-label) 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) calc(50% - 2px),
+    calc(100% - 13px) calc(50% - 2px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 2rem;
+}
+select.ximo-input option { background: var(--bg-mid); color: var(--text); }
+.ximo-input:disabled { opacity: 0.5; cursor: not-allowed; }
+textarea.ximo-input { min-height: 2.5rem; }
+
+/* Inline destructive/secondary text button used in lists (delete, etc.) */
+.ximo-text-btn {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-3);
+  transition: color 0.15s ease;
+  cursor: pointer;
+}
+.ximo-text-btn:hover { color: var(--error); }
+
+/* ──────────────────────────────────────────────────────────────
+   ACCESSIBILITY — keyboard focus visibility.
+   Only shows for keyboard users (:focus-visible), so the mouse/touch
+   experience is unchanged. On-brand teal ring. Controls that render
+   their own focus treatment opt out below.
+   ────────────────────────────────────────────────────────────── */
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible,
+summary:focus-visible,
+label.ximo-glass-btn:focus-within {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+/* These already provide their own focus styling — avoid a double ring. */
+.ximo-glass-btn:focus-visible,
+.ximo-glass-chip:focus-visible,
+.ximo-input:focus-visible {
+  outline: none;
+}
+/* Skip-to-content affordance for keyboard/screen-reader users. */
+.ximo-skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: 0.6rem 1rem;
+  border-radius: 0 0 0.6rem 0;
+  background: var(--teal);
+  color: #04181c;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+.ximo-skip-link:focus {
+  left: 0;
 }

@@ -1,340 +1,229 @@
-"use client";
-// app/app/page.tsx — Ximo Dashboard
+// app/app/page.tsx — Ximo Dashboard (real data)
 import Link from "next/link";
-import { Badge, Card, ProgressBar, SectionHeader } from "./components/ui";
+import { GlassPanel, InnerTile, StatusBadge } from "./components/ui";
 import ScrollReveal from "../components/ScrollReveal";
+import { getDashboardData } from "@/lib/data/dashboard";
+import { getBillingInfo } from "@/lib/data/billing";
 
-const stats = [
-  { label: "Universidades", value: "12", sub: "3 en seguimiento",  icon: "◫", href: "/app/universidades", color: "var(--teal-muted)" },
-  { label: "Coaches",       value: "7",  sub: "2 con interés alto", icon: "⬘", href: "/app/coaches",       color: "var(--gold)" },
-  { label: "Respuestas",    value: "4",  sub: "1 llamada pendiente", icon: "✉", href: "/app/correos",       color: "var(--teal)" },
-  { label: "Documentos",    value: "6/10",sub: "4 pendientes",      icon: "▣", href: "/app/documentos",    color: "var(--text)" },
-];
+const PRIORITY_TONE: Record<string, "error" | "warning" | "info"> = {
+  alta: "error",
+  media: "warning",
+  baja: "info",
+};
 
-const pipeline = [
-  { label: "Identificadas", count: 12, pct: 100 },
-  { label: "Contactadas",   count: 7,  pct: 58 },
-  { label: "Respondieron",  count: 4,  pct: 33 },
-  { label: "Interesadas",   count: 2,  pct: 17 },
-  { label: "Oferta",        count: 1,  pct: 8 },
-];
+export default async function DashboardPage() {
+  const [data, billing] = await Promise.all([getDashboardData(), getBillingInfo()]);
+  const planLabel =
+    billing?.planType === "annual"
+      ? "Plan anual"
+      : billing?.planType === "monthly"
+      ? "Plan mensual"
+      : "Suscripción activa";
+  const name = data?.identity?.name ?? "Atleta";
+  const firstName = name.split(" ")[0];
+  const sport = data?.identity?.sport ?? "Natación";
+  const gradYear = data?.identity?.gradYear ?? null;
+  const counts = data?.counts ?? {
+    universities: 0,
+    coaches: 0,
+    documents: 0,
+    documentsReady: 0,
+    tasks: 0,
+    progress: 0,
+  };
+  const upcoming = data?.upcomingTasks ?? [];
+  const isEmpty = data?.isEmpty ?? true;
 
-const universities = [
-  { name: "Niagara University", div: "D1 · NY", status: "Interés real",  sc: "rgba(5,150,105,0.12)", tc: "#6ee7b7", next: "Preguntar beca oficial" },
-  { name: "LIU Brooklyn",       div: "D1 · NY", status: "Respondió",     sc: "rgba(201,168,76,0.1)", tc: "var(--gold)", next: "Enviar updates de verano" },
-  { name: "Towson University",  div: "D1 · MD", status: "Llamada",       sc: "var(--border)",tc: "var(--teal)", next: "Confirmar llamada" },
-];
+  const statCards = [
+    { label: "Universidades", value: String(counts.universities), hint: counts.universities ? "en seguimiento" : "sin agregar", href: "/app/universidades", accent: "var(--teal)" },
+    { label: "Coaches", value: String(counts.coaches), hint: counts.coaches ? "en tu CRM de coaches" : "sin agregar", href: "/app/coaches", accent: "var(--gold)" },
+    { label: "Documentos", value: `${counts.documentsReady}/${counts.documents || 0}`, hint: "listos", href: "/app/documentos", accent: "var(--text)" },
+    { label: "Tareas", value: String(counts.tasks), hint: counts.tasks ? "activas" : "sin tareas", href: "/app/tareas", accent: "var(--teal)" },
+  ];
 
-const swimEvents = [
-  { event: "50 libre",     current: "26.0", target: "25.2", progress: 72 },
-  { event: "100 libre",    current: "58.0", target: "56.5", progress: 58 },
-  { event: "100 mariposa", current: "63.0", target: "61.0", progress: 45 },
-];
-
-const rankings = [
-  { rank: 1, name: "Manny",      metric: "12d racha", you: true  },
-  { rank: 2, name: "Fer Swim",   metric: "10d racha", you: false },
-  { rank: 3, name: "Carlos",     metric: "9d racha",  you: false },
-  { rank: 4, name: "Valeria",    metric: "7d racha",  you: false },
-];
-
-const communityPreview = [
-  { user: "Carlos Nado", initials: "CN", tag: "Duda",  tagC: "var(--border)", tagT: "var(--teal)",  text: "¿26.8 en 50 libre es realista para D1?",              likes: 8,  replies: 5 },
-  { user: "Fer Swim",    initials: "FS", tag: "Logro", tagC: "rgba(5,150,105,0.12)",  tagT: "#6ee7b7",  text: "Nuevo PB en 50 libre: 25.1. El trabajo da resultados.", likes: 22, replies: 9 },
-];
-
-const nextActions = [
-  { title: "Actualizar tiempos post-competencia", date: "Esta semana", p: true  },
-  { title: "Preparar correo de seguimiento",      date: "Mar 25",      p: true  },
-  { title: "Revisar universidades realistas",     date: "Mar 28",      p: false },
-  { title: "Subir documentos clave",              date: "Abr 1",       p: false },
-];
-
-const STREAK = { current: 7, goal: 30 };
-
-// Dark card helper
-function DarkCard({ children, className = "", glow = false }: { children: React.ReactNode; className?: string; glow?: boolean }) {
-  return (
-    <div className={`rounded-2xl ximo-card-3d ${className}`}
-      style={{
-        background: "var(--surface)",
-        border: "1px solid var(--border)",
-        boxShadow: glow
-          ? "0 0 30px var(--border), 0 4px 24px rgba(0,0,0,0.4)"
-          : "0 4px 24px rgba(0,0,0,0.3)",
-      }}>
-      {children}
-    </div>
-  );
-}
-
-export default function DashboardPage() {
-  const streakPct = Math.round((STREAK.current / STREAK.goal) * 100);
   return (
     <>
       {/* ── Hero ── */}
-      <section className="relative mb-5 overflow-hidden rounded-2xl p-6 sm:p-8 ximo-fade-up"
-        style={{
-          background: "var(--hero-bg)",
-          border: "1px solid var(--border-strong)",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
-        }}>
-        {/* Glow orbs */}
+      <section
+        className="relative mb-5 overflow-hidden rounded-2xl p-6 sm:p-8 ximo-fade-up"
+        style={{ background: "var(--hero-bg)", border: "1px solid var(--border-strong)", boxShadow: "0 8px 32px rgba(0,0,0,0.18)" }}
+      >
         <div className="absolute top-0 right-0 h-64 w-64 rounded-full blur-3xl pointer-events-none ximo-glow-pulse"
           style={{ background: "radial-gradient(circle, rgba(47,127,134,0.25) 0%, transparent 70%)" }} />
-        <div className="absolute bottom-0 left-0 h-40 w-40 rounded-full blur-2xl pointer-events-none ximo-glow-pulse delay-300"
-          style={{ background: "radial-gradient(circle, rgba(201,168,76,0.15) 0%, transparent 70%)" }} />
-
         <div className="relative flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-          <div className="ximo-fade-up">
+          <div>
             <div className="mb-3 flex flex-wrap gap-2">
-              <Badge className="border" style={{ borderColor: "var(--gold-border)", background: "var(--gold-bg)", color: "var(--gold)" }}>Suscripción activa</Badge>
-              <Badge className="border" style={{ borderColor: "var(--border)", background: "var(--surface-hover)", color: "var(--text-label)" }}>Atleta fundador</Badge>
+              <StatusBadge tone="gold">{planLabel}</StatusBadge>
+              <StatusBadge tone="neutral">{[sport, gradYear ? `Clase ${gradYear}` : null].filter(Boolean).join(" · ")}</StatusBadge>
             </div>
             <h1 className="text-2xl font-black sm:text-3xl" style={{ color: "var(--text)" }}>
-              Tu centro de mando deportivo.
+              Hola, {firstName}.
             </h1>
             <p className="mt-2 max-w-lg text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>
-              Convierte correos, dudas, tiempos y oportunidades en un camino claro.
+              Tu centro de mando deportivo: convierte correos, dudas, tiempos y oportunidades en un camino claro.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
-              <Link href="/app/recruiting" className="ximo-glass-btn teal text-xs" style={{ padding: "0.55rem 1.1rem" }}>
-                Ver Recruiting {'->'}
-              </Link>
-              <Link href="/app/tareas" className="ximo-glass-btn gold text-xs" style={{ padding: "0.55rem 1.1rem" }}>
-                Tareas del día {'->'}
-              </Link>
+              <Link href="/app/recruiting" className="ximo-glass-btn teal text-xs">Ver Recruiting →</Link>
+              <Link href="/app/tareas" className="ximo-glass-btn gold text-xs">Tareas del día →</Link>
             </div>
           </div>
 
-          {/* Streak */}
-          <div className="shrink-0 rounded-2xl p-4 ximo-glow-teal ximo-fade-up delay-200"
-            style={{ background: "var(--hero-panel)", border: "1px solid var(--hero-panel-bd)", minWidth: 164 }}>
-            <p className="text-[9px] font-bold uppercase tracking-widest mb-1" style={{ color: "var(--text-label)" }}>Racha diaria</p>
-            <p className="text-4xl font-black" style={{ color: "var(--gold)" }}>{STREAK.current}</p>
-            <p className="text-[10px] mt-0.5" style={{ color: "var(--text-label)" }}>días consecutivos</p>
-            <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full" style={{ background: "var(--border-subtle)" }}>
-              <div className="h-full rounded-full ximo-progress-bar"
-                style={{ width: `${streakPct}%`, background: "linear-gradient(90deg,var(--teal),var(--gold))", "--progress-width": `${streakPct}%` } as React.CSSProperties} />
-            </div>
-            <p className="mt-1 text-[9px]" style={{ color: "var(--text-label)" }}>Meta: {STREAK.goal} días</p>
+          {/* Real profile mini-card */}
+          <div className="shrink-0 rounded-2xl p-4 ximo-glow-teal"
+            style={{ background: "var(--hero-panel)", border: "1px solid var(--hero-panel-bd)", minWidth: 168 }}>
+            <p className="text-[9px] font-bold uppercase tracking-widest" style={{ color: "var(--text-label)" }}>Tu perfil</p>
+            <p className="mt-1 text-lg font-black" style={{ color: "var(--text)" }}>{sport}</p>
+            <p className="text-[11px]" style={{ color: "var(--text-label)" }}>
+              {gradYear ? `Clase ${gradYear}` : "Año por definir"}
+            </p>
+            <Link href="/app/perfil" className="mt-3 inline-block text-[11px] font-semibold" style={{ color: "var(--teal)" }}>
+              Ver perfil →
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* ── Stats ── */}
-      <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {stats.map((s, i) => (
-          <ScrollReveal key={s.label} delay={i * 60}>
-          <Link href={s.href}>
-            <DarkCard className="p-4 ximo-lift h-full">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-[10px] font-bold uppercase tracking-wide" style={{ color: "var(--text-label)" }}>{s.label}</p>
-                <span className="text-[11px] opacity-30 text-brand">{s.icon}</span>
+      {/* ── First-run onboarding nudge ── */}
+      {isEmpty && (
+        <ScrollReveal>
+          <GlassPanel tone="teal" className="mb-5 p-5 sm:p-6">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-black" style={{ color: "var(--text)" }}>
+                  Configura tu camino en Ximo
+                </p>
+                <p className="mt-1 max-w-xl text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>
+                  Tu cuenta está lista. Agrega tu perfil deportivo, tus primeras universidades y documentos para
+                  que tu dashboard empiece a trabajar para ti.
+                </p>
               </div>
-              <p className="text-2xl font-black" style={{ color: s.color }}>{s.value}</p>
-              <p className="mt-0.5 text-[11px]" style={{ color: "var(--text-label)" }}>{s.sub}</p>
-            </DarkCard>
-          </Link>
+              <Link href="/app/onboarding" className="ximo-glass-btn teal text-xs">
+                Empezar configuración →
+              </Link>
+            </div>
+          </GlassPanel>
+        </ScrollReveal>
+      )}
+
+      {/* ── Stats (real counts) ── */}
+      <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {statCards.map((s, i) => (
+          <ScrollReveal key={s.label} delay={i * 60}>
+            <Link href={s.href} className="block h-full">
+              <GlassPanel className="h-full p-4">
+                <p className="text-[10px] font-bold uppercase tracking-wide" style={{ color: "var(--text-label)" }}>{s.label}</p>
+                <p className="mt-1 text-2xl font-black" style={{ color: s.accent }}>{s.value}</p>
+                <p className="mt-0.5 text-[11px]" style={{ color: "var(--text-label)" }}>{s.hint}</p>
+              </GlassPanel>
+            </Link>
           </ScrollReveal>
         ))}
       </div>
 
       {/* ── Main grid ── */}
-      <div className="grid gap-5 xl:grid-cols-[1fr_288px]">
+      <div className="grid gap-5 xl:grid-cols-[1fr_300px]">
+        {/* Left: modules */}
         <div className="space-y-5">
-
-          {/* Recruiting preview header */}
-          <div
-            className="ximo-fade-up delay-200 flex items-center justify-between rounded-2xl px-5 py-4"
-            style={{ background: "var(--surface-hover)", border: "1px solid var(--border)" }}
-          >
-            <div>
-              <p className="text-sm font-bold" style={{ color: "var(--text)" }}>Recruiting Dashboard</p>
-              <p className="text-xs mt-0.5" style={{ color: "var(--text-label)" }}>Tu centro de mando deportivo activo</p>
-            </div>
-            <Link href="/app/recruiting"
-              className="rounded-xl px-4 py-2 text-xs font-bold transition-all duration-200 hover:opacity-80"
-              style={{ background: "var(--border)", border: "1px solid rgba(47,127,134,0.3)", color: "var(--teal)" }}>
-              Abrir →
-            </Link>
-          </div>
-
-          {/* Pipeline */}
-          <DarkCard className="p-4 sm:p-5 ximo-fade-up delay-200" glow>
-            <SectionHeader dark title="Pipeline de recruiting" subtitle="Etapas del proceso" action="Ver recruiting →" actionHref="/app/recruiting" />
-            <div className="grid grid-cols-5 gap-2">
-              {pipeline.map((stage) => (
-                <div key={stage.label} className="rounded-xl p-3 text-center transition-all duration-200 hover:scale-105"
-                  style={{ background: "var(--surface-hover)", border: "1px solid var(--border-subtle)" }}>
-                  <p className="text-xl font-black text-brand">{stage.count}</p>
-                  <p className="mt-0.5 text-[9px] font-bold leading-tight" style={{ color: "var(--teal)" }}>{stage.label}</p>
-                  <div className="mt-2 h-0.5 w-full rounded-full" style={{ background: "var(--border)" }}>
-                    <div className="h-full rounded-full ximo-progress-bar"
-                      style={{ width: `${stage.pct}%`, background: "linear-gradient(90deg,var(--teal-muted),var(--teal))", "--progress-width": `${stage.pct}%` } as React.CSSProperties} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </DarkCard>
-
-          {/* Universities + Progress */}
-          <div className="grid gap-5 lg:grid-cols-[1fr_220px]">
-            <DarkCard className="p-4 sm:p-5 ximo-fade-up delay-300">
-              <SectionHeader dark title="Universidades activas" subtitle="Vista rápida" action="Ver todas →" actionHref="/app/universidades" />
-              <div className="space-y-2">
-                {universities.map((uni) => (
-                  <div key={uni.name} className="flex items-center gap-3 rounded-xl p-3 transition-all duration-200 hover:scale-[1.01]"
-                    style={{ background: "var(--surface-hover)", border: "1px solid var(--border-subtle)" }}>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-2 mb-0.5">
-                        <h3 className="text-sm font-bold text-brand truncate">{uni.name}</h3>
-                        <span className="rounded-full px-2 py-0.5 text-[9px] font-bold"
-                          style={{ background: uni.sc, color: uni.tc }}>{uni.status}</span>
-                      </div>
-                      <p className="text-[10px]" style={{ color: "var(--text-label)" }}>{uni.div}</p>
-                      <p className="mt-0.5 text-[11px] font-semibold" style={{ color: "var(--teal-muted)" }}>→ {uni.next}</p>
-                    </div>
-                  </div>
+          <ScrollReveal delay={60}>
+            <GlassPanel className="p-5">
+              <h2 className="mb-1 text-base font-black" style={{ color: "var(--text)" }}>Tus módulos</h2>
+              <p className="mb-4 text-xs" style={{ color: "var(--text-label)" }}>Todo tu proceso, en un solo lugar.</p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {[
+                  { label: "Recruiting", desc: "Tu pipeline de universidades por etapas.", href: "/app/recruiting" },
+                  { label: "Coaches", desc: "CRM de entrenadores y seguimiento.", href: "/app/coaches" },
+                  { label: "Progreso", desc: "Tiempos, marcas y metas por estilo.", href: "/app/progreso" },
+                  { label: "Cursos", desc: "Aprende el proceso paso a paso.", href: "/app/cursos" },
+                  { label: "Documentos", desc: "Ten listo todo lo que te pidan.", href: "/app/documentos" },
+                  { label: "Comunidad", desc: "Avanza con otros atletas serios.", href: "/app/comunidad" },
+                ].map((m) => (
+                  <Link key={m.href} href={m.href}>
+                    <InnerTile className="h-full px-4 py-3">
+                      <p className="text-sm font-bold" style={{ color: "var(--text)" }}>{m.label}</p>
+                      <p className="mt-0.5 text-[11px] leading-snug" style={{ color: "var(--text-label)" }}>{m.desc}</p>
+                    </InnerTile>
+                  </Link>
                 ))}
               </div>
-            </DarkCard>
+            </GlassPanel>
+          </ScrollReveal>
 
-            <DarkCard className="p-4 ximo-fade-up delay-300">
-              <SectionHeader dark title="Progreso" subtitle="Marcas vs metas" action="Ver →" actionHref="/app/progreso" />
-              <div className="space-y-4">
-                {swimEvents.map((ev) => (
-                  <div key={ev.event}>
-                    <div className="mb-1.5 flex justify-between">
-                      <span className="text-xs font-bold text-brand">{ev.event}</span>
-                      <span className="font-mono text-[10px]" style={{ color: "var(--text-label)" }}>{ev.current}→{ev.target}s</span>
-                    </div>
-                    <div className="h-1.5 w-full overflow-hidden rounded-full" style={{ background: "var(--border-subtle)" }}>
-                      <div className="h-full rounded-full ximo-progress-bar"
-                        style={{ width: `${ev.progress}%`, background: "linear-gradient(90deg,var(--teal-muted),var(--gold))", "--progress-width": `${ev.progress}%` } as React.CSSProperties} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </DarkCard>
-          </div>
-
-          {/* Community preview */}
-          <DarkCard className="p-4 sm:p-5 ximo-fade-up delay-400">
-            <SectionHeader dark title="Comunidad" subtitle="Lo más reciente" action="Ver comunidad →" actionHref="/app/comunidad" />
-            <div className="space-y-2">
-              {communityPreview.map((post) => (
-                <div key={post.user} className="flex gap-3 rounded-xl p-3 transition-all duration-200 hover:scale-[1.01]"
-                  style={{ background: "var(--surface-hover)", border: "1px solid var(--border-subtle)" }}>
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[10px] font-black"
-                    style={{ background: "var(--border)", color: "var(--teal)" }}>
-                    {post.initials}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <p className="text-[11px] font-bold text-brand">{post.user}</p>
-                      <span className="rounded-full px-2 py-0.5 text-[9px] font-bold"
-                        style={{ background: post.tagC, color: post.tagT }}>{post.tag}</span>
-                    </div>
-                    <p className="text-xs leading-snug" style={{ color: "var(--text-2)" }}>{post.text}</p>
-                    <div className="mt-1.5 flex gap-3">
-                      <span className="text-[10px]" style={{ color: "var(--text-label)" }}>♥ {post.likes}</span>
-                      <span className="text-[10px]" style={{ color: "var(--text-label)" }}>💬 {post.replies}</span>
-                    </div>
-                  </div>
+          {/* Community CTA */}
+          <ScrollReveal delay={100}>
+            <GlassPanel tone="gold" className="p-5">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-black" style={{ color: "var(--text)" }}>Comunidad Ximo</p>
+                  <p className="mt-0.5 text-xs" style={{ color: "var(--text-label)" }}>
+                    Comparte avances, resuelve dudas y conecta con otros atletas.
+                  </p>
                 </div>
-              ))}
-              <Link href="/app/comunidad" className="ximo-glass-btn dark block w-full text-center text-xs">
-                Ver toda la comunidad →
-              </Link>
-            </div>
-          </DarkCard>
+                <Link href="/app/comunidad" className="ximo-glass-btn dark text-xs">Ver comunidad →</Link>
+              </div>
+            </GlassPanel>
+          </ScrollReveal>
         </div>
 
-        {/* Right column */}
+        {/* Right: upcoming tasks */}
         <div className="space-y-5">
-          <DarkCard className="p-4 ximo-fade-up delay-100">
-            <SectionHeader dark title="Próximas acciones" subtitle="Esta semana" />
-            <ul className="space-y-2">
-              {nextActions.map((task, i) => (
-                <li key={task.title} className="flex gap-2.5 rounded-xl p-3"
-                  style={{ background: "var(--surface-hover)", border: "1px solid var(--border-subtle)" }}>
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md text-[10px] font-black"
-                    style={task.p ? { background: "var(--teal-muted)", color: "white" } : { background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.4)" }}>
-                    {i + 1}
-                  </span>
-                  <div>
-                    <p className="text-[11px] font-bold leading-snug text-brand">{task.title}</p>
-                    <p className="mt-0.5 text-[10px] font-semibold" style={{ color: "var(--teal-muted)" }}>{task.date}</p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </DarkCard>
+          <ScrollReveal delay={80}>
+            <GlassPanel className="p-5">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-base font-black" style={{ color: "var(--text)" }}>Próximas acciones</h2>
+                <Link href="/app/tareas" className="text-xs font-semibold" style={{ color: "var(--teal)" }}>Ver todas →</Link>
+              </div>
+              {upcoming.length === 0 ? (
+                <InnerTile className="px-4 py-6 text-center">
+                  <p className="text-sm font-bold" style={{ color: "var(--text-label)" }}>Sin tareas pendientes</p>
+                  <p className="mt-1 text-[11px]" style={{ color: "var(--text-3)" }}>
+                    Crea tu primer plan de acción desde Tareas.
+                  </p>
+                </InnerTile>
+              ) : (
+                <ul className="space-y-2">
+                  {upcoming.map((t) => (
+                    <li key={t.id}>
+                      <Link href={`/app/tareas`}>
+                        <InnerTile className="flex items-center gap-3 px-3.5 py-3">
+                          <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: "var(--teal)" }} />
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-bold" style={{ color: "var(--text)" }}>{t.title}</p>
+                            {t.due_date && (
+                              <p className="text-[11px]" style={{ color: "var(--text-label)" }}>{t.due_date}</p>
+                            )}
+                          </div>
+                          {t.priority && (
+                            <StatusBadge tone={PRIORITY_TONE[t.priority] ?? "neutral"}>{t.priority}</StatusBadge>
+                          )}
+                        </InnerTile>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </GlassPanel>
+          </ScrollReveal>
 
-          <DarkCard className="p-4 ximo-fade-up delay-200">
-            <SectionHeader dark title="Ranking comunidad" subtitle="Top racha" action="Comunidad →" actionHref="/app/comunidad" />
-            <div className="space-y-1.5">
-              {rankings.map((r) => (
-                <div key={r.name} className="flex items-center gap-2.5 rounded-xl px-3 py-2"
-                  style={r.you ? { background: "rgba(201,168,76,0.1)", border: "1px solid rgba(201,168,76,0.2)" } : { border: "1px solid var(--border-subtle)" }}>
-                  <span className="w-4 text-center text-[10px] font-black" style={{ color: "var(--text-label)" }}>#{r.rank}</span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[11px] font-bold text-brand truncate">
-                      {r.name} {r.you && <span style={{ color: "var(--gold)" }}>(tú)</span>}
-                    </p>
-                    <p className="text-[10px]" style={{ color: "var(--text-label)" }}>{r.metric}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </DarkCard>
-
-          {/* Brands */}
-          <DarkCard className="overflow-hidden ximo-fade-up delay-300">
-            <div className="p-4" style={{ background: "linear-gradient(135deg,var(--border),transparent)" }}>
-              <p className="text-xs font-black text-brand">Marcas y oportunidades</p>
-              <p className="mt-0.5 text-[10px]" style={{ color: "var(--text-label)" }}>Curadas para atletas ximo</p>
-            </div>
-            <div className="p-4 space-y-1.5">
-              {["Speedo","Arena","GNC","Aquasport"].map((brand) => (
-                <div key={brand} className="flex items-center justify-between rounded-lg px-3 py-2"
-                  style={{ border: "1px solid var(--border-subtle)" }}>
-                  <p className="text-xs font-bold text-brand">{brand}</p>
-                  <span className="text-[9px] rounded-full px-2 py-0.5 font-bold"
-                    style={{ border: "1px solid var(--border-strong)", color: "var(--teal-muted)", background: "var(--border-subtle)" }}>Activa</span>
-                </div>
-              ))}
-              <Link href="/app/marcas" className="ximo-glass-btn dark mt-2 block w-full text-center text-xs">
-                Explorar marcas →
-              </Link>
-            </div>
-          </DarkCard>
-
-          <DarkCard className="p-4 ximo-fade-up delay-400">
-            <SectionHeader dark title="Accesos rápidos" />
-            <div className="grid grid-cols-2 gap-2">
-              {[
-                { label: "Recruiting",  href: "/app/recruiting" },
-                { label: "Correos",     href: "/app/correos" },
-                { label: "Documentos",  href: "/app/documentos" },
-                { label: "SAT/TOEFL",   href: "/app/sat-toefl" },
-              ].map((link) => (
-                <Link key={link.href} href={link.href}
-                  className="ximo-glass-btn dark text-center text-[11px]"
-                  style={{ padding: "0.55rem 0.75rem" }}>
-                  {link.label}
-                </Link>
-              ))}
-            </div>
-          </DarkCard>
+          {/* Quick access */}
+          <ScrollReveal delay={120}>
+            <GlassPanel className="p-5">
+              <h2 className="mb-3 text-base font-black" style={{ color: "var(--text)" }}>Accesos rápidos</h2>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { label: "Recruiting", href: "/app/recruiting" },
+                  { label: "Correos", href: "/app/correos" },
+                  { label: "SAT/TOEFL", href: "/app/sat-toefl" },
+                  { label: "Configuración", href: "/app/settings" },
+                ].map((l) => (
+                  <Link key={l.href} href={l.href} className="ximo-glass-btn dark text-center text-[11px]">
+                    {l.label}
+                  </Link>
+                ))}
+              </div>
+            </GlassPanel>
+          </ScrollReveal>
         </div>
       </div>
-
-      <footer className="mt-5 rounded-xl py-2.5 text-center text-[11px]"
-        style={{ border: "1px dashed var(--border-subtle)", color: "var(--text-label)" }}>
-        Ximo · Suscripción activa · Datos de muestra
-      </footer>
     </>
   );
 }

@@ -5,13 +5,25 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import type { ReactNode } from "react";
+import { signOutAction } from "@/lib/auth/actions";
 
-const navGroups = [
+interface NavItem {
+  href: string;
+  label: string;
+  icon: string;
+  badge?: string;
+}
+interface NavGroup {
+  label: string;
+  items: NavItem[];
+}
+
+const navGroups: NavGroup[] = [
   {
     label: "Principal",
     items: [
       { href: "/app",           label: "Inicio",     icon: "◆" },
-      { href: "/app/comunidad", label: "Comunidad",  icon: "◉", badge: "3" },
+      { href: "/app/comunidad", label: "Comunidad",  icon: "◉" },
       { href: "/app/tareas",    label: "Tareas",     icon: "☐" },
     ],
   },
@@ -19,6 +31,7 @@ const navGroups = [
     label: "Recruiting",
     items: [
       { href: "/app/recruiting",    label: "Recruiting",    icon: "◈" },
+      { href: "/app/directorio",    label: "Directorio NCAA", icon: "◎" },
       { href: "/app/universidades", label: "Universidades", icon: "◫" },
       { href: "/app/coaches",       label: "Coaches",       icon: "⬘" },
       { href: "/app/correos",       label: "Correos",       icon: "✉" },
@@ -39,32 +52,89 @@ const navGroups = [
       { href: "/app/promocionar", label: "Promocionar marca", icon: "◈" },
     ],
   },
+  {
+    label: "Cuenta",
+    items: [
+      { href: "/app/settings",      label: "Configuración", icon: "⚙" },
+      { href: "/app/billing",       label: "Facturación",   icon: "▤" },
+      { href: "/app/notifications", label: "Notificaciones", icon: "◔" },
+      { href: "/app/help",          label: "Ayuda",         icon: "?" },
+    ],
+  },
 ];
 
-const allItems = navGroups.flatMap((g) => g.items);
+const adminGroup: NavGroup = {
+  label: "Admin",
+  items: [
+    { href: "/app/admin/moderation", label: "Moderación", icon: "⚑" },
+    { href: "/app/admin/ads", label: "Anuncios", icon: "◈" },
+  ],
+};
 
 function isActive(pathname: string, href: string) {
   if (href === "/app") return pathname === "/app";
   return pathname.startsWith(href);
 }
 
-const STREAK = { current: 7, goal: 30 };
+export interface ShellIdentity {
+  name: string;
+  initials: string;
+  sport: string;
+  gradYear: number | null;
+  country: string | null;
+}
 
-export default function AppShell({ children }: { children: ReactNode }) {
+const STREAK_GOAL = 30;
+
+export default function AppShell({
+  children,
+  identity,
+  isAdmin = false,
+  unreadCount = 0,
+  streak = 0,
+}: {
+  children: ReactNode;
+  identity?: ShellIdentity | null;
+  isAdmin?: boolean;
+  unreadCount?: number;
+  streak?: number;
+}) {
+  const baseGroups = isAdmin ? [...navGroups, adminGroup] : navGroups;
+  // Inject the real unread-notifications badge onto the Notificaciones item.
+  const groups: NavGroup[] = baseGroups.map((g) => ({
+    ...g,
+    items: g.items.map((it) =>
+      it.href === "/app/notifications" && unreadCount > 0
+        ? { ...it, badge: unreadCount > 9 ? "9+" : String(unreadCount) }
+        : it
+    ),
+  }));
+  const allItems = groups.flatMap((g) => g.items);
   const pathname = usePathname();
-  const pct = Math.round((STREAK.current / STREAK.goal) * 100);
+
+  const name = identity?.name ?? "Atleta";
+  const initials = identity?.initials ?? "XI";
+  const subline = [identity?.sport ?? "Natación", identity?.gradYear ?? null, identity?.country ?? null]
+    .filter(Boolean)
+    .join(" · ");
+  const pct = Math.min(100, Math.round((streak / STREAK_GOAL) * 100));
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const toggle = (l: string) => setCollapsed((p) => ({ ...p, [l]: !p[l] }));
 
   return (
-    <div className="flex min-h-screen" style={{ background: "transparent" }}>
+    <div className="ximo-app-scrim flex min-h-screen" style={{ background: "transparent" }}>
+
+      <a href="#main-content" className="ximo-skip-link">Saltar al contenido</a>
 
       {/* ── Sidebar ── */}
       <aside
         className="hidden w-[216px] shrink-0 flex-col lg:flex overflow-y-auto"
         style={{
-          background: "linear-gradient(180deg, var(--bg) 0%, var(--bg-mid) 100%)",
+          background: "linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%)",
+          backdropFilter: "blur(22px) saturate(150%)",
+          WebkitBackdropFilter: "blur(22px) saturate(150%)",
           borderRight: "1px solid var(--border-subtle)",
+          boxShadow: "inset -1px 0 0 rgba(255,255,255,0.05)",
         }}
       >
 
@@ -92,7 +162,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
             className="mt-2 inline-flex items-center rounded-full border px-2 py-0.5 text-[9px] font-bold tracking-widest uppercase"
             style={{ borderColor: "var(--gold-border)", color: "var(--gold)", background: "var(--gold-bg)" }}
           >
-            App en desarrollo
+            México primero
           </span>
         </div>
 
@@ -111,11 +181,11 @@ export default function AppShell({ children }: { children: ReactNode }) {
                 border: "1px solid rgba(201,168,76,0.18)",
               }}
             >
-              MZ
+              {initials}
             </div>
             <div className="min-w-0">
-              <p className="truncate text-xs font-semibold" style={{ color: "var(--text)" }}>Manuel Zúñiga</p>
-              <p className="text-[10px]" style={{ color: "var(--text-label)" }}>Nadador · 2027 · MX</p>
+              <p className="truncate text-xs font-semibold" style={{ color: "var(--text)" }}>{name}</p>
+              <p className="truncate text-[10px]" style={{ color: "var(--text-label)" }}>{subline}</p>
             </div>
           </Link>
         </div>
@@ -134,7 +204,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
                 Racha diaria
               </p>
               <span className="text-[11px] font-black" style={{ color: "var(--gold)" }}>
-                {STREAK.current}d
+                {streak}d
               </span>
             </div>
             <div className="h-1 w-full overflow-hidden rounded-full" style={{ background: "rgba(255,255,255,0.05)" }}>
@@ -148,14 +218,18 @@ export default function AppShell({ children }: { children: ReactNode }) {
               />
             </div>
             <p className="mt-1.5 text-[9px]" style={{ color: "var(--text-label)" }}>
-              {STREAK.goal - STREAK.current} días para la meta
+              {streak <= 0
+                ? "Comienza tu racha hoy"
+                : streak >= STREAK_GOAL
+                  ? "¡Meta alcanzada! 🔥"
+                  : `${STREAK_GOAL - streak} días para la meta`}
             </p>
           </div>
         </div>
 
         {/* Nav groups */}
         <nav className="flex-1 px-2.5 py-3 space-y-0.5">
-          {navGroups.map((group) => {
+          {groups.map((group) => {
             const open = !collapsed[group.label];
             return (
               <div key={group.label} className="mb-0.5">
@@ -213,6 +287,11 @@ export default function AppShell({ children }: { children: ReactNode }) {
               Ximo active
             </span>
           </div>
+          <form action={signOutAction} className="mb-2">
+            <button type="submit" className="ximo-glass-chip flex w-full items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-[11px] font-semibold" style={{ color: "var(--text-2)" }}>
+              <span aria-hidden>⎋</span> Cerrar sesión
+            </button>
+          </form>
           <p className="text-center text-[9px] font-medium tracking-wide" style={{ color: "var(--text-3)" }}>
             Ximo · México primero
           </p>
@@ -222,8 +301,13 @@ export default function AppShell({ children }: { children: ReactNode }) {
       {/* ── Mobile top nav ── */}
       <div className="flex min-w-0 flex-1 flex-col">
         <div
-          className="flex items-center gap-3 px-3 py-2 lg:hidden"
-          style={{ background: "var(--bg)", borderBottom: "1px solid var(--border-subtle)" }}
+          className="sticky top-0 z-30 flex items-center gap-3 px-3 py-2 lg:hidden"
+          style={{
+            background: "var(--surface)",
+            backdropFilter: "blur(20px) saturate(150%)",
+            WebkitBackdropFilter: "blur(20px) saturate(150%)",
+            borderBottom: "1px solid var(--border-subtle)",
+          }}
         >
           <Link href="/app" className="flex shrink-0 items-center gap-1.5">
             <Image
@@ -254,7 +338,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
 
-        <main className="flex-1 overflow-y-auto" style={{ background: "transparent" }}>
+        <main id="main-content" className="flex-1 overflow-y-auto" style={{ background: "transparent" }}>
           <div className="mx-auto max-w-[1400px] p-4 sm:p-5 lg:p-6">
             {children}
           </div>
