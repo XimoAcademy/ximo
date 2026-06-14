@@ -5,12 +5,13 @@ import Emblem from "../components/Emblem";
 import { activateSubscriptionAction } from "@/lib/auth/actions";
 import { isSubscriptionActive } from "@/lib/subscription/requireSubscription";
 import { isStripeConfigured, isAnnualConfigured, getDisplayPrices } from "@/lib/stripe/server";
+import { isDemoMode } from "@/lib/demo";
 import PlanCheckoutButton from "@/app/app/billing/PlanCheckoutButton";
 import CheckoutConfirming from "./CheckoutConfirming";
 
 export const metadata: Metadata = {
-  title: "Suscripción · Ximo",
-  description: "Activa tu suscripción a Ximo y desbloquea todas las herramientas de recruiting.",
+  title: "Acceso · Ximo",
+  description: "Activa tu acceso a Ximo y desbloquea todas las herramientas de recruiting.",
 };
 
 const features = [
@@ -24,6 +25,19 @@ const features = [
   "Oportunidades de promoción de marca",
 ];
 
+function FeatureList({ accent }: { accent: string }) {
+  return (
+    <ul className="space-y-3">
+      {features.map((f) => (
+        <li key={f} className="flex items-center gap-2.5">
+          <span className="text-xs shrink-0" style={{ color: accent }}>✓</span>
+          <span className="text-[12px]" style={{ color: "var(--text-2)" }}>{f}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export default async function SubscribePage({
   searchParams,
 }: {
@@ -33,9 +47,10 @@ export default async function SubscribePage({
 
   const { checkout } = await searchParams;
   const confirming = checkout === "success";
+  const demo = isDemoMode();
   const stripeOn = isStripeConfigured();
   const annualOn = isAnnualConfigured();
-  const prices = stripeOn ? await getDisplayPrices() : {};
+  const prices = !demo && stripeOn ? await getDisplayPrices() : {};
 
   const monthlyPrice = prices.monthly?.label ?? "$49 USD";
   const annualPrice = prices.annual?.label ?? null;
@@ -59,14 +74,56 @@ export default async function SubscribePage({
       </div>
       <div className="ximo-soft-grid pointer-events-none absolute inset-0 opacity-40" />
 
-      <div className={`relative z-10 w-full ${annualOn ? "max-w-[820px]" : "max-w-[480px]"}`}>
+      <div className={`relative z-10 w-full ${!demo && annualOn ? "max-w-[820px]" : "max-w-[480px]"}`}>
         <div className="mb-10 flex justify-center">
           <Emblem size={96} />
         </div>
 
         {confirming ? (
           <CheckoutConfirming />
+        ) : demo ? (
+          /* ── Demo mode: free access, no payment ── */
+          <>
+            <div className="ximo-fade-up mb-8 text-center">
+              <span className="inline-flex items-center rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest" style={{ background: "var(--teal-bg)", color: "var(--teal)", border: "1px solid var(--teal-border)" }}>
+                Versión demo
+              </span>
+              <h1 className="mt-4 text-3xl font-black sm:text-4xl" style={{ color: "var(--text)" }}>
+                Acceso gratuito
+              </h1>
+              <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>
+                Ximo está en fase de prueba. Entra y usa toda la plataforma sin costo. Si más adelante se habilita un plan de pago, te avisaremos antes y tendrás que aceptarlo — no se cobra nada automáticamente.
+              </p>
+            </div>
+
+            <div className="ximo-lift ximo-fade-up delay-100 rounded-3xl p-8" style={{ background: "var(--surface)", border: "1px solid var(--teal-border)", boxShadow: "0 0 60px var(--teal-bg)" }}>
+              <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-label)" }}>Incluye</p>
+              <div className="my-5 h-px w-full" style={{ background: "var(--teal-border)" }} />
+              <FeatureList accent="var(--teal)" />
+              <form action={activateSubscriptionAction} className="mt-8 block">
+                <input type="hidden" name="plan" value="monthly" />
+                <button type="submit" className="ximo-glass-btn teal w-full text-sm">
+                  Entrar al demo gratis →
+                </button>
+              </form>
+            </div>
+
+            <p className="ximo-fade-up delay-300 mt-8 text-center text-[10px]" style={{ color: "var(--text-3)" }}>
+              Acceso inmediato · Sin tarjeta · Sin cargos durante la fase de prueba
+            </p>
+
+            <div className="ximo-fade-up delay-400 mt-6 flex flex-wrap justify-center gap-x-5 gap-y-2 text-[10px] font-medium" style={{ color: "var(--text-3)" }}>
+              <Link href="/login" className="transition-opacity hover:opacity-70">Iniciar sesión</Link>
+              <span style={{ color: "var(--border-strong)" }}>·</span>
+              <Link href="/terminos" className="transition-opacity hover:opacity-70">Términos</Link>
+              <span style={{ color: "var(--border-strong)" }}>·</span>
+              <Link href="/privacidad" className="transition-opacity hover:opacity-70">Privacidad</Link>
+              <span style={{ color: "var(--border-strong)" }}>·</span>
+              <Link href="/" className="transition-opacity hover:opacity-70">Página principal</Link>
+            </div>
+          </>
         ) : (
+          /* ── Paid mode (post-demo launch) ── */
           <>
             <div className="ximo-fade-up mb-10 text-center">
               <h1 className="text-3xl font-black sm:text-4xl" style={{ color: "var(--text)" }}>
@@ -79,14 +136,7 @@ export default async function SubscribePage({
 
             <div className={`grid gap-5 ${annualOn ? "md:grid-cols-2" : ""}`}>
               {/* Monthly plan */}
-              <div
-                className="ximo-lift ximo-fade-up delay-100 rounded-3xl p-8"
-                style={{
-                  background: "var(--surface)",
-                  border: "1px solid var(--teal-border)",
-                  boxShadow: "0 0 60px var(--teal-bg)",
-                }}
-              >
+              <div className="ximo-lift ximo-fade-up delay-100 rounded-3xl p-8" style={{ background: "var(--surface)", border: "1px solid var(--teal-border)", boxShadow: "0 0 60px var(--teal-bg)" }}>
                 <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-label)" }}>Plan mensual</p>
                 <div className="mt-4 flex items-baseline gap-1">
                   <span className="text-5xl font-black" style={{ color: "var(--text)" }}>{monthlyPrice}</span>
@@ -96,14 +146,7 @@ export default async function SubscribePage({
 
                 <div className="my-7 h-px w-full" style={{ background: "var(--teal-border)" }} />
 
-                <ul className="space-y-3">
-                  {features.map((f) => (
-                    <li key={f} className="flex items-center gap-2.5">
-                      <span className="text-xs shrink-0" style={{ color: "var(--teal)" }}>✓</span>
-                      <span className="text-[12px]" style={{ color: "var(--text-2)" }}>{f}</span>
-                    </li>
-                  ))}
-                </ul>
+                <FeatureList accent="var(--teal)" />
 
                 {stripeOn ? (
                   <PlanCheckoutButton plan="monthly" label="Suscribirme ahora" className="ximo-glass-btn teal w-full text-sm" />
@@ -119,19 +162,9 @@ export default async function SubscribePage({
 
               {/* Annual plan — only when configured in Stripe */}
               {annualOn && (
-                <div
-                  className="ximo-lift ximo-fade-up delay-200 relative rounded-3xl p-8"
-                  style={{
-                    background: "var(--surface)",
-                    border: "1px solid var(--gold-border)",
-                    boxShadow: "0 0 60px var(--gold-bg)",
-                  }}
-                >
+                <div className="ximo-lift ximo-fade-up delay-200 relative rounded-3xl p-8" style={{ background: "var(--surface)", border: "1px solid var(--gold-border)", boxShadow: "0 0 60px var(--gold-bg)" }}>
                   {savingsLabel && (
-                    <span
-                      className="absolute -top-3 right-6 rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-wider"
-                      style={{ background: "var(--gold)", color: "#0B1F33" }}
-                    >
+                    <span className="absolute -top-3 right-6 rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-wider" style={{ background: "var(--gold)", color: "#0B1F33" }}>
                       {savingsLabel}
                     </span>
                   )}
@@ -144,14 +177,7 @@ export default async function SubscribePage({
 
                   <div className="my-7 h-px w-full" style={{ background: "var(--gold-border)" }} />
 
-                  <ul className="space-y-3">
-                    {features.map((f) => (
-                      <li key={f} className="flex items-center gap-2.5">
-                        <span className="text-xs shrink-0" style={{ color: "var(--gold)" }}>✓</span>
-                        <span className="text-[12px]" style={{ color: "var(--text-2)" }}>{f}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <FeatureList accent="var(--gold)" />
 
                   <PlanCheckoutButton plan="annual" label="Suscribirme al año" className="ximo-glass-btn gold w-full text-sm" />
                 </div>
@@ -159,7 +185,7 @@ export default async function SubscribePage({
             </div>
 
             <p className="ximo-fade-up delay-300 mt-8 text-center text-[10px]" style={{ color: "var(--text-3)" }}>
-              Sin plan gratuito · Acceso inmediato al activar · La suscripción se renueva automáticamente y puedes cancelarla en cualquier momento desde Facturación
+              Acceso inmediato al activar · La suscripción se renueva automáticamente y puedes cancelarla en cualquier momento desde Facturación
             </p>
 
             <div className="ximo-fade-up delay-400 mt-6 flex flex-wrap justify-center gap-x-5 gap-y-2 text-[10px] font-medium" style={{ color: "var(--text-3)" }}>

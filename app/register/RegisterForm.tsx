@@ -58,21 +58,30 @@ export default function RegisterForm() {
         </div>
       </div>
 
-      {/* Plan preview */}
-      <div className="ximo-fade-up delay-200 mt-6 grid grid-cols-2 gap-3">
-        <div className="rounded-2xl p-4" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
-          <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-label)" }}>Mensual</p>
-          <p className="mt-2 text-xl font-black" style={{ color: "var(--text)" }}>$149<span className="text-xs font-medium" style={{ color: "var(--text-label)" }}>/mes</span></p>
-          <p className="mt-1 text-[10px]" style={{ color: "var(--text-3)" }}>Facturado mensual</p>
-        </div>
-        <div className="relative rounded-2xl p-4" style={{ background: "var(--teal-bg)", border: "1px solid var(--teal-border)" }}>
-          <div className="absolute -top-2 left-3 rounded-full px-2 py-0.5 text-[8px] font-black uppercase tracking-widest" style={{ background: "var(--gold)", color: "var(--bg)" }}>
-            Recomendado
-          </div>
-          <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-label)" }}>Anual</p>
-          <p className="mt-2 text-xl font-black" style={{ color: "var(--text)" }}>$99<span className="text-xs font-medium" style={{ color: "var(--text-label)" }}>/mes</span></p>
-          <p className="mt-1 text-[10px]" style={{ color: "var(--gold)" }}>Ahorra vs mensual</p>
-        </div>
+      {/* Demo notice (replaces pricing during the free testing phase) */}
+      <div className="ximo-fade-up delay-200 mt-6 rounded-2xl p-4" style={{ background: "var(--teal-bg)", border: "1px solid var(--teal-border)" }}>
+        <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--teal)" }}>Versión demo</p>
+        <p className="mt-1.5 text-[12px] leading-relaxed" style={{ color: "var(--text-2)" }}>
+          Ximo está en fase de prueba. El acceso es gratuito durante el demo. Si más adelante se habilita un plan de pago, te avisaremos antes y tendrás que aceptarlo — no se cobra nada automáticamente.
+        </p>
+      </div>
+
+      {/* Privacy notice + terms consent (LFPDPPP — explicit, recorded via checkbox) */}
+      <div className="ximo-fade-up delay-300 mt-5 flex items-start gap-2.5">
+        <input
+          id="privacy_accepted"
+          name="privacy_accepted"
+          type="checkbox"
+          required
+          className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-[var(--teal)]"
+        />
+        <label htmlFor="privacy_accepted" className="cursor-pointer text-[11px] leading-relaxed" style={{ color: "var(--text-2)" }}>
+          He leído y acepto el{" "}
+          <Link href="/privacidad" target="_blank" className="font-semibold underline underline-offset-2" style={{ color: "var(--teal)" }}>Aviso de Privacidad</Link>{" "}
+          y los{" "}
+          <Link href="/terminos" target="_blank" className="font-semibold underline underline-offset-2" style={{ color: "var(--teal)" }}>Términos y Condiciones</Link>{" "}
+          de Ximo. Si soy menor de edad, cuento con el consentimiento de mi padre, madre o tutor.
+        </label>
       </div>
 
       {state.error && (
@@ -80,10 +89,6 @@ export default function RegisterForm() {
           {state.error}
         </p>
       )}
-
-      <p className="ximo-fade-up delay-300 mt-3 text-center text-[10px]" style={{ color: "var(--text-3)" }}>
-        La suscripción desbloquea la app completa. Sin plan gratuito.
-      </p>
 
       {/* CTA */}
       <div className="ximo-fade-up delay-400 mt-5 space-y-3">
@@ -96,7 +101,7 @@ export default function RegisterForm() {
       </div>
 
       <p className="ximo-fade-up delay-500 mt-5 text-center text-[10px]" style={{ color: "var(--text-3)" }}>
-        Después de crear tu cuenta podrás elegir un plan mensual o anual.
+        Acceso gratuito durante la fase de prueba.
       </p>
     </form>
   );

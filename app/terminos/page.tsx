@@ -6,14 +6,23 @@ export const metadata: Metadata = {
   description: "Términos y condiciones de uso de Ximo.",
 };
 
-const UPDATED = "10 de junio de 2026";
+const UPDATED = "14 de junio de 2026";
 
 const intro = [
-  "Bienvenido a Ximo. Estos Términos y Condiciones (los “Términos”) regulan el acceso y uso de la plataforma Ximo (el “Servicio”), una aplicación de suscripción que ayuda a atletas a organizar su proceso de reclutamiento universitario. Al crear una cuenta o usar el Servicio, aceptas estos Términos.",
+  "Bienvenido a Ximo. Estos Términos y Condiciones (los “Términos”) regulan el acceso y uso de la plataforma Ximo (el “Servicio”), una aplicación que ayuda a atletas a organizar su proceso de reclutamiento universitario. Al crear una cuenta o usar el Servicio, aceptas estos Términos.",
   "Si no estás de acuerdo con estos Términos, no utilices el Servicio.",
 ];
 
 const sections: LegalSection[] = [
+  {
+    heading: "Versión demo (fase de prueba)",
+    paragraphs: [
+      "Actualmente Ximo se ofrece como una VERSIÓN DEMO en fase de prueba. El acceso es gratuito y no se cobra ninguna cantidad por usar el Servicio durante esta etapa.",
+      "Si Ximo avanza a una versión de pago, te lo notificaremos con anticipación (por correo y/o dentro de la app) antes de que inicie cualquier cobro. Para entonces se te pedirá aceptar de forma expresa los términos actualizados y, en su caso, un plan de pago.",
+      "No realizaremos ningún cargo automático sin aviso previo y sin tu aceptación expresa. Si no aceptas los nuevos términos o el plan de pago, podrás dejar de usar el Servicio sin costo alguno.",
+      "Al ser una versión en pruebas, el Servicio puede presentar cambios, interrupciones o ajustes mientras lo mejoramos.",
+    ],
+  },
   {
     heading: "Descripción del Servicio",
     paragraphs: [
@@ -36,11 +45,11 @@ const sections: LegalSection[] = [
     ],
   },
   {
-    heading: "Suscripción, pagos y renovación",
+    heading: "Suscripción y pagos (cuando aplique)",
     paragraphs: [
-      "El acceso completo al Servicio requiere una suscripción de pago (mensual o anual). El precio y la moneda aplicables son los mostrados al momento de la contratación, antes de confirmar el pago. Los pagos se procesan a través de Stripe; Ximo no almacena los datos completos de tu tarjeta.",
-      "Las suscripciones se renuevan automáticamente al final de cada periodo, al precio vigente, salvo que canceles antes de la fecha de renovación. Puedes cancelar en cualquier momento, sin penalización, desde Facturación → Gestionar suscripción dentro de la app.",
-      "Al cancelar conservarás el acceso hasta el final del periodo ya pagado. Salvo que la ley aplicable disponga lo contrario, los pagos no son reembolsables por periodos ya iniciados. Si crees que hubo un cargo erróneo, escríbenos y lo revisaremos.",
+      "Durante la versión demo NO hay cobros: el acceso es gratuito. Esta sección describe cómo funcionarán los pagos únicamente SI Ximo habilita una versión de pago en el futuro, y aplicará solo después de que aceptes expresamente un plan.",
+      "En su momento, el acceso de pago se ofrecería por suscripción (mensual o anual). El precio y la moneda serían los mostrados al momento de la contratación, antes de confirmar el pago. Los pagos se procesarían a través de Stripe; Ximo no almacena los datos completos de tu tarjeta.",
+      "Una suscripción de pago se renovaría automáticamente al final de cada periodo, al precio vigente, salvo que canceles antes de la fecha de renovación. Podrías cancelar en cualquier momento, sin penalización, desde Facturación dentro de la app, y conservarías el acceso hasta el final del periodo ya pagado. Reiteramos: nada de esto ocurre durante la versión demo y nunca sin tu aceptación previa.",
     ],
   },
   {

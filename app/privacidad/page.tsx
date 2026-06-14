@@ -6,12 +6,12 @@ export const metadata: Metadata = {
   description: "Aviso de privacidad de Ximo conforme a la LFPDPPP.",
 };
 
-const UPDATED = "10 de junio de 2026";
+const UPDATED = "14 de junio de 2026";
 const CONTACT_EMAIL = "ximoacademy@gmail.com";
 
 const intro = [
-  "En Ximo valoramos tu privacidad. Este Aviso de Privacidad describe cómo recopilamos, usamos y protegemos tus datos personales, conforme a la Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP), su Reglamento y los Lineamientos del Aviso de Privacidad vigentes en México.",
-  "Al usar Ximo, aceptas las prácticas descritas en este Aviso.",
+  "En Ximo valoramos tu privacidad. Este Aviso de Privacidad describe cómo recopilamos, usamos y protegemos tus datos personales, conforme a la Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP) vigente en México y los lineamientos aplicables del aviso de privacidad.",
+  "Ximo se ofrece actualmente como una versión demo gratuita y en pruebas; no se realizan cobros durante esta etapa. Al crear tu cuenta confirmas, mediante la casilla de aceptación del registro, que has leído y aceptas este Aviso.",
 ];
 
 const sections: LegalSection[] = [

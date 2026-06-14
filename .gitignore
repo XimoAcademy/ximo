@@ -43,3 +43,10 @@ next-env.d.ts
 
 # Claude Code local tooling
 .claude/
+
+# AI editor / assistant tooling (kept local, not part of the app)
+.cursor/
+.agents/
+reference/
+skills-lock.json
+PRODUCT.md

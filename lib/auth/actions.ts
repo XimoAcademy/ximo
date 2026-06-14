@@ -7,6 +7,10 @@ import { isSubscriptionActive } from "@/lib/subscription/requireSubscription";
 
 export type AuthState = { error?: string; sent?: boolean };
 
+// Bump when the Aviso de Privacidad changes — stored with each consent record.
+// Local (not exported): a "use server" module may only export async functions.
+const PRIVACY_NOTICE_VERSION = "2026-06-14";
+
 const NOT_CONFIGURED: AuthState = {
   error: "Supabase aún no está configurado. Agrega las variables de entorno.",
 };
@@ -62,16 +66,27 @@ export async function signUpAction(_prev: AuthState, formData: FormData): Promis
   const country = String(formData.get("country") ?? "").trim();
   const gradYearRaw = String(formData.get("graduation_year") ?? "").trim();
   const graduation_year = gradYearRaw ? Number(gradYearRaw) : null;
+  const privacyAccepted = formData.get("privacy_accepted") != null;
 
   if (!email || !password) return { error: "Ingresa tu correo y una contraseña." };
   if (password.length < 8) return { error: "La contraseña debe tener al menos 8 caracteres." };
+  // LFPDPPP: consent must be given before collecting data, and the acceptance
+  // (version + timestamp) is recorded in the user's auth metadata.
+  if (!privacyAccepted) return { error: "Debes leer y aceptar el Aviso de Privacidad para crear tu cuenta." };
 
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       // handle_new_user() reads these to seed the profile.
-      data: { full_name: fullName, sport: "Natación", country, graduation_year },
+      data: {
+        full_name: fullName,
+        sport: "Natación",
+        country,
+        graduation_year,
+        privacy_accepted_at: new Date().toISOString(),
+        privacy_notice_version: PRIVACY_NOTICE_VERSION,
+      },
       emailRedirectTo: `${await originUrl()}/auth/confirm?next=/account-status`,
     },
   });
