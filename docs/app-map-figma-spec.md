@@ -1,10 +1,14 @@
 # Ximo — App Map & Figma-Ready Design Specification
 
-A complete visual scheme of how the app works and what it is for. No Figma MCP
-write-access is available in this environment, so this is a **Figma implementation
-guide**: every frame, screen, section, component, button, link, and flow arrow is
-specified so a designer can rebuild it 1:1. Pair it with
-[architecture-graph.md](architecture-graph.md) (Mermaid flows).
+A complete visual scheme of how the app works and what it is for. Two parts:
+
+1. **Live FigJam board** (auto-generated app map): open and claim it here →
+   https://www.figma.com/board/Ny50Rjo9Q5htqL1YZqW2cm
+   *(El asiento de Figma actual es "View"; abre el enlace para reclamar/editar el board en tu cuenta.)*
+2. **This implementation guide** — every frame, screen, section, component, button,
+   link, and flow arrow specified so a designer can rebuild the high-fidelity UI 1:1.
+
+Pair both with [architecture-graph.md](architecture-graph.md) (Mermaid flows).
 
 > **Purpose of the app (one line):** Ximo organiza el proceso de reclutamiento
 > universitario deportivo de atletas mexicanos en un solo lugar.
