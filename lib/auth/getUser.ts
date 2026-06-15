@@ -54,8 +54,3 @@ export async function getProfile(): Promise<Profile | null> {
   if (error) return null;
   return (data as Profile) ?? null;
 }
-
-/** Convenience: is anyone signed in right now? */
-export async function isAuthenticated(): Promise<boolean> {
-  return (await getCurrentUser()) !== null;
-}

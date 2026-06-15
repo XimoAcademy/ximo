@@ -2,9 +2,12 @@
 
 A complete visual scheme of how the app works and what it is for. Two parts:
 
-1. **Live FigJam board** (auto-generated app map): open and claim it here →
-   https://www.figma.com/board/Ny50Rjo9Q5htqL1YZqW2cm
-   *(El asiento de Figma actual es "View"; abre el enlace para reclamar/editar el board en tu cuenta.)*
+1. **Live FigJam boards** (auto-generated) — abre y reclama cada uno en tu cuenta
+   *(el asiento de Figma actual es "View"; al abrir el enlace lo reclamas/editas):*
+   - **Mapa general de la app:** https://www.figma.com/board/Ny50Rjo9Q5htqL1YZqW2cm
+   - **Flujo detallado — Auth y Acceso** (cada botón de registro/login/recuperación/suscripción y su ruta): https://www.figma.com/board/dS3iCNq822aoDfnGUmZwSQ
+   - **Flujo detallado — Recruiting y contenido** (botones CRUD de Tareas, Universidades, Coaches, Correos, Documentos, Comunidad): https://www.figma.com/board/XZxvuv6VYuReZcZC8OhJOr
+   - **Flujo detallado — Desarrollo, oportunidades y cuenta** (Progreso, Cursos, SAT/TOEFL, Promocionar, Perfil, Settings, Billing, Notificaciones, Ayuda, Admin): https://www.figma.com/board/BPcuNbSSDxSSIT0OruwKZN
 2. **This implementation guide** — every frame, screen, section, component, button,
    link, and flow arrow specified so a designer can rebuild the high-fidelity UI 1:1.
 

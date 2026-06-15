@@ -13,7 +13,6 @@ import {
   TARGETS,
   type Course,
   type Stroke,
-  type StrokeStat,
 } from "@/lib/util/swim-stats";
 
 type Swim = {
@@ -573,7 +572,6 @@ export default function ProgresoClient({ initialSwims }: { initialSwims: Swim[] 
                   const defaultTarget = TARGETS[`${ev}|${course}`];
                   const customKey = `${ev}|${course}`;
                   const customVal = customTargets[customKey] ?? "";
-                  const displayTarget = getTarget(ev);
                   return (
                     <tr key={ev} className="transition-colors hover:bg-[var(--surface-hover)]" style={{ borderBottom: "1px solid var(--border-subtle)" }}>
                       <td className="py-2.5 text-sm font-semibold" style={{ color: "var(--text)" }}>{ev}</td>

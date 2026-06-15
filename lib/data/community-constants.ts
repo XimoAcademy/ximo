@@ -23,14 +23,3 @@ export const TAG_STYLE: Record<string, { bg: string; color: string }> = {
   Entrenamiento: { bg: "rgba(127,175,178,0.1)", color: "rgba(127,175,178,0.8)" },
   Oficial: { bg: "rgba(201,168,76,0.2)", color: "var(--gold)" },
 };
-
-export const REPORT_REASONS: { value: string; label: string }[] = [
-  { value: "harassment", label: "Acoso o bullying" },
-  { value: "hate", label: "Contenido de odio" },
-  { value: "sexual", label: "Contenido sexual" },
-  { value: "violence", label: "Violencia" },
-  { value: "spam", label: "Spam" },
-  { value: "scam", label: "Fraude o estafa" },
-  { value: "personal_information", label: "Información personal" },
-  { value: "other", label: "Otro" },
-];

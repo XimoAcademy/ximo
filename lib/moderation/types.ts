@@ -27,20 +27,6 @@ export type ModerationCategory =
   | "personal_information" // doxxing / personal info
   | "suspicious_link";
 
-/** All categories as a runtime array (for iteration / UI). */
-export const MODERATION_CATEGORIES: ModerationCategory[] = [
-  "harassment",
-  "hate",
-  "sexual",
-  "self_harm",
-  "violence",
-  "dangerous_behavior",
-  "spam",
-  "scam",
-  "personal_information",
-  "suspicious_link",
-];
-
 /** Human-readable Spanish labels for the admin UI. */
 export const CATEGORY_LABELS: Record<ModerationCategory, string> = {
   harassment: "Acoso / bullying",

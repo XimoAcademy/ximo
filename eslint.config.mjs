@@ -12,6 +12,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // AI-editor tooling kept locally but not part of the app (also gitignored).
+    ".agents/**",
+    ".cursor/**",
+    ".claude/**",
+    "reference/**",
   ]),
 ]);
 

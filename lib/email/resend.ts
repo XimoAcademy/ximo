@@ -20,10 +20,6 @@ function getResend(): Resend | null {
   return cache.client;
 }
 
-export function isEmailConfigured(): boolean {
-  return Boolean(process.env.RESEND_API_KEY && (process.env.EMAIL_FROM ?? "").length > 0);
-}
-
 export interface SendEmailResult {
   ok: boolean;
   skipped?: boolean;
