@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import Emblem from "../components/Emblem";
 import { activateSubscriptionAction } from "@/lib/auth/actions";
 import { isSubscriptionActive } from "@/lib/subscription/requireSubscription";
-import { isStripeConfigured, isAnnualConfigured, getDisplayPrices } from "@/lib/stripe/server";
+import { isStripeConfigured, isAnnualConfigured, isDemoStripeConfigured, getDisplayPrices } from "@/lib/stripe/server";
 import { isDemoMode } from "@/lib/demo";
 import PlanCheckoutButton from "@/app/app/billing/PlanCheckoutButton";
 import CheckoutConfirming from "./CheckoutConfirming";
@@ -48,6 +48,7 @@ export default async function SubscribePage({
   const { checkout } = await searchParams;
   const confirming = checkout === "success";
   const demo = isDemoMode();
+  const demoViaStripe = isDemoStripeConfigured(); // run the demo through a $0 Stripe checkout
   const stripeOn = isStripeConfigured();
   const annualOn = isAnnualConfigured();
   const prices = !demo && stripeOn ? await getDisplayPrices() : {};
@@ -100,16 +101,21 @@ export default async function SubscribePage({
               <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-label)" }}>Incluye</p>
               <div className="my-5 h-px w-full" style={{ background: "var(--teal-border)" }} />
               <FeatureList accent="var(--teal)" />
-              <form action={activateSubscriptionAction} className="mt-8 block">
-                <input type="hidden" name="plan" value="monthly" />
-                <button type="submit" className="ximo-glass-btn teal w-full text-sm">
-                  Entrar al demo gratis →
-                </button>
-              </form>
+              {demoViaStripe ? (
+                /* Real Stripe flow at $0.00 — no card required */
+                <PlanCheckoutButton plan="demo" label="Entrar al demo gratis →" className="ximo-glass-btn teal w-full text-sm" />
+              ) : (
+                <form action={activateSubscriptionAction} className="mt-8 block">
+                  <input type="hidden" name="plan" value="monthly" />
+                  <button type="submit" className="ximo-glass-btn teal w-full text-sm">
+                    Entrar al demo gratis →
+                  </button>
+                </form>
+              )}
             </div>
 
             <p className="ximo-fade-up delay-300 mt-8 text-center text-[10px]" style={{ color: "var(--text-3)" }}>
-              Acceso inmediato · Sin tarjeta · Sin cargos durante la fase de prueba
+              Acceso inmediato · {demoViaStripe ? "Stripe a $0.00, sin tarjeta" : "Sin tarjeta"} · Sin cargos durante la fase de prueba
             </p>
 
             <div className="ximo-fade-up delay-400 mt-6 flex flex-wrap justify-center gap-x-5 gap-y-2 text-[10px] font-medium" style={{ color: "var(--text-3)" }}>

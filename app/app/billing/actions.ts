@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { getStripe, stripePrices, appUrl, type Plan } from "@/lib/stripe/server";
+import { getStripe, stripePrices, appUrl, type CheckoutPlan } from "@/lib/stripe/server";
 
 export interface CheckoutResult {
   url?: string;
@@ -12,7 +12,7 @@ export interface CheckoutResult {
  * Create a Stripe Checkout session (subscription mode) and return its hosted URL.
  * The client redirects to it. Activation happens via the webhook, never here.
  */
-export async function createCheckoutSession(plan: Plan): Promise<CheckoutResult> {
+export async function createCheckoutSession(plan: CheckoutPlan): Promise<CheckoutResult> {
   const stripe = getStripe();
   if (!stripe) return { error: "El pago no está configurado todavía." };
 
@@ -45,7 +45,8 @@ export async function createCheckoutSession(plan: Plan): Promise<CheckoutResult>
       subscription_data: { metadata: { supabase_user_id: user.id } },
       metadata: { supabase_user_id: user.id },
       locale: "es",
-      allow_promotion_codes: true,
+      // For the $0 demo plan, Stripe shouldn't ask for a card.
+      ...(plan === "demo" ? { payment_method_collection: "if_required" as const } : { allow_promotion_codes: true }),
       // Activation is async (webhook), so land on /subscribe — which is OUTSIDE
       // the subscription gate — and poll for access there before entering /app.
       // (Bouncing a just-paid user off the gated /app/billing would be a bad UX.)

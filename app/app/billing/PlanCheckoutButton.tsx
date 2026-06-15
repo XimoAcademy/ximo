@@ -8,7 +8,7 @@ export default function PlanCheckoutButton({
   label,
   className = "ximo-glass-btn teal w-full text-sm",
 }: {
-  plan: "monthly" | "annual";
+  plan: "monthly" | "annual" | "demo";
   label: string;
   className?: string;
 }) {

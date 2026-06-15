@@ -19,7 +19,10 @@ export function getStripe(): Stripe | null {
   return cache.client;
 }
 
+// DB plan_type values. The "demo" checkout plan is separate (it maps to a $0
+// Stripe price but isn't a paid plan_type).
 export type Plan = "monthly" | "annual";
+export type CheckoutPlan = Plan | "demo";
 
 /** True when Stripe is fully configured (secret key + monthly price id). */
 export function isStripeConfigured(): boolean {
@@ -31,10 +34,16 @@ export function isAnnualConfigured(): boolean {
   return Boolean(process.env.STRIPE_SECRET_KEY && process.env.STRIPE_PRICE_ANNUAL);
 }
 
-export function stripePrices(): { monthly: string | null; annual: string | null } {
+/** True when the $0 demo price is configured (lets the demo run through Stripe). */
+export function isDemoStripeConfigured(): boolean {
+  return Boolean(process.env.STRIPE_SECRET_KEY && process.env.STRIPE_PRICE_DEMO);
+}
+
+export function stripePrices(): { monthly: string | null; annual: string | null; demo: string | null } {
   return {
     monthly: process.env.STRIPE_PRICE_MONTHLY ?? null,
     annual: process.env.STRIPE_PRICE_ANNUAL ?? null,
+    demo: process.env.STRIPE_PRICE_DEMO ?? null,
   };
 }
 

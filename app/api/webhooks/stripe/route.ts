@@ -35,7 +35,10 @@ async function handleEvent(event: Stripe.Event, svc: SupabaseClient, stripe: Str
       const sub = await stripe.subscriptions.retrieve(subscriptionId);
       const payload = payloadFromSubscription(userId, sub);
       // For OXXO/SPEI the session can complete before the voucher is paid.
-      if (session.payment_status && session.payment_status !== "paid") payload.status = "inactive";
+      // "no_payment_required" is the $0 demo plan — that IS fully active.
+      if (session.payment_status && session.payment_status !== "paid" && session.payment_status !== "no_payment_required") {
+        payload.status = "inactive";
+      }
       payload.customerId = typeof session.customer === "string" ? session.customer : payload.customerId;
       await upsertSubscription(svc, payload);
       return;
