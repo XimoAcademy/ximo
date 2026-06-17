@@ -59,6 +59,29 @@ export default async function PerfilPage() {
         </div>
 
         <div className="space-y-5">
+          <ScrollReveal delay={40}>
+            <GlassPanel className="p-5">
+              <p className="mb-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-label)" }}>Cuenta</p>
+              <nav className="space-y-1">
+                {[
+                  { href: "/app/settings", label: "Configuración", icon: "⚙" },
+                  { href: "/app/billing", label: "Facturación", icon: "▤" },
+                  { href: "/app/notifications", label: "Notificaciones", icon: "◔" },
+                  { href: "/app/help", label: "Ayuda", icon: "?" },
+                ].map((it) => (
+                  <Link key={it.href} href={it.href}
+                    className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-[var(--surface-hover)]"
+                    style={{ color: "var(--text-2)" }}>
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs"
+                      style={{ background: "var(--surface-hover)", color: "var(--teal)" }}>{it.icon}</span>
+                    <span className="text-sm font-semibold">{it.label}</span>
+                    <span className="ml-auto text-xs" style={{ color: "var(--text-3)" }}>→</span>
+                  </Link>
+                ))}
+              </nav>
+            </GlassPanel>
+          </ScrollReveal>
+
           <ScrollReveal delay={80}>
             <GlassPanel className="p-5" tone={subActive ? "teal" : "default"}>
               <div className="mb-4 flex items-center gap-2">

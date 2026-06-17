@@ -73,9 +73,9 @@ function AdCard({ ad, i }: { ad: UserBrandAd; i: number }) {
           </p>
         </InnerTile>
 
-        {ad.review_status === "approved" && (
+        {ad.review_status !== "rejected" && (
           <Link href="/app/promocionar/campana" className="ximo-glass-btn teal mt-4 inline-block text-xs">
-            Configurar campaña
+            Configurar campaña y pagar
           </Link>
         )}
         {ad.review_status === "rejected" && (
@@ -88,9 +88,10 @@ function AdCard({ ad, i }: { ad: UserBrandAd; i: number }) {
   );
 }
 
-export default async function RevisionPage(props: { searchParams: Promise<{ sent?: string }> }) {
+export default async function RevisionPage(props: { searchParams: Promise<{ sent?: string; ad?: string }> }) {
   const searchParams = await props.searchParams;
   const sent = searchParams.sent === "1";
+  const paid = searchParams.ad === "paid";
   const ads = await getUserBrandAds();
 
   return (
@@ -112,6 +113,16 @@ export default async function RevisionPage(props: { searchParams: Promise<{ sent
           <p className="text-sm font-black" style={{ color: "var(--teal)" }}>¡Anuncio enviado!</p>
           <p className="mt-0.5 text-xs" style={{ color: "var(--text-2)" }}>
             Tu anuncio fue recibido. El equipo Ximo lo revisará en 48–72 horas y te avisará por correo.
+          </p>
+        </div>
+      )}
+
+      {paid && (
+        <div className="ximo-fade-up rounded-2xl px-5 py-4"
+          style={{ background: "var(--gold-bg)", border: "1px solid var(--gold-border)" }}>
+          <p className="text-sm font-black" style={{ color: "var(--gold)" }}>¡Pago confirmado! 🎉</p>
+          <p className="mt-0.5 text-xs" style={{ color: "var(--text-2)" }}>
+            Tu campaña fue pagada y tu anuncio se está publicando en el feed de Comunidad. Puede tardar unos segundos en activarse.
           </p>
         </div>
       )}

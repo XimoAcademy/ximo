@@ -52,15 +52,8 @@ const navGroups: NavGroup[] = [
       { href: "/app/promocionar", label: "Promocionar marca", icon: "◈" },
     ],
   },
-  {
-    label: "Cuenta",
-    items: [
-      { href: "/app/settings",      label: "Configuración", icon: "⚙" },
-      { href: "/app/billing",       label: "Facturación",   icon: "▤" },
-      { href: "/app/notifications", label: "Notificaciones", icon: "◔" },
-      { href: "/app/help",          label: "Ayuda",         icon: "?" },
-    ],
-  },
+  // "Cuenta" (Configuración, Facturación, Notificaciones, Ayuda) now lives
+  // inside /app/perfil instead of the sidebar.
 ];
 
 const adminGroup: NavGroup = {

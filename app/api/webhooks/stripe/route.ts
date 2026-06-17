@@ -28,6 +28,30 @@ async function handleEvent(event: Stripe.Event, svc: SupabaseClient, stripe: Str
   switch (event.type) {
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;
+
+      // One-time ad-campaign payment → publish the ad.
+      if (session.mode === "payment" && session.metadata?.type === "ad_payment") {
+        const adId = session.metadata.brand_ad_id;
+        if (!adId) return;
+        const days = Number(session.metadata.duration_days) || 1;
+        const now = new Date();
+        const ends = new Date(now.getTime() + days * 86_400_000);
+        await svc.from("brand_campaigns").insert({
+          ad_id: adId,
+          budget_mxn: Number(session.metadata.budget_mxn) || null,
+          duration_days: days,
+          estimated_reach_min: Number(session.metadata.reach_min) || null,
+          estimated_reach_max: Number(session.metadata.reach_max) || null,
+          status: "active",
+          starts_at: now.toISOString(),
+          ends_at: ends.toISOString(),
+        });
+        // Pay → publish: approve the ad so it shows in the feed (service role
+        // bypasses the review guard). In a stricter flow, approval precedes payment.
+        await svc.from("brand_ads").update({ review_status: "approved" }).eq("id", adId);
+        return;
+      }
+
       const userId = session.metadata?.supabase_user_id ?? session.client_reference_id ?? null;
       const subscriptionId = typeof session.subscription === "string" ? session.subscription : session.subscription?.id ?? null;
       if (!userId || !subscriptionId) return;
