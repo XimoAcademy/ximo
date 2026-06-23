@@ -33,14 +33,6 @@ export default function LegalShell({
         <h1 className="text-3xl font-black sm:text-4xl" style={{ color: "var(--text)" }}>{title}</h1>
         <p className="mt-2 text-xs" style={{ color: "var(--text-label)" }}>Última actualización: {updated}</p>
 
-        <div
-          className="mt-6 rounded-xl px-4 py-3 text-[12px] leading-relaxed"
-          style={{ background: "var(--gold-bg)", border: "1px solid var(--gold-border)", color: "var(--text-2)" }}
-        >
-          <strong style={{ color: "var(--gold)" }}>Aviso:</strong> Este documento es una versión preliminar y debe
-          ser revisado y validado por un abogado en México antes del lanzamiento público.
-        </div>
-
         <div className="mt-7 space-y-4">
           {intro.map((p, i) => (
             <p key={i} className="text-[15px] leading-relaxed" style={{ color: "var(--text-2)" }}>{p}</p>

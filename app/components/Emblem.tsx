@@ -28,6 +28,8 @@ export default function Emblem({
         backgroundPosition: "center 46%",
         backgroundSize: "480%",
         borderRadius: rounded ? "9999px" : undefined,
+        // Glow so the mark stays legible on any background (light or dark).
+        filter: "drop-shadow(0 0 8px rgba(30,206,206,0.45)) drop-shadow(0 1px 2px rgba(0,0,0,0.35))",
         ...style,
       }}
     />

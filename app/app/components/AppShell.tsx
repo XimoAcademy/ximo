@@ -145,6 +145,10 @@ export default function AppShell({
                 backgroundRepeat: "no-repeat",
                 backgroundPosition: "center 46%",
                 backgroundSize: "480%",
+                // Glow + ring so the mark reads clearly on the dark sidebar.
+                borderRadius: "14px",
+                boxShadow: "inset 0 0 0 1px rgba(30,206,206,0.18), 0 0 14px rgba(30,206,206,0.35)",
+                filter: "drop-shadow(0 0 6px rgba(30,206,206,0.5))",
               }}
             />
             <span className="font-display text-2xl font-bold leading-none" style={{ color: "var(--text)" }}>
