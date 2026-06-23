@@ -1,129 +1,218 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import ScrollReveal from "./components/ScrollReveal";
+import JourneyBackground from "./components/journey/JourneyBackground";
+
+export const metadata: Metadata = {
+  title: "Ximo — Live the Dream",
+  description:
+    "El camino del atleta mexicano hacia el college deportivo, en un solo lugar. Únete a la lista y entra hoy a la versión demo de Ximo.",
+};
 
 /**
- * WAITLIST (pre-lanzamiento). Página pública para registrarse y recibir el
- * aviso cuando Ximo abra al público. Intencionalmente NO enlaza a la app
- * (login/registro/precios viven aparte y sin promocionarse hasta el
- * lanzamiento). La landing de lanzamiento está lista en app/_launch/page.tsx.
+ * WAITLIST + scroll journey ("viaje por mundos"). The fixed 3D crystal snake
+ * (JourneyBackground) descends behind transparent story sections.
+ *
+ * Persuasion is applied ethically — real benefits framed aspirationally, drawing
+ * on: Self-Determination Theory (Deci & Ryan, 2000 — autonomy/competence/
+ * relatedness), narrative transportation (Green & Brock, 2000), future
+ * self-continuity (Hershfield, 2011), loss aversion (Kahneman & Tversky, 1979),
+ * and Cialdini (1984 — commitment/consistency, social proof, scarcity).
  */
+
+const panel =
+  "rounded-3xl border border-white/10 bg-[rgba(8,11,22,0.55)] px-7 py-8 backdrop-blur-md shadow-2xl";
+
 export default function Home() {
   const year = new Date().getFullYear();
   return (
-    <main className="min-h-screen bg-[#F5F5F0] text-[#0B1F33]">
-      <section className="mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center px-6 py-20 text-center">
+    <main className="relative text-white">
+      <JourneyBackground />
+
+      {/* ── World 1 · Hero / the dream (aspirational identity) ── */}
+      <section className="relative flex min-h-screen flex-col items-center justify-center px-6 text-center">
         <ScrollReveal className="flex flex-col items-center">
-          <div className="mb-6 rounded-2xl border border-[#C9A84C]/30 bg-white/70 px-5 py-2 text-sm font-semibold tracking-[0.25em] text-[#C9A84C]">
+          <span className="mb-6 rounded-full border border-[#C9A84C]/40 bg-[#C9A84C]/10 px-5 py-2 text-xs font-bold uppercase tracking-[0.3em] text-[#C9A84C]">
             ximo Academy
-          </div>
-
-          <h1 className="max-w-4xl text-5xl font-black tracking-tight md:text-7xl">
-            Convierte tu camino deportivo en una oportunidad real.
+          </span>
+          <h1 className="max-w-4xl font-display text-5xl font-black leading-[1.05] tracking-tight md:text-7xl">
+            Live the Dream
           </h1>
-
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-[#5E7080]">
-            ximo ayuda a atletas mexicanos a organizar universidades, coaches,
-            becas, correos, documentos, progreso deportivo y próximos pasos en un
-            solo lugar.
+          <p className="mt-6 max-w-xl text-lg leading-8 text-white/70">
+            El sueño de competir y estudiar fuera no es suerte. Es un camino — y
+            por primera vez, tienes el mapa completo.
           </p>
+          <a href="#world-2" className="mt-10 animate-pulse text-xs font-semibold uppercase tracking-[0.3em] text-white/50">
+            Baja para empezar el viaje ↓
+          </a>
+        </ScrollReveal>
+      </section>
 
-          <p className="mt-4 max-w-2xl text-lg leading-8 text-[#5E7080]">
-            Para quienes sueñan con llevar su deporte más lejos, competir en otro
-            nivel y abrir puertas que antes parecían imposibles.
-          </p>
+      {/* ── World 2 · The problem (agitation + loss aversion) ── */}
+      <section id="world-2" className="relative flex min-h-screen items-center justify-center px-6">
+        <ScrollReveal className="w-full max-w-2xl">
+          <div className={panel}>
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-white/40">El problema</p>
+            <h2 className="mt-3 text-3xl font-black md:text-4xl">Talento de sobra. Caos en el camino.</h2>
+            <p className="mt-5 text-base leading-8 text-white/70">
+              Universidades, coaches, correos, becas, exámenes, documentos, fechas.
+              Disperso, en inglés y sin guía. Cada oportunidad que se pierde por
+              desorganización es un sueño que se enfría — no por falta de nivel,
+              sino por falta de sistema.
+            </p>
+          </div>
+        </ScrollReveal>
+      </section>
 
-          <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-            <a
-              href="#waitlist"
-              className="rounded-xl bg-[#0B1F33] px-8 py-4 text-sm font-bold text-white shadow-lg"
-            >
-              Unirme a la primera generación
-            </a>
-
-            <Link
-              href="/build-log"
-              className="rounded-xl border border-[#0B1F33]/10 bg-white px-8 py-4 text-sm font-bold text-[#0B1F33]"
-            >
-              Ver cómo nace ximo
+      {/* ── World 3 · Origin (authenticity / narrative transportation) ── */}
+      <section className="relative flex min-h-screen items-center justify-center px-6">
+        <ScrollReveal className="w-full max-w-2xl">
+          <div className={panel}>
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#1ECECE]">Cómo nació</p>
+            <h2 className="mt-3 text-3xl font-black md:text-4xl">Desde una historia real.</h2>
+            <p className="mt-5 text-base leading-8 text-white/70">
+              Ximo nace del camino de un nadador mexicano buscando oportunidades
+              universitarias, becas y crecimiento fuera de México. Vivió el caos —
+              y construyó la herramienta que hubiera querido tener. No es teoría;
+              es el mapa de alguien que ya recorrió el camino.
+            </p>
+            <Link href="/build-log" className="mt-5 inline-block text-sm font-bold text-[#C9A84C] underline underline-offset-4">
+              Conoce cómo nace ximo →
             </Link>
           </div>
         </ScrollReveal>
-
-        <div className="mt-16 grid w-full gap-4 md:grid-cols-3">
-          {[
-            {
-              t: "Tu proceso en orden",
-              d: "Organiza universidades, coaches, respuestas, llamadas, documentos y próximos pasos sin perder oportunidades importantes.",
-            },
-            {
-              t: "Creado desde una historia real",
-              d: "ximo nace del camino de un nadador mexicano buscando oportunidades universitarias, becas y crecimiento deportivo fuera de México.",
-            },
-            {
-              t: "Una comunidad con visión",
-              d: "Sigue el proceso, aprende del camino y forma parte de una nueva generación de atletas que quiere vivir su deporte de otra manera.",
-            },
-          ].map((c, i) => (
-            <ScrollReveal key={c.t} delay={i * 90} className="h-full">
-              <div className="h-full rounded-2xl border border-black/5 bg-white p-6 text-left shadow-sm">
-                <h3 className="font-bold">{c.t}</h3>
-                <p className="mt-2 text-sm leading-6 text-[#5E7080]">{c.d}</p>
-              </div>
-            </ScrollReveal>
-          ))}
-        </div>
       </section>
 
-      <section id="waitlist" className="bg-[#0B1F33] px-6 py-24 text-white">
-        <div className="mx-auto max-w-5xl">
-          <ScrollReveal>
-            <div className="mx-auto max-w-3xl text-center">
-              <p className="text-sm font-bold tracking-[0.25em] text-[#C9A84C]">
-                ACCESO TEMPRANO
-              </p>
-
-              <h2 className="mt-4 text-4xl font-black tracking-tight md:text-5xl">
-                Únete a la primera generación de atletas ximo.
-              </h2>
-
-              <p className="mt-5 text-lg leading-8 text-white/65">
-                Ximo nace para atletas mexicanos que quieren llevar su deporte más lejos.
-                Una plataforma para organizar universidades, coaches, becas, correos,
-                documentos, progreso deportivo y oportunidades reales en un solo lugar.
-              </p>
-
-              <p className="mt-4 text-base leading-7 text-white/55">
-                Regístrate y te avisaremos en cuanto Ximo abra sus puertas.
-              </p>
+      {/* ── World 4 · The solution (clarity / competence — SDT) ── */}
+      <section className="relative flex min-h-screen items-center justify-center px-6">
+        <ScrollReveal className="w-full max-w-3xl">
+          <div className={panel}>
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#1ECECE]">La solución</p>
+            <h2 className="mt-3 text-3xl font-black md:text-4xl">Todo tu camino, en orden.</h2>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              {[
+                ["Recruiting con etapas", "Universidades y coaches con seguimiento claro: sabes siempre el siguiente paso."],
+                ["Directorio NCAA + becas", "Explora programas y encuentra el nivel y la beca que se ajustan a ti."],
+                ["Progreso deportivo", "Registra tus marcas y demuestra tu mejora cuando un coach la pida."],
+                ["Cursos y SAT/TOEFL", "Aprende el proceso paso a paso y organiza tu parte académica."],
+              ].map(([t, d]) => (
+                <div key={t} className="rounded-2xl border border-white/10 bg-white/5 p-4 text-left">
+                  <h3 className="text-sm font-black text-white">{t}</h3>
+                  <p className="mt-1 text-sm leading-6 text-white/65">{d}</p>
+                </div>
+              ))}
             </div>
-          </ScrollReveal>
+          </div>
+        </ScrollReveal>
+      </section>
 
-          <ScrollReveal delay={80} className="mt-12">
-            <div className="overflow-hidden rounded-3xl border border-[#C9A84C]/20 bg-[#F5F5F0] p-2 shadow-2xl">
+      {/* ── World 5 · Belonging + future self (relatedness — SDT) ── */}
+      <section className="relative flex min-h-screen items-center justify-center px-6">
+        <ScrollReveal className="w-full max-w-2xl text-center">
+          <div className={panel}>
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#C9A84C]">No vas solo</p>
+            <h2 className="mt-3 text-3xl font-black md:text-4xl">Una generación que va al mismo lugar.</h2>
+            <p className="mt-5 text-base leading-8 text-white/70">
+              Una comunidad de atletas mexicanos con la misma visión. El atleta que
+              quieres ser dentro de un año ya empezó hoy — y empieza aquí. Ximo es
+              quien te acompaña a llegar.
+            </p>
+          </div>
+        </ScrollReveal>
+      </section>
+
+      {/* ── World 6 · Commitment: waitlist + demo (consistency + scarcity) ── */}
+      <section id="waitlist" className="relative flex min-h-screen flex-col items-center justify-center px-6 py-24">
+        <ScrollReveal className="w-full max-w-2xl text-center">
+          <span className="rounded-full border border-[#C9A84C]/40 bg-[#C9A84C]/10 px-5 py-2 text-xs font-bold uppercase tracking-[0.3em] text-[#C9A84C]">
+            Acceso temprano
+          </span>
+          <h2 className="mt-5 text-4xl font-black md:text-5xl">Únete a la primera generación.</h2>
+          <p className="mx-auto mt-4 max-w-lg text-base leading-7 text-white/70">
+            Regístrate para recibir la versión final (en desarrollo) — y mientras,
+            <strong className="text-white"> entra hoy mismo a la versión demo, gratis</strong>, y empieza a vivir el camino.
+          </p>
+
+          <Link
+            href="/register"
+            className="mt-8 inline-block rounded-xl bg-[#1ECECE] px-10 py-4 text-sm font-black uppercase tracking-wide text-[#06222a] shadow-[0_0_40px_rgba(30,206,206,0.4)] transition-transform hover:scale-[1.03]"
+          >
+            Entrar al demo gratis →
+          </Link>
+          <p className="mt-3 text-[11px] text-white/45">Versión demo · acceso gratuito · sin tarjeta</p>
+        </ScrollReveal>
+
+        <ScrollReveal delay={120} className="mt-12 w-full max-w-2xl">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-3 backdrop-blur-md">
+            <p className="px-2 pb-3 pt-2 text-center text-xs font-semibold uppercase tracking-[0.25em] text-white/50">
+              O déjanos tu correo para la versión final
+            </p>
+            <div className="overflow-hidden rounded-2xl bg-[#F5F5F0]">
               <iframe
                 src="https://tally.so/embed/NpbZyO?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1"
                 width="100%"
-                height="900"
+                height="500"
                 frameBorder="0"
                 marginHeight={0}
                 marginWidth={0}
                 title="Lista de espera ximo"
-                className="rounded-2xl bg-[#F5F5F0]"
               />
             </div>
-          </ScrollReveal>
-        </div>
+          </div>
+        </ScrollReveal>
       </section>
 
-      {/* Footer mínimo: solo lo legalmente necesario, sin enlaces a la app. */}
-      <footer className="border-t border-black/5 bg-white px-6 py-8">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 text-center md:flex-row md:text-left">
-          <p className="text-xs text-[#5E7080]">© {year} Ximo · Hecho en México 🇲🇽</p>
-          <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-semibold text-[#5E7080]">
-            <Link href="/terminos" className="transition-colors hover:text-[#0B1F33]">Términos y Condiciones</Link>
-            <Link href="/privacidad" className="transition-colors hover:text-[#0B1F33]">Aviso de Privacidad</Link>
-            <a href="mailto:ximoacademy@gmail.com" className="transition-colors hover:text-[#0B1F33]">ximoacademy@gmail.com</a>
-          </nav>
+      {/* ── Footer — Live the Dream, policies, Powered by Delfinmanny ── */}
+      <footer className="relative border-t border-white/10 bg-[rgba(6,9,18,0.75)] px-6 py-14 backdrop-blur-md">
+        <div className="mx-auto max-w-6xl">
+          <p className="font-display text-3xl font-black tracking-tight text-white md:text-4xl">Live the Dream</p>
+          <p className="mt-2 max-w-md text-sm text-white/55">
+            Ximo — el camino del atleta mexicano hacia el college deportivo. Hecho en México 🇲🇽
+          </p>
+
+          <div className="mt-10 grid gap-8 sm:grid-cols-2 md:grid-cols-4">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-white/40">Producto</p>
+              <ul className="mt-3 space-y-2 text-sm text-white/70">
+                <li><Link href="/register" className="hover:text-white">Entrar al demo</Link></li>
+                <li><a href="#waitlist" className="hover:text-white">Lista de espera</a></li>
+                <li><Link href="/login" className="hover:text-white">Iniciar sesión</Link></li>
+                <li><Link href="/build-log" className="hover:text-white">Cómo nace ximo</Link></li>
+              </ul>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-white/40">Legal</p>
+              <ul className="mt-3 space-y-2 text-sm text-white/70">
+                <li><Link href="/terminos" className="hover:text-white">Términos y Condiciones</Link></li>
+                <li><Link href="/privacidad" className="hover:text-white">Aviso de Privacidad</Link></li>
+              </ul>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-white/40">Contacto</p>
+              <ul className="mt-3 space-y-2 text-sm text-white/70">
+                <li><a href="mailto:ximoacademy@gmail.com" className="hover:text-white">ximoacademy@gmail.com</a></li>
+              </ul>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-white/40">Síguenos</p>
+              <ul className="mt-3 space-y-2 text-sm text-white/70">
+                <li><a href="https://www.instagram.com/delfinmanny_/" target="_blank" rel="noreferrer" className="hover:text-white">Instagram</a></li>
+                <li><a href="https://www.tiktok.com/@delfinmanny" target="_blank" rel="noreferrer" className="hover:text-white">TikTok</a></li>
+                <li><a href="https://www.youtube.com/@delfinmanny" target="_blank" rel="noreferrer" className="hover:text-white">YouTube</a></li>
+                <li><a href="https://app.zoop.club/delfinmanny" target="_blank" rel="noreferrer" className="hover:text-white">Zoop</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-xs text-white/45 md:flex-row">
+            <p>© {year} Ximo · Versión demo en pruebas</p>
+            <p>
+              Powered by{" "}
+              <a href="https://www.instagram.com/delfinmanny_/" target="_blank" rel="noreferrer" className="font-bold text-white/70 hover:text-white">
+                Delfinmanny
+              </a>
+            </p>
+          </div>
         </div>
       </footer>
     </main>

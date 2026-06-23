@@ -157,14 +157,13 @@ export function GlassPanel({
 }) {
   const border =
     tone === "gold" ? "var(--border-gold)" : tone === "teal" ? "var(--teal-border)" : "var(--border)";
+  // createElement (not <El/>) avoids r3f's global JSX augmentation breaking
+  // the polymorphic-tag children typing.
   const El = Tag as React.ElementType;
-  return (
-    <El
-      className={`rounded-2xl ximo-card-3d ${className}`}
-      style={{ background: "var(--surface)", border: `1px solid ${border}` }}
-    >
-      {children}
-    </El>
+  return React.createElement(
+    El,
+    { className: `rounded-2xl ximo-card-3d ${className}`, style: { background: "var(--surface)", border: `1px solid ${border}` } },
+    children
   );
 }
 

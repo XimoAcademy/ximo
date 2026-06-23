@@ -332,6 +332,14 @@ export default function AppShell({
         </div>
 
         <main id="main-content" className="flex-1 overflow-y-auto" style={{ background: "transparent" }}>
+          {/* Persistent demo banner — Ximo is offered as a free demo. */}
+          <div
+            className="flex items-center justify-center gap-2 px-4 py-1.5 text-center text-[11px] font-semibold"
+            style={{ background: "var(--teal-bg)", borderBottom: "1px solid var(--teal-border)", color: "var(--teal)" }}
+          >
+            <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: "var(--teal)" }} />
+            Versión demo · estás probando Ximo gratis mientras desarrollamos la versión final.
+          </div>
           <div className="mx-auto max-w-[1400px] p-4 sm:p-5 lg:p-6">
             {children}
           </div>

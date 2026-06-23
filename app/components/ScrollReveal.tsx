@@ -51,10 +51,8 @@ export default function ScrollReveal({
     return () => obs.disconnect();
   }, [delay, direction, threshold]);
 
+  // createElement (not <El/>) avoids r3f's global JSX augmentation breaking
+  // the polymorphic-tag children typing.
   const El = Tag as React.ElementType;
-  return (
-    <El ref={ref} className={className}>
-      {children}
-    </El>
-  );
+  return React.createElement(El, { ref, className }, children);
 }

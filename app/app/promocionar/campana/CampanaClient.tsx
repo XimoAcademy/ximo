@@ -44,7 +44,7 @@ export default function CampanaClient({
     setLoading(true);
     const res = await payCampaignAction({ adId, dailyBudget: daily, days, reachMin: totalReach.low, reachMax: totalReach.high });
     if (res.url) {
-      window.location.href = res.url;
+      window.location.assign(res.url);
       return;
     }
     setLoading(false);
