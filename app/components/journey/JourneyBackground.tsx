@@ -49,8 +49,11 @@ export default function JourneyBackground() {
     };
   }, []);
 
+  // z-index 0 keeps this ABOVE the global body::before/::after decorative
+  // layers (which sit at z-index -1/-2) so the 3D scene is actually visible;
+  // page content sits at z-10 above it.
   return (
-    <div aria-hidden className="fixed inset-0 -z-10" style={{ background: FALLBACK_BG }}>
+    <div aria-hidden className="fixed inset-0" style={{ background: FALLBACK_BG, zIndex: 0 }}>
       {use3D && <SnakeCanvas scroll={scroll} />}
     </div>
   );

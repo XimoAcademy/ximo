@@ -30,7 +30,7 @@ export default function Home() {
       <JourneyBackground />
 
       {/* ── World 1 · Hero / the dream (aspirational identity) ── */}
-      <section className="relative flex min-h-screen flex-col items-center justify-center px-6 text-center">
+      <section className="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 text-center">
         <ScrollReveal className="flex flex-col items-center">
           <span className="mb-6 rounded-full border border-[#C9A84C]/40 bg-[#C9A84C]/10 px-5 py-2 text-xs font-bold uppercase tracking-[0.3em] text-[#C9A84C]">
             ximo Academy
@@ -49,7 +49,7 @@ export default function Home() {
       </section>
 
       {/* ── World 2 · The problem (agitation + loss aversion) ── */}
-      <section id="world-2" className="relative flex min-h-screen items-center justify-center px-6">
+      <section id="world-2" className="relative z-10 flex min-h-screen items-center justify-center px-6">
         <ScrollReveal className="w-full max-w-2xl">
           <div className={panel}>
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-white/40">El problema</p>
@@ -65,7 +65,7 @@ export default function Home() {
       </section>
 
       {/* ── World 3 · Origin (authenticity / narrative transportation) ── */}
-      <section className="relative flex min-h-screen items-center justify-center px-6">
+      <section className="relative z-10 flex min-h-screen items-center justify-center px-6">
         <ScrollReveal className="w-full max-w-2xl">
           <div className={panel}>
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#1ECECE]">Cómo nació</p>
@@ -84,7 +84,7 @@ export default function Home() {
       </section>
 
       {/* ── World 4 · The solution (clarity / competence — SDT) ── */}
-      <section className="relative flex min-h-screen items-center justify-center px-6">
+      <section className="relative z-10 flex min-h-screen items-center justify-center px-6">
         <ScrollReveal className="w-full max-w-3xl">
           <div className={panel}>
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#1ECECE]">La solución</p>
@@ -107,7 +107,7 @@ export default function Home() {
       </section>
 
       {/* ── World 5 · Belonging + future self (relatedness — SDT) ── */}
-      <section className="relative flex min-h-screen items-center justify-center px-6">
+      <section className="relative z-10 flex min-h-screen items-center justify-center px-6">
         <ScrollReveal className="w-full max-w-2xl text-center">
           <div className={panel}>
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#C9A84C]">No vas solo</p>
@@ -122,7 +122,7 @@ export default function Home() {
       </section>
 
       {/* ── World 6 · Commitment: waitlist + demo (consistency + scarcity) ── */}
-      <section id="waitlist" className="relative flex min-h-screen flex-col items-center justify-center px-6 py-24">
+      <section id="waitlist" className="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 py-24">
         <ScrollReveal className="w-full max-w-2xl text-center">
           <span className="rounded-full border border-[#C9A84C]/40 bg-[#C9A84C]/10 px-5 py-2 text-xs font-bold uppercase tracking-[0.3em] text-[#C9A84C]">
             Acceso temprano
@@ -163,7 +163,7 @@ export default function Home() {
       </section>
 
       {/* ── Footer — Live the Dream, policies, Powered by Delfinmanny ── */}
-      <footer className="relative border-t border-white/10 bg-[rgba(6,9,18,0.75)] px-6 py-14 backdrop-blur-md">
+      <footer className="relative z-10 border-t border-white/10 bg-[rgba(6,9,18,0.75)] px-6 py-14 backdrop-blur-md">
         <div className="mx-auto max-w-6xl">
           <p className="font-display text-3xl font-black tracking-tight text-white md:text-4xl">Live the Dream</p>
           <p className="mt-2 max-w-md text-sm text-white/55">

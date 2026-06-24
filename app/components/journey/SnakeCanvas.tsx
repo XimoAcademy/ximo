@@ -86,10 +86,12 @@ function Dragon({ disp }: { disp: React.RefObject<number> }) {
     if (scene.fog) (scene.fog as THREE.Fog).color.copy(bgC);
 
     if (group.current) {
-      // Spiral SPINS with scroll (up & down) + a slow idle drift.
-      group.current.rotation.y = p * Math.PI * 6 + state.clock.elapsedTime * 0.06;
-      // Travel along the spiral as you scroll.
-      group.current.position.y = -10 + p * 20;
+      // Spiral SPINS with scroll (up & down) + a clearly visible idle drift so
+      // motion reads immediately, before the user even scrolls.
+      group.current.rotation.y = p * Math.PI * 6 + state.clock.elapsedTime * 0.22;
+      // Travel along the spiral as you scroll, but keep it CENTERED in frame:
+      // at the top (p=0) the mid-body sits on screen; it drifts as you descend.
+      group.current.position.y = 4.5 - p * 9;
     }
     if (core.current) {
       const m = core.current.material as THREE.MeshPhysicalMaterial;
