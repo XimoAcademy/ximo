@@ -33,12 +33,15 @@ function Dragon({ disp }: { disp: React.RefObject<number> }) {
   const group = useRef<THREE.Group>(null);
   const core = useRef<THREE.Mesh>(null);
   const glow = useRef<THREE.Mesh>(null);
+  const head = useRef<THREE.Mesh>(null);
   const key = useRef<THREE.PointLight>(null);
   const pts = useRef<THREE.Points>(null);
   const { scene } = useThree();
 
-  // Helix = the dragon's body, tapering toward the tail.
-  const geo = useMemo(() => {
+  // Helix = the dragon's body, tapering toward the tail. We also pull the
+  // leading point + tangent off the curve so the HEAD can be planted there and
+  // oriented along the direction of travel.
+  const { tube, headPos, headQuat } = useMemo(() => {
     const v: THREE.Vector3[] = [];
     const turns = 6;
     const N = 480;
@@ -50,7 +53,17 @@ function Dragon({ disp }: { disp: React.RefObject<number> }) {
       const r = radius * (1 - 0.16 * t);
       v.push(new THREE.Vector3(Math.cos(a) * r, height * (0.5 - t), Math.sin(a) * r));
     }
-    return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(v), 800, 0.26, 20, false);
+    const curve = new THREE.CatmullRomCurve3(v);
+    const t = new THREE.TubeGeometry(curve, 800, 0.26, 20, false);
+    const p0 = curve.getPoint(0);
+    const tan = curve.getTangent(0).normalize();
+    // Model is built facing +Z; rotate so the snout points along the tangent.
+    const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), tan);
+    return {
+      tube: t,
+      headPos: p0.toArray() as [number, number, number],
+      headQuat: q.toArray() as [number, number, number, number],
+    };
   }, []);
 
   // Drifting particle field — makes worlds feel alive and motion obvious.
@@ -89,14 +102,21 @@ function Dragon({ disp }: { disp: React.RefObject<number> }) {
       // Spiral SPINS with scroll (up & down) + a clearly visible idle drift so
       // motion reads immediately, before the user even scrolls.
       group.current.rotation.y = p * Math.PI * 6 + state.clock.elapsedTime * 0.22;
-      // Travel along the spiral as you scroll, but keep it CENTERED in frame:
-      // at the top (p=0) the mid-body sits on screen; it drifts as you descend.
-      group.current.position.y = 4.5 - p * 9;
+      // The HEAD sits at the top of the helix (local y≈+13). Keep it riding in
+      // the upper third of the frame (above the centred content cards) with a
+      // gentle bob so it stays VISIBLE the whole way down, while it spins/orbits
+      // and the body coils away beneath it.
+      group.current.position.y = -11 + Math.sin(state.clock.elapsedTime * 0.6) * 0.5;
     }
     if (core.current) {
       const m = core.current.material as THREE.MeshPhysicalMaterial;
       m.emissive.copy(glowC);
       m.color.copy(glowC).lerp(white, 0.3);
+    }
+    if (head.current) {
+      const m = head.current.material as THREE.MeshPhysicalMaterial;
+      m.emissive.copy(glowC);
+      m.color.copy(glowC).lerp(white, 0.4);
     }
     if (glow.current) (glow.current.material as THREE.MeshBasicMaterial).color.copy(glowC);
     if (key.current) key.current.color.copy(glowC);
@@ -119,7 +139,7 @@ function Dragon({ disp }: { disp: React.RefObject<number> }) {
         <pointsMaterial size={0.05} transparent opacity={0.6} depthWrite={false} sizeAttenuation />
       </points>
       <group ref={group}>
-        <mesh ref={core} geometry={geo}>
+        <mesh ref={core} geometry={tube}>
           <meshPhysicalMaterial
             roughness={0.05}
             metalness={0}
@@ -132,9 +152,53 @@ function Dragon({ disp }: { disp: React.RefObject<number> }) {
           />
         </mesh>
         {/* Additive "blue fire" glow shell */}
-        <mesh ref={glow} geometry={geo} scale={1.25}>
+        <mesh ref={glow} geometry={tube} scale={1.25}>
           <meshBasicMaterial transparent opacity={0.2} blending={THREE.AdditiveBlending} depthWrite={false} />
         </mesh>
+
+        {/* ── Crystal dragon HEAD, planted at the leading end of the spiral ── */}
+        <group position={headPos} quaternion={headQuat} scale={1.35}>
+          {/* Elongated crystal skull (snout points +Z, along the tangent). */}
+          <mesh ref={head} scale={[0.62, 0.56, 1.05]}>
+            <sphereGeometry args={[0.7, 32, 24]} />
+            <meshPhysicalMaterial
+              roughness={0.04}
+              metalness={0}
+              clearcoat={1}
+              clearcoatRoughness={0.03}
+              transparent
+              opacity={0.96}
+              emissiveIntensity={2.6}
+              ior={1.7}
+            />
+          </mesh>
+          {/* Brow / upper snout ridge for a more dragon-like silhouette. */}
+          <mesh position={[0, 0.12, 0.34]} scale={[0.42, 0.3, 0.6]}>
+            <sphereGeometry args={[0.5, 24, 18]} />
+            <meshPhysicalMaterial roughness={0.05} clearcoat={1} transparent opacity={0.9} ior={1.6} />
+          </mesh>
+          {/* Glowing eyes. */}
+          <mesh position={[0.27, 0.16, 0.42]}>
+            <sphereGeometry args={[0.12, 16, 16]} />
+            <meshStandardMaterial color="#fff6d8" emissive="#ffd76a" emissiveIntensity={6} toneMapped={false} />
+          </mesh>
+          <mesh position={[-0.27, 0.16, 0.42]}>
+            <sphereGeometry args={[0.12, 16, 16]} />
+            <meshStandardMaterial color="#fff6d8" emissive="#ffd76a" emissiveIntensity={6} toneMapped={false} />
+          </mesh>
+          {/* Two swept-back horns. */}
+          <mesh position={[0.22, 0.42, -0.18]} rotation={[-0.9, 0, 0.25]}>
+            <coneGeometry args={[0.09, 0.7, 12]} />
+            <meshPhysicalMaterial roughness={0.1} clearcoat={1} transparent opacity={0.92} ior={1.6} />
+          </mesh>
+          <mesh position={[-0.22, 0.42, -0.18]} rotation={[-0.9, 0, -0.25]}>
+            <coneGeometry args={[0.09, 0.7, 12]} />
+            <meshPhysicalMaterial roughness={0.1} clearcoat={1} transparent opacity={0.92} ior={1.6} />
+          </mesh>
+          {/* Inner glow so the head reads as lit crystal, not a dark blob. */}
+          <pointLight position={[0, 0.1, 0.5]} intensity={6} distance={6} color="#bfe9ff" />
+        </group>
+
         <pointLight ref={key} position={[3, 4, 5]} intensity={90} distance={45} />
       </group>
     </group>
