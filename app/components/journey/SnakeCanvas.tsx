@@ -20,9 +20,10 @@ import * as THREE from "three";
 
 const MODEL_URL = "/models/dragon-opt.glb";
 
-// World palettes (scroll 0 → 1). High contrast so scene changes read clearly.
-const BG = ["#05060d", "#241016", "#04222b", "#241a05", "#0B2A4A"].map((c) => new THREE.Color(c));
-const GLOW = ["#3b82f6", "#a855f7", "#1ECECE", "#f5b820", "#7fe0ff"].map((c) => new THREE.Color(c));
+// Enchanted-forest "worlds" (scroll 0 → 1), inspired by the Ori games: deep
+// mossy dark backgrounds lit by bioluminescent spirit colours.
+const BG = ["#05140f", "#06231d", "#082a2a", "#16210a", "#071a2c"].map((c) => new THREE.Color(c));
+const GLOW = ["#3fe0cf", "#9affb0", "#34dcf0", "#ffcf5e", "#7fe8ff"].map((c) => new THREE.Color(c));
 
 function lerpPalette(palette: THREE.Color[], p: number, out: THREE.Color) {
   const n = palette.length - 1;
@@ -50,14 +51,20 @@ function DragonModel({ disp }: { disp: React.RefObject<number> }) {
     const p = disp.current ?? 0;
     const t = state.clock.elapsedTime;
     if (outer.current) {
-      // Slow showcase turn + extra spin tied to scroll → "dynamic".
-      outer.current.rotation.y = t * 0.25 + p * Math.PI * 1.5;
-      // Look DOWN as you scroll down.
-      outer.current.rotation.x = -0.05 + p * 0.6 + Math.sin(t * 0.6) * 0.04;
-      outer.current.rotation.z = Math.sin(t * 0.4) * 0.05;
-      // Descend with scroll + idle float.
-      outer.current.position.y = 1.2 - p * 6.5 + Math.sin(t * 0.8) * 0.25;
-      outer.current.position.x = Math.sin(t * 0.5) * 0.2;
+      // SPIRAL DOWNWARD: the dragon swings around a vertical axis while
+      // descending as the user scrolls — a helix path, FRONT-BIASED in depth so
+      // it never hides behind the origin. Phased so it's front-and-centre at the
+      // hero (≈16% scroll), then spirals out and down as you go deeper.
+      const TURNS = 2.4;
+      const ang = (p - 0.16) * Math.PI * 2 * TURNS; // scroll-driven spiral
+      const R = 2.6 - p * 0.8; // the spiral tightens as it sinks
+      outer.current.position.x = Math.sin(ang) * R;
+      outer.current.position.z = 1.4 + Math.cos(ang) * 1.4; // 0 → 2.8, always in front
+      outer.current.position.y = 1.1 - p * 8.5 + Math.sin(t * 0.8) * 0.2;
+      // Bank into the turn (face along the spiral) + look down as you scroll.
+      outer.current.rotation.y = -ang + Math.PI / 2;
+      outer.current.rotation.x = -0.05 + p * 0.5 + Math.sin(t * 0.6) * 0.04;
+      outer.current.rotation.z = Math.sin(t * 0.4) * 0.06;
     }
     void delta;
   });
@@ -77,20 +84,20 @@ function Worlds({ disp }: { disp: React.RefObject<number> }) {
   const pts = useRef<THREE.Points>(null);
   const { scene } = useThree();
 
+  const COUNT = 1700;
   const particleGeo = useMemo(() => {
-    const COUNT = 1300;
     const pos = new Float32Array(COUNT * 3);
     for (let i = 0; i < COUNT; i++) {
       const a = Math.random() * Math.PI * 2;
-      const r = 3 + Math.random() * 9;
+      const r = 2.5 + Math.random() * 10;
       pos[i * 3] = Math.cos(a) * r;
-      pos[i * 3 + 1] = (Math.random() - 0.5) * 30;
+      pos[i * 3 + 1] = (Math.random() - 0.5) * 32;
       pos[i * 3 + 2] = Math.sin(a) * r;
     }
     const g = new THREE.BufferGeometry();
     g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
     return g;
-  }, []);
+  }, [COUNT]);
 
   useMemo(() => {
     scene.fog = new THREE.Fog("#05060d", 10, 45);
@@ -107,6 +114,13 @@ function Worlds({ disp }: { disp: React.RefObject<number> }) {
     if (scene.fog) (scene.fog as THREE.Fog).color.copy(bgC);
     if (pts.current) {
       pts.current.rotation.y -= delta * 0.04;
+      // Spirit motes drift gently upward, wrapping around — floaty, alive.
+      const arr = (pts.current.geometry.getAttribute("position") as THREE.BufferAttribute).array as Float32Array;
+      for (let i = 1; i < arr.length; i += 3) {
+        arr[i] += delta * 0.35;
+        if (arr[i] > 16) arr[i] = -16;
+      }
+      (pts.current.geometry.getAttribute("position") as THREE.BufferAttribute).needsUpdate = true;
       (pts.current.material as THREE.PointsMaterial).color.copy(glowC);
     }
 
@@ -120,7 +134,14 @@ function Worlds({ disp }: { disp: React.RefObject<number> }) {
 
   return (
     <points ref={pts} geometry={particleGeo}>
-      <pointsMaterial size={0.05} transparent opacity={0.6} depthWrite={false} sizeAttenuation />
+      <pointsMaterial
+        size={0.09}
+        transparent
+        opacity={0.75}
+        depthWrite={false}
+        sizeAttenuation
+        blending={THREE.AdditiveBlending}
+      />
     </points>
   );
 }
