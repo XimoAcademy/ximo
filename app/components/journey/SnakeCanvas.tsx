@@ -9,6 +9,9 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import { Suspense, useMemo, useRef } from "react";
 import * as THREE from "three";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+
+type WaveMaterial = THREE.Material & { userData: { shader?: { uniforms: { uTime: { value: number } } } } };
 
 /**
  * Ximo's dragon — a real GLB model (public/models/dragon.glb) flown through the
@@ -37,19 +40,64 @@ function lerpPalette(palette: THREE.Color[], p: number, out: THREE.Color) {
 function DragonModel({ disp }: { disp: React.RefObject<number> }) {
   const { scene } = useGLTF(MODEL_URL);
   const outer = useRef<THREE.Group>(null);
+  const mats = useRef<WaveMaterial[]>([]);
 
-  // Centre the model on the origin and scale it to a consistent height, once.
+  // Centre + scale the model, and inject a SERPENTINE body wave into every
+  // material's vertex shader so the mesh itself undulates (the GLB has no rig).
   const { fitScale, offset } = useMemo(() => {
     const box = new THREE.Box3().setFromObject(scene);
     const size = box.getSize(new THREE.Vector3());
     const center = box.getCenter(new THREE.Vector3());
     const maxDim = Math.max(size.x, size.y, size.z) || 1;
+
+    const minY = box.min.y;
+    const height = size.y || 1;
+    const amp = maxDim * 0.08;
+    const list: WaveMaterial[] = [];
+    scene.traverse((o) => {
+      const mesh = o as THREE.Mesh;
+      if (!mesh.isMesh) return;
+      const arr = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+      arr.forEach((m) => {
+        m.onBeforeCompile = (shader) => {
+          shader.uniforms.uTime = { value: 0 };
+          shader.uniforms.uAmp = { value: amp };
+          shader.uniforms.uMinY = { value: minY };
+          shader.uniforms.uHeight = { value: height };
+          shader.uniforms.uFreq = { value: 6.5 };
+          shader.uniforms.uSpeed = { value: 2.0 };
+          shader.vertexShader =
+            "uniform float uTime,uAmp,uMinY,uHeight,uFreq,uSpeed;\n" + shader.vertexShader;
+          shader.vertexShader = shader.vertexShader.replace(
+            "#include <begin_vertex>",
+            [
+              "#include <begin_vertex>",
+              "float ph = (position.y - uMinY) / uHeight;",
+              "float ph2 = ph * uFreq + uTime * uSpeed;",
+              // Amplitude grows toward the tail (low y) so it swishes while the
+              // head stays comparatively steady — a natural serpentine slither.
+              "float aw = 1.25 - ph;",
+              "transformed.x += sin(ph2) * uAmp * aw;",
+              "transformed.z += cos(ph2) * uAmp * 0.5 * aw;",
+            ].join("\n"),
+          );
+          (m as WaveMaterial).userData.shader = shader as unknown as WaveMaterial["userData"]["shader"];
+        };
+        m.needsUpdate = true;
+        list.push(m as WaveMaterial);
+      });
+    });
+    mats.current = list;
     return { fitScale: 7 / maxDim, offset: center };
   }, [scene]);
 
   useFrame((state, delta) => {
     const p = disp.current ?? 0;
     const t = state.clock.elapsedTime;
+    for (const m of mats.current) {
+      const sh = m.userData.shader;
+      if (sh) sh.uniforms.uTime.value = t;
+    }
     if (outer.current) {
       // SPIRAL DOWNWARD: the dragon swings around a vertical axis while
       // descending as the user scrolls — a helix path, FRONT-BIASED in depth so
@@ -100,7 +148,8 @@ function Worlds({ disp }: { disp: React.RefObject<number> }) {
   }, [COUNT]);
 
   useMemo(() => {
-    scene.fog = new THREE.Fog("#05060d", 10, 45);
+    // Far fog so the forest recedes into the misty distance / horizon.
+    scene.fog = new THREE.Fog("#05060d", 16, 90);
   }, [scene]);
 
   const bgC = useMemo(() => new THREE.Color(), []);
@@ -146,6 +195,49 @@ function Worlds({ disp }: { disp: React.RefObject<number> }) {
   );
 }
 
+/**
+ * A receding forest: a dark ground plane and a field of silhouette pine trees
+ * scattered into the distance on both sides, fading into fog toward the horizon.
+ * Keeps a clear corridor down the centre so the dragon stays unobstructed.
+ */
+function Forest() {
+  const { trees, ground } = useMemo(() => {
+    const geos: THREE.BufferGeometry[] = [];
+    const COUNT = 95;
+    const base = -5.5;
+    for (let i = 0; i < COUNT; i++) {
+      const side = Math.random() < 0.5 ? -1 : 1;
+      const x = side * (7 + Math.random() * 44); // clear centre corridor
+      const z = -10 - Math.random() * 60; // behind the dragon, receding
+      const h = 5 + Math.random() * 11;
+      for (let k = 0; k < 3; k++) {
+        const cr = Math.max(0.25, (1.8 - k * 0.5) * (0.7 + Math.random() * 0.3));
+        const cone = new THREE.ConeGeometry(cr, h * 0.5, 6);
+        cone.translate(x, base + h * 0.28 + k * h * 0.24, z);
+        geos.push(cone);
+      }
+      const trunk = new THREE.CylinderGeometry(0.16, 0.28, h * 0.36, 5);
+      trunk.translate(x, base + h * 0.18, z);
+      geos.push(trunk);
+    }
+    const trees = mergeGeometries(geos, false) ?? new THREE.BufferGeometry();
+    geos.forEach((g) => g.dispose());
+    const ground = new THREE.PlaneGeometry(300, 220, 1, 1);
+    return { trees, ground };
+  }, []);
+
+  return (
+    <group>
+      <mesh geometry={ground} rotation={[-Math.PI / 2, 0, 0]} position={[0, -5.5, -26]}>
+        <meshStandardMaterial color="#04150d" roughness={1} metalness={0} />
+      </mesh>
+      <mesh geometry={trees}>
+        <meshStandardMaterial color="#072017" emissive="#04160e" emissiveIntensity={0.5} roughness={1} metalness={0} />
+      </mesh>
+    </group>
+  );
+}
+
 export default function SnakeCanvas({ scroll }: { scroll: React.RefObject<number> }) {
   // Smooth (damped) scroll so the motion feels fluid, not jumpy.
   const disp = useRef(0);
@@ -163,6 +255,7 @@ export default function SnakeCanvas({ scroll }: { scroll: React.RefObject<number
       <directionalLight position={[5, 8, 6]} intensity={2.2} color="#ffffff" />
       <pointLight position={[-7, -4, 5]} intensity={50} distance={50} color="#1ECECE" />
       <pointLight position={[6, 6, 6]} intensity={40} distance={45} color="#7fe3ec" />
+      <Forest />
       <Worlds disp={disp} />
       <Suspense fallback={null}>
         <DragonModel disp={disp} />

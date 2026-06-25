@@ -30,22 +30,32 @@ export default function Home() {
       <JourneyBackground />
 
       {/* ── Brand banner · intro splash (the Ximo wordmark) ── */}
-      <section
-        className="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 text-center"
-        style={{ background: "linear-gradient(135deg,#2FB8CA 0%,#7FCE7C 50%,#ECD24E 100%)" }}
-      >
-        <h1 className="font-display font-black leading-none text-white drop-shadow-[0_6px_40px_rgba(0,0,0,0.18)] text-[5.5rem] sm:text-8xl md:text-[11rem]">
-          Ximo
-        </h1>
-        <p className="mt-3 font-display text-xl font-bold tracking-[0.18em] text-white/95 md:text-3xl">
-          -Live the Dream-
-        </p>
-        <a
-          href="#world-2"
-          className="mt-12 animate-pulse text-xs font-semibold uppercase tracking-[0.3em] text-white/75"
-        >
-          Entra al viaje ↓
-        </a>
+      {/* The gradient is masked to fade out toward the bottom, so the banner
+          diffuses into the live forest scene behind it instead of cutting hard. */}
+      <section className="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 text-center">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background: "linear-gradient(135deg,#2FB8CA 0%,#7FCE7C 50%,#ECD24E 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, #000 0%, #000 46%, transparent 90%)",
+            maskImage: "linear-gradient(to bottom, #000 0%, #000 46%, transparent 90%)",
+          }}
+        />
+        <div className="relative z-10 flex flex-col items-center">
+          <h1 className="font-display font-black leading-none text-white drop-shadow-[0_6px_40px_rgba(0,0,0,0.22)] text-[5.5rem] sm:text-8xl md:text-[11rem]">
+            Ximo
+          </h1>
+          <p className="mt-3 font-display text-xl font-bold tracking-[0.18em] text-white/95 drop-shadow-[0_2px_12px_rgba(0,0,0,0.3)] md:text-3xl">
+            -Live the Dream-
+          </p>
+          <a
+            href="#world-2"
+            className="mt-12 animate-pulse text-xs font-semibold uppercase tracking-[0.3em] text-white/80"
+          >
+            Entra al viaje ↓
+          </a>
+        </div>
       </section>
 
       {/* ── World 1 · Hero / the dream (aspirational identity) ── */}
