@@ -58,25 +58,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── World 1 · Hero / the dream (aspirational identity) ── */}
-      <section className="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 text-center">
-        <ScrollReveal className="flex flex-col items-center">
-          <span className="mb-6 rounded-full border border-[#C9A84C]/40 bg-[#C9A84C]/10 px-5 py-2 text-xs font-bold uppercase tracking-[0.3em] text-[#C9A84C]">
-            ximo Academy
-          </span>
-          <h1 className="max-w-4xl font-display text-5xl font-black leading-[1.05] tracking-tight md:text-7xl">
-            Live the Dream
-          </h1>
-          <p className="mt-6 max-w-xl text-lg leading-8 text-white/70">
-            El sueño de competir y estudiar fuera no es suerte. Es un camino — y
-            por primera vez, tienes el mapa completo.
-          </p>
-          <a href="#world-2" className="mt-10 animate-pulse text-xs font-semibold uppercase tracking-[0.3em] text-white/50">
-            Baja para empezar el viaje ↓
-          </a>
-        </ScrollReveal>
-      </section>
-
       {/* ── World 2 · The problem (agitation + loss aversion) ── */}
       <section id="world-2" className="relative z-10 flex min-h-screen items-center justify-center px-6">
         <ScrollReveal className="w-full max-w-2xl">
