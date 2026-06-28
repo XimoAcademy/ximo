@@ -63,12 +63,25 @@ export default function Home() {
         <ScrollReveal className="w-full max-w-2xl">
           <div className={panel}>
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-white/40">El problema</p>
-            <h2 className="mt-3 text-3xl font-black md:text-4xl">Talento de sobra. Caos en el camino.</h2>
+            <h2 className="mt-3 text-3xl font-black md:text-4xl">El camino al alto nivel se volvió demasiado caro y confuso.</h2>
             <p className="mt-5 text-base leading-8 text-white/70">
-              Universidades, coaches, correos, becas, exámenes, documentos, fechas.
-              Disperso, en inglés y sin guía. Cada oportunidad que se pierde por
-              desorganización es un sueño que se enfría — no por falta de nivel,
-              sino por falta de sistema.
+              Llegar al nivel universitario y profesional en División 1 no debería
+              depender solo de cuánto dinero puede pagar una familia. En muchos
+              deportes, el proceso se ha vuelto caro, desordenado y lleno de
+              personas que cobran demasiado por información que debería ser más
+              accesible.
+            </p>
+            <p className="mt-4 text-base leading-8 text-white/70">
+              Muchos atletas pierden oportunidades no porque les falte talento,
+              sino porque no saben qué pasos seguir, a quién escribirle, cómo
+              presentarse, qué documentos preparar o cómo encontrar universidades
+              reales para su nivel.
+            </p>
+            <p className="mt-4 text-base leading-8 text-white/70">
+              Y eso duele. Porque cuando el proceso se vuelve inalcanzable, muchos
+              atletas empiezan a perder la fe. Creen que no son lo suficientemente
+              buenos, que su situación económica los limita o que sus sueños
+              simplemente no son para ellos.
             </p>
           </div>
         </ScrollReveal>
@@ -79,12 +92,28 @@ export default function Home() {
         <ScrollReveal className="w-full max-w-2xl">
           <div className={panel}>
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#1ECECE]">Cómo nació</p>
-            <h2 className="mt-3 text-3xl font-black md:text-4xl">Desde una historia real.</h2>
+            <h2 className="mt-3 text-3xl font-black md:text-4xl">Ximo nació porque yo también pasé por eso.</h2>
             <p className="mt-5 text-base leading-8 text-white/70">
-              Ximo nace del camino de un nadador mexicano buscando oportunidades
-              universitarias, becas y crecimiento fuera de México. Vivió el caos —
-              y construyó la herramienta que hubiera querido tener. No es teoría;
-              es el mapa de alguien que ya recorrió el camino.
+              Soy Manuel Zúñiga, fundador de Ximo. Yo también sentí esa duda.
+              También pensé que tal vez no era lo suficientemente bueno, que el
+              camino era demasiado caro, demasiado difícil o que quizá no iba a
+              llegar.
+            </p>
+            <p className="mt-4 text-base leading-8 text-white/70">
+              No era el atleta más increíble desde el inicio. No tenía todo
+              resuelto. Pero aprendí el proceso paso a paso, cometí errores,
+              entendí cómo hablar con coaches, cómo organizar mis documentos, cómo
+              mostrar mi progreso y cómo construir una oportunidad real.
+            </p>
+            <p className="mt-4 text-base leading-8 text-white/70">
+              Con el tiempo, logré abrir puertas y recibir oportunidades de varias
+              universidades NCAA División 1. No porque el camino fuera fácil, sino
+              porque encontré un método, confié en mí y seguí avanzando.
+            </p>
+            <p className="mt-4 text-base leading-8 text-white/70">
+              Por eso nace Ximo: para compartir ese método con otros atletas de
+              habla hispana y hacer que este camino sea más claro, más accesible y
+              más posible.
             </p>
             <Link href="/build-log" className="mt-5 inline-block text-sm font-bold text-[#C9A84C] underline underline-offset-4">
               Conoce cómo nace ximo →
@@ -98,13 +127,20 @@ export default function Home() {
         <ScrollReveal className="w-full max-w-3xl">
           <div className={panel}>
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#1ECECE]">La solución</p>
-            <h2 className="mt-3 text-3xl font-black md:text-4xl">Todo tu camino, en orden.</h2>
+            <h2 className="mt-3 text-3xl font-black md:text-4xl">Un método paso a paso para perseguir tus sueños.</h2>
+            <p className="mt-4 text-base leading-8 text-white/70">
+              Ximo no promete magia. Ximo te da estructura. Te muestra qué hacer,
+              en qué orden hacerlo y cómo avanzar con más claridad hacia
+              oportunidades universitarias y deportivas.
+            </p>
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               {[
-                ["Recruiting con etapas", "Universidades y coaches con seguimiento claro: sabes siempre el siguiente paso."],
-                ["Directorio NCAA + becas", "Explora programas y encuentra el nivel y la beca que se ajustan a ti."],
-                ["Progreso deportivo", "Registra tus marcas y demuestra tu mejora cuando un coach la pida."],
-                ["Cursos y SAT/TOEFL", "Aprende el proceso paso a paso y organiza tu parte académica."],
+                ["Cree en ti primero", "El primer paso no es mandar correos ni buscar becas. El primer paso es dejar de pensar que tu sueño no es para ti."],
+                ["Construye tu perfil", "Organiza tus tiempos, logros, videos, documentos, calificaciones y todo lo que necesitas para presentarte como atleta."],
+                ["Encuentra universidades reales", "Busca opciones que hagan sentido para tu nivel, tu deporte, tu situación académica y tus metas."],
+                ["Contacta coaches con orden", "Aprende cómo escribir, dar seguimiento, responder y mantener conversaciones importantes sin perder oportunidades."],
+                ["Entiende becas y costos", "Ten más claridad sobre becas, costos, ayuda financiera y decisiones importantes antes de comprometerte con una universidad."],
+                ["Avanza acompañado", "Forma parte de una comunidad de atletas que también están luchando por estudiar, competir y llegar más lejos."],
               ].map(([t, d]) => (
                 <div key={t} className="rounded-2xl border border-white/10 bg-white/5 p-4 text-left">
                   <h3 className="text-sm font-black text-white">{t}</h3>
@@ -137,17 +173,17 @@ export default function Home() {
           <span className="rounded-full border border-[#C9A84C]/40 bg-[#C9A84C]/10 px-5 py-2 text-xs font-bold uppercase tracking-[0.3em] text-[#C9A84C]">
             Acceso temprano
           </span>
-          <h2 className="mt-5 text-4xl font-black md:text-5xl">Únete a la primera generación.</h2>
+          <h2 className="mt-5 text-4xl font-black md:text-5xl">Tu sueño no se acaba por falta de dinero, miedo o desorden.</h2>
           <p className="mx-auto mt-4 max-w-lg text-base leading-7 text-white/70">
-            Regístrate para recibir la versión final (en desarrollo) — y mientras,
-            <strong className="text-white"> entra hoy mismo a la versión demo, gratis</strong>, y empieza a vivir el camino.
+            Si has trabajado demasiado por esto, no te rindas antes de entender el
+            camino. Ximo existe para ayudarte a dar el siguiente paso con claridad.
           </p>
 
           <Link
             href="/register"
             className="mt-8 inline-block rounded-xl bg-[#1ECECE] px-10 py-4 text-sm font-black uppercase tracking-wide text-[#06222a] shadow-[0_0_40px_rgba(30,206,206,0.4)] transition-transform hover:scale-[1.03]"
           >
-            Entrar al demo gratis →
+            Únete al demo ahora →
           </Link>
           <p className="mt-3 text-[11px] text-white/45">Versión demo · acceso gratuito · sin tarjeta</p>
         </ScrollReveal>
@@ -177,7 +213,7 @@ export default function Home() {
         <div className="mx-auto max-w-6xl">
           <p className="font-display text-3xl font-black tracking-tight text-white md:text-4xl">Live the Dream</p>
           <p className="mt-2 max-w-md text-sm text-white/55">
-            Ximo — el camino del atleta mexicano hacia el college deportivo. Hecho en México 🇲🇽
+            Ximo — creado por un atleta, para atletas que todavía creen en su sueño.
           </p>
 
           <div className="mt-10 grid gap-8 sm:grid-cols-2 md:grid-cols-4">
