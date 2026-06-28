@@ -53,7 +53,7 @@ export default function Home() {
             href="#world-2"
             className="mt-12 animate-pulse text-xs font-semibold uppercase tracking-[0.3em] text-white/80"
           >
-            Entra al viaje ↓
+            ↓ Entra al viaje ↓
           </a>
         </div>
       </section>
@@ -173,7 +173,7 @@ export default function Home() {
           <span className="rounded-full border border-[#C9A84C]/40 bg-[#C9A84C]/10 px-5 py-2 text-xs font-bold uppercase tracking-[0.3em] text-[#C9A84C]">
             Acceso temprano
           </span>
-          <h2 className="mt-5 text-4xl font-black md:text-5xl">Tu sueño no se acaba por falta de dinero, miedo o desorden.</h2>
+          <h2 className="mt-5 text-4xl font-black md:text-5xl">Tu sueño no acaba hoy, acaba de empezar.</h2>
           <p className="mx-auto mt-4 max-w-lg text-base leading-7 text-white/70">
             Si has trabajado demasiado por esto, no te rindas antes de entender el
             camino. Ximo existe para ayudarte a dar el siguiente paso con claridad.
@@ -185,7 +185,7 @@ export default function Home() {
           >
             Únete al demo ahora →
           </Link>
-          <p className="mt-3 text-[11px] text-white/45">Versión demo · acceso gratuito · sin tarjeta</p>
+          <p className="mt-3 text-[11px] text-white/45">Versión demo · acceso gratuito</p>
         </ScrollReveal>
 
         <ScrollReveal delay={120} className="mt-12 w-full max-w-2xl">
