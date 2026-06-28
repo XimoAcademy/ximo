@@ -173,7 +173,7 @@ export default function Home() {
           <span className="rounded-full border border-[#C9A84C]/40 bg-[#C9A84C]/10 px-5 py-2 text-xs font-bold uppercase tracking-[0.3em] text-[#C9A84C]">
             Acceso temprano
           </span>
-          <h2 className="mt-5 text-4xl font-black md:text-5xl">Tu sueño no acaba hoy, acaba de empezar.</h2>
+          <h2 className="mt-5 text-4xl font-black md:text-5xl">Empieza a vivir tu sueño.</h2>
           <p className="mx-auto mt-4 max-w-lg text-base leading-7 text-white/70">
             Si has trabajado demasiado por esto, no te rindas antes de entender el
             camino. Ximo existe para ayudarte a dar el siguiente paso con claridad.
