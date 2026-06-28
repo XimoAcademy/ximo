@@ -74,8 +74,8 @@ export default function Home() {
             <p className="mt-4 text-base leading-8 text-white/70">
               Muchos atletas pierden oportunidades no porque les falte talento,
               sino porque no saben qué pasos seguir, a quién escribirle, cómo
-              presentarse, qué documentos preparar o cómo encontrar universidades
-              reales para su nivel.
+              presentarse, qué documentos preparar o cómo encontrar las
+              universidades a su alcance para su nivel.
             </p>
             <p className="mt-4 text-base leading-8 text-white/70">
               Y eso duele. Porque cuando el proceso se vuelve inalcanzable, muchos
@@ -103,7 +103,7 @@ export default function Home() {
               No era el atleta más increíble desde el inicio. No tenía todo
               resuelto. Pero aprendí el proceso paso a paso, cometí errores,
               entendí cómo hablar con coaches, cómo organizar mis documentos, cómo
-              mostrar mi progreso y cómo construir una oportunidad real.
+              mostrar mi progreso y cómo construir mi propia oportunidad.
             </p>
             <p className="mt-4 text-base leading-8 text-white/70">
               Con el tiempo, logré abrir puertas y recibir oportunidades de varias
@@ -137,7 +137,7 @@ export default function Home() {
               {[
                 ["Cree en ti primero", "El primer paso no es mandar correos ni buscar becas. El primer paso es dejar de pensar que tu sueño no es para ti."],
                 ["Construye tu perfil", "Organiza tus tiempos, logros, videos, documentos, calificaciones y todo lo que necesitas para presentarte como atleta."],
-                ["Encuentra universidades reales", "Busca opciones que hagan sentido para tu nivel, tu deporte, tu situación académica y tus metas."],
+                ["Descubre tu universidad ideal", "Busca opciones que hagan sentido para tu nivel, tu deporte, tu situación académica y tus metas."],
                 ["Contacta coaches con orden", "Aprende cómo escribir, dar seguimiento, responder y mantener conversaciones importantes sin perder oportunidades."],
                 ["Entiende becas y costos", "Ten más claridad sobre becas, costos, ayuda financiera y decisiones importantes antes de comprometerte con una universidad."],
                 ["Avanza acompañado", "Forma parte de una comunidad de atletas que también están luchando por estudiar, competir y llegar más lejos."],
@@ -213,7 +213,7 @@ export default function Home() {
         <div className="mx-auto max-w-6xl">
           <p className="font-display text-3xl font-black tracking-tight text-white md:text-4xl">Live the Dream</p>
           <p className="mt-2 max-w-md text-sm text-white/55">
-            Ximo — creado por un atleta, para atletas que todavía creen en su sueño.
+            Ximo — creado por un atleta, para atletas que se atreven a perseguir su sueño.
           </p>
 
           <div className="mt-10 grid gap-8 sm:grid-cols-2 md:grid-cols-4">
