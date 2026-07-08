@@ -8,13 +8,14 @@ const topics = [
   { title: "Cómo contactar coaches", desc: "Plantillas, timing y seguimiento que genera respuestas.", href: "/app/coaches" },
   { title: "Cómo organizar universidades", desc: "Compara opciones, beca, nivel y próximos pasos.", href: "/app/universidades" },
   { title: "Cómo funciona la suscripción", desc: "Planes, renovación y gestión de tu cuenta.", href: "/app/billing" },
-  { title: "Cómo usar la comunidad", desc: "Publica avances, dudas y conecta con otros atletas.", href: "/app/comunidad" },
+  { title: "Comunidad en Discord", desc: "Únete al canal donde los atletas comparten dudas y avances.", href: "/app/comunidad" },
   { title: "Cómo subir documentos", desc: "Ten listo todo lo que un coach puede pedirte.", href: "/app/documentos" },
   { title: "Cómo registrar tu progreso", desc: "Marca tiempos y visualiza tu mejora por estilo.", href: "/app/progreso" },
 ];
 
 const faqs = [
-  { q: "¿Necesito una suscripción para usar Ximo?", a: "Sí. Ximo funciona con una suscripción activa. No hay plan gratuito: la suscripción desbloquea la app completa, incluyendo recruiting, comunidad, cursos y seguimiento de coaches." },
+  { q: "¿Necesito pagar para usar Ximo?", a: "Por ahora no. Ximo está en fase demo y el acceso es gratuito. Si más adelante se habilita un plan de pago, te avisaremos antes y tendrás que aceptarlo de forma expresa: no se cobra nada automáticamente." },
+  { q: "¿Dónde está la comunidad de Ximo?", a: "En Discord. Entra a la sección Comunidad y únete con el botón o el código QR. Discord es una plataforma externa con sus propios términos y reglas." },
   { q: "¿Cómo cambio de plan o cancelo mi suscripción?", a: "Entra a Facturación y toca \"Gestionar suscripción\" para abrir el portal seguro de pagos, donde puedes cambiar de plan, actualizar tu tarjeta o cancelar. Si cancelas, conservas el acceso hasta el final del periodo ya pagado." },
   { q: "¿Ximo es solo para nadadores?", a: "Por ahora sí. Empezamos con natación para construir la mejor experiencia posible, y ampliaremos a más deportes con el tiempo." },
   { q: "¿Cómo contacto a un coach desde Ximo?", a: "En la sección Coaches puedes ver el estado de cada relación, plantillas de correo y tu próximo follow-up sugerido. Personaliza la plantilla y envíala desde tu correo." },
@@ -85,7 +86,7 @@ export default function HelpPage() {
           </div>
           <InnerTile className="mt-4 px-4 py-3">
             <p className="text-[11px]" style={{ color: "var(--text-label)" }}>
-              También puedes escribirnos en la comunidad o revisar el estado de tu cuenta en{" "}
+              También puedes escribirnos en el Discord de la comunidad o revisar el estado de tu cuenta en{" "}
               <Link href="/app/billing" className="font-semibold" style={{ color: "var(--teal)" }}>
                 Facturación
               </Link>

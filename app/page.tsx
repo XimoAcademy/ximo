@@ -231,6 +231,10 @@ export default function Home() {
               <ul className="mt-3 space-y-2 text-sm text-white/70">
                 <li><Link href="/terminos" className="hover:text-white">Términos y Condiciones</Link></li>
                 <li><Link href="/privacidad" className="hover:text-white">Aviso de Privacidad</Link></li>
+                <li><Link href="/cookies" className="hover:text-white">Cookies y tecnologías</Link></li>
+                <li><Link href="/politica-de-anuncios" className="hover:text-white">Política de anuncios</Link></li>
+                <li><Link href="/terminos-anunciantes" className="hover:text-white">Términos anunciantes</Link></li>
+                <li><Link href="/reglas-comunidad" className="hover:text-white">Reglas de comunidad</Link></li>
               </ul>
             </div>
             <div>
@@ -242,10 +246,11 @@ export default function Home() {
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-white/40">Síguenos</p>
               <ul className="mt-3 space-y-2 text-sm text-white/70">
-                <li><a href="https://www.instagram.com/delfinmanny_/" target="_blank" rel="noreferrer" className="hover:text-white">Instagram</a></li>
-                <li><a href="https://www.tiktok.com/@delfinmanny" target="_blank" rel="noreferrer" className="hover:text-white">TikTok</a></li>
-                <li><a href="https://www.youtube.com/@delfinmanny" target="_blank" rel="noreferrer" className="hover:text-white">YouTube</a></li>
-                <li><a href="https://app.zoop.club/delfinmanny" target="_blank" rel="noreferrer" className="hover:text-white">Zoop</a></li>
+                <li><a href="https://www.instagram.com/delfinmanny_/" target="_blank" rel="noopener noreferrer" className="hover:text-white">Instagram ↗</a></li>
+                <li><a href="https://www.tiktok.com/@delfinmanny" target="_blank" rel="noopener noreferrer" className="hover:text-white">TikTok ↗</a></li>
+                <li><a href="https://www.youtube.com/@delfinmanny" target="_blank" rel="noopener noreferrer" className="hover:text-white">YouTube ↗</a></li>
+                <li><a href="https://app.zoop.club/delfinmanny" target="_blank" rel="noopener noreferrer" className="hover:text-white">Zoop ↗</a></li>
+                <li className="text-[10px] text-white/40">Enlaces a sitios externos</li>
               </ul>
             </div>
           </div>
@@ -254,7 +259,7 @@ export default function Home() {
             <p>© {year} Ximo · Versión demo en pruebas</p>
             <p>
               Powered by{" "}
-              <a href="https://www.instagram.com/delfinmanny_/" target="_blank" rel="noreferrer" className="font-bold text-white/70 hover:text-white">
+              <a href="https://www.instagram.com/delfinmanny_/" target="_blank" rel="noopener noreferrer" className="font-bold text-white/70 hover:text-white">
                 Delfinmanny
               </a>
             </p>

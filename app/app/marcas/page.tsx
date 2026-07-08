@@ -24,7 +24,7 @@ function BrandCard({ b }: { b: BrandAd }) {
         <div className="flex h-11 w-11 items-center justify-center rounded-xl text-base font-black" style={{ background: "var(--border)", color: "var(--teal)" }}>
           {b.brandName.slice(0, 2).toUpperCase()}
         </div>
-        <span className="rounded-full px-2.5 py-1 text-[10px] font-bold" style={{ background: "rgba(5,150,105,0.12)", color: "#6ee7b7" }}>Activa</span>
+        <span className="rounded-full px-2.5 py-1 text-[10px] font-bold" style={{ background: "rgba(201,168,76,0.14)", color: "var(--gold)" }}>Publicidad</span>
       </div>
       <div className="flex-1">
         <h3 className="text-base font-black" style={{ color: "var(--text)" }}>{b.brandName}</h3>
@@ -131,8 +131,14 @@ export default async function MarcasPage() {
         </div>
       </div>
 
-      <footer className="rounded-xl px-4 py-2.5 text-center text-[11px]" style={{ border: "1px dashed var(--border)", color: "var(--text-3)" }}>
-        Ximo · Solo marcas curadas · Sin publicidad invasiva
+      {/* Consumer-facing ad disclosure */}
+      <footer className="rounded-xl px-4 py-3 text-center text-[11px] leading-relaxed" style={{ border: "1px dashed var(--border)", color: "var(--text-3)" }}>
+        Los anuncios dentro de Ximo pueden ser enviados por marcas externas y revisados por Ximo antes de publicarse.
+        Ximo no garantiza resultados, compras, rendimiento deportivo ni beneficios externos relacionados con dichos
+        anuncios.{" "}
+        <Link href="/politica-de-anuncios" className="font-semibold underline underline-offset-2" style={{ color: "var(--teal)" }}>
+          Política de anuncios
+        </Link>
       </footer>
     </div>
   );

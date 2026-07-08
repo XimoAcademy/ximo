@@ -94,7 +94,7 @@ export default function SatToeflPage() {
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-sm font-bold" style={{ color:"var(--text)" }}>{r.name}</span>
                   <div className="flex items-center gap-1.5">
-                    {r.external && <span className="text-[9px]" style={{ color:"var(--text-3)" }}>↗</span>}
+                    {r.external && <span className="text-[9px]" style={{ color:"var(--text-3)" }}>Sitio externo ↗</span>}
                     <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background:"var(--border-subtle)", color:"var(--text-label)" }}>{r.type}</span>
                   </div>
                 </div>

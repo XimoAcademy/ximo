@@ -77,12 +77,31 @@ export default function RegisterForm() {
         />
         <label htmlFor="privacy_accepted" className="cursor-pointer text-[11px] leading-relaxed" style={{ color: "var(--text-2)" }}>
           He leído y acepto el{" "}
-          <Link href="/privacidad" target="_blank" className="font-semibold underline underline-offset-2" style={{ color: "var(--teal)" }}>Aviso de Privacidad</Link>{" "}
+          <Link href="/privacidad" target="_blank" rel="noopener noreferrer" className="font-semibold underline underline-offset-2" style={{ color: "var(--teal)" }}>Aviso de Privacidad</Link>{" "}
           y los{" "}
-          <Link href="/terminos" target="_blank" className="font-semibold underline underline-offset-2" style={{ color: "var(--teal)" }}>Términos y Condiciones</Link>{" "}
-          de Ximo. Si soy menor de edad, cuento con el consentimiento de mi padre, madre o tutor.
+          <Link href="/terminos" target="_blank" rel="noopener noreferrer" className="font-semibold underline underline-offset-2" style={{ color: "var(--teal)" }}>Términos</Link>{" "}
+          de Ximo.
         </label>
       </div>
+
+      {/* Optional, separate marketing opt-in (never pre-checked) */}
+      <div className="ximo-fade-up delay-300 mt-3 flex items-start gap-2.5">
+        <input
+          id="marketing_opt_in"
+          name="marketing_opt_in"
+          type="checkbox"
+          className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-[var(--teal)]"
+        />
+        <label htmlFor="marketing_opt_in" className="cursor-pointer text-[11px] leading-relaxed" style={{ color: "var(--text-2)" }}>
+          (Opcional) Quiero recibir correos con novedades y promociones de Ximo. Puedo darme de baja cuando quiera.
+        </label>
+      </div>
+
+      {/* Minors note */}
+      <p className="ximo-fade-up delay-300 mt-3 text-[10px] leading-relaxed" style={{ color: "var(--text-3)" }}>
+        Si eres menor de edad, usa Ximo con autorización de tu madre, padre o tutor. No compartas datos sensibles,
+        documentos oficiales o información de pago sin autorización.
+      </p>
 
       {state.error && (
         <p className="ximo-fade-up mt-3 text-center text-[12px] font-semibold" style={{ color: "var(--error)" }}>

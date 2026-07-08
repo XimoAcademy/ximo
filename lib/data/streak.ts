@@ -22,7 +22,7 @@ export interface StreakState {
 const ZERO: StreakState = { current: 0, longest: 0, activatedToday: false };
 
 /** Today as YYYY-MM-DD in America/Mexico_City — the streak's day boundary. */
-function mxToday(date = new Date()): string {
+export function mxToday(date = new Date()): string {
   // en-CA formats as ISO-like YYYY-MM-DD.
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "America/Mexico_City",
@@ -33,10 +33,28 @@ function mxToday(date = new Date()): string {
 }
 
 /** Whole-day difference (b - a) between two YYYY-MM-DD strings. */
-function dayGap(a: string, b: string): number {
+export function dayGap(a: string, b: string): number {
   const da = Date.parse(`${a}T00:00:00Z`);
   const db = Date.parse(`${b}T00:00:00Z`);
   return Math.round((db - da) / 86_400_000);
+}
+
+/**
+ * Pure streak step (Duolingo-style, calendar days — never a rolling 24 h):
+ *  - last === today      → no change (already activated today)
+ *  - last === yesterday  → current + 1
+ *  - older/missing       → reset to 1
+ */
+export function advanceStreak(
+  last: string | null,
+  today: string,
+  current: number,
+  longest: number
+): { current: number; longest: number; changed: boolean } {
+  if (last === today) return { current, longest, changed: false };
+  const gap = last ? dayGap(last, today) : Number.POSITIVE_INFINITY;
+  const next = gap === 1 ? current + 1 : 1;
+  return { current: next, longest: Math.max(longest, next), changed: true };
 }
 
 export async function touchDailyStreak(): Promise<StreakState> {
@@ -59,15 +77,12 @@ export async function touchDailyStreak(): Promise<StreakState> {
   const prevCurrent = (row?.current_streak as number | null) ?? 0;
   const prevLongest = (row?.longest_streak as number | null) ?? 0;
 
+  const { current, longest, changed } = advanceStreak(last, today, prevCurrent, prevLongest);
+
   // Already activated today — keep it idempotent, don't write.
-  if (last === today) {
+  if (!changed) {
     return { current: prevCurrent, longest: prevLongest, activatedToday: true };
   }
-
-  // Continued from yesterday → +1; otherwise (missed a day, or first ever) → 1.
-  const gap = last ? dayGap(last, today) : Number.POSITIVE_INFINITY;
-  const current = gap === 1 ? prevCurrent + 1 : 1;
-  const longest = Math.max(prevLongest, current);
 
   const { error } = await supabase
     .from("profiles")

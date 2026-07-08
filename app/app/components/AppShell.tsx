@@ -49,6 +49,7 @@ const navGroups: NavGroup[] = [
   {
     label: "Oportunidades",
     items: [
+      { href: "/app/marcas",      label: "Marcas",            icon: "◇" },
       { href: "/app/promocionar", label: "Promocionar marca", icon: "◈" },
     ],
   },

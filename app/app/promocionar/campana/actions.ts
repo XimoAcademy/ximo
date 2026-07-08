@@ -53,7 +53,10 @@ export async function payCampaignAction(input: {
     .maybeSingle();
   const adRow = ad as { id: string; review_status: string; brand_id: string } | null;
   if (!adRow || !brandIds.includes(adRow.brand_id)) return { error: "Anuncio no encontrado." };
-  if (adRow.review_status === "rejected") return { error: "Este anuncio fue rechazado y no puede publicarse." };
+  // Hard rule: no payment before manual review approval.
+  if (adRow.review_status !== "approved_pending_payment") {
+    return { error: "Este anuncio aún no está aprobado para pago. Espera el correo de aprobación del equipo Ximo." };
+  }
 
   try {
     const session = await stripe.checkout.sessions.create({

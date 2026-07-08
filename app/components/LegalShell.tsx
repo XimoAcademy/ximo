@@ -65,6 +65,10 @@ export default function LegalShell({
         <div className="mt-12 flex flex-wrap items-center gap-4 border-t pt-6 text-xs" style={{ borderColor: "var(--border)", color: "var(--text-label)" }}>
           <Link href="/terminos" className="font-semibold transition-opacity hover:opacity-70" style={{ color: "var(--teal)" }}>Términos</Link>
           <Link href="/privacidad" className="font-semibold transition-opacity hover:opacity-70" style={{ color: "var(--teal)" }}>Privacidad</Link>
+          <Link href="/cookies" className="font-semibold transition-opacity hover:opacity-70" style={{ color: "var(--teal)" }}>Cookies</Link>
+          <Link href="/politica-de-anuncios" className="font-semibold transition-opacity hover:opacity-70" style={{ color: "var(--teal)" }}>Anuncios</Link>
+          <Link href="/terminos-anunciantes" className="font-semibold transition-opacity hover:opacity-70" style={{ color: "var(--teal)" }}>Anunciantes</Link>
+          <Link href="/reglas-comunidad" className="font-semibold transition-opacity hover:opacity-70" style={{ color: "var(--teal)" }}>Comunidad</Link>
           <Link href="/" className="transition-opacity hover:opacity-70">Inicio</Link>
         </div>
       </div>

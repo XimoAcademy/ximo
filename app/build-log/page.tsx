@@ -67,7 +67,7 @@ export default function BuildLog() {
             <a
               href={platform.link}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="group block h-full rounded-3xl border border-black/5 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
             >
               <div className="flex items-start justify-between gap-6">
@@ -117,7 +117,7 @@ export default function BuildLog() {
           <a
             href="https://app.zoop.club/delfinmanny"
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             className="mt-8 inline-flex rounded-xl bg-white px-8 py-4 text-sm font-bold text-[#0B1F33]"
           >
             Entrar al acceso fundador

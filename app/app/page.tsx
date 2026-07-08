@@ -135,7 +135,7 @@ export default async function DashboardPage() {
                   { label: "Progreso", desc: "Tiempos, marcas y metas por estilo.", href: "/app/progreso" },
                   { label: "Cursos", desc: "Aprende el proceso paso a paso.", href: "/app/cursos" },
                   { label: "Documentos", desc: "Ten listo todo lo que te pidan.", href: "/app/documentos" },
-                  { label: "Comunidad", desc: "Avanza con otros atletas serios.", href: "/app/comunidad" },
+                  { label: "Comunidad", desc: "Únete al Discord de atletas Ximo.", href: "/app/comunidad" },
                 ].map((m) => (
                   <Link key={m.href} href={m.href}>
                     <InnerTile className="h-full px-4 py-3">
@@ -153,12 +153,12 @@ export default async function DashboardPage() {
             <GlassPanel tone="gold" className="p-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="text-sm font-black" style={{ color: "var(--text)" }}>Comunidad Ximo</p>
+                  <p className="text-sm font-black" style={{ color: "var(--text)" }}>Comunidad Ximo en Discord</p>
                   <p className="mt-0.5 text-xs" style={{ color: "var(--text-label)" }}>
-                    Comparte avances, resuelve dudas y conecta con otros atletas.
+                    Comparte dudas, avances y experiencias con otros atletas en nuestro Discord.
                   </p>
                 </div>
-                <Link href="/app/comunidad" className="ximo-glass-btn dark text-xs">Ver comunidad →</Link>
+                <Link href="/app/comunidad" className="ximo-glass-btn dark text-xs">Unirme →</Link>
               </div>
             </GlassPanel>
           </ScrollReveal>

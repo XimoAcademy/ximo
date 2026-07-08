@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: "Términos y condiciones de uso de Ximo.",
 };
 
-const UPDATED = "14 de junio de 2026";
+const UPDATED = "7 de julio de 2026";
 
 const intro = [
   "Bienvenido a Ximo. Estos Términos y Condiciones (los “Términos”) regulan el acceso y uso de la plataforma Ximo (el “Servicio”), una aplicación que ayuda a atletas a organizar su proceso de reclutamiento universitario. Al crear una cuenta o usar el Servicio, aceptas estos Términos.",
@@ -26,8 +26,9 @@ const sections: LegalSection[] = [
   {
     heading: "Descripción del Servicio",
     paragraphs: [
-      "Ximo ofrece herramientas para organizar el proceso de reclutamiento deportivo universitario: seguimiento de universidades y coaches, plantillas de correos, gestión de documentos, registro de marcas deportivas, cursos educativos y una comunidad de atletas.",
-      "Ximo es una herramienta de organización y educación. No garantizamos la admisión, el otorgamiento de becas, ni resultados específicos en tu proceso de reclutamiento.",
+      "Ximo ofrece herramientas para organizar el proceso de reclutamiento deportivo universitario: seguimiento de universidades y coaches, plantillas de correos, gestión de documentos, cursos educativos, seguimiento de progreso, acceso a la comunidad de atletas (en Discord) y un espacio de marcas revisadas.",
+      "Ximo es una plataforma educativa y de organización. No somos una agencia, escuela, universidad, asesor legal ni asesor financiero, y no actuamos como reclutador garantizado.",
+      "No garantizamos admisiones, becas, patrocinios, resultados deportivos ni el desempeño de ningún anuncio. Eres responsable de la veracidad de los datos y documentos que registras.",
     ],
   },
   {
@@ -63,10 +64,16 @@ const sections: LegalSection[] = [
     ],
   },
   {
-    heading: "Contenido de usuario y moderación",
+    heading: "Contenido de usuario",
     paragraphs: [
-      "Eres responsable del contenido que publicas en la comunidad. Conservas tus derechos sobre dicho contenido, y nos otorgas una licencia para mostrarlo dentro del Servicio.",
-      "Todo el contenido publicado pasa por un proceso de revisión antes de ser visible para la comunidad. Podemos retirar, ocultar o rechazar contenido que incumpla estos Términos, sin previo aviso.",
+      "Eres responsable del contenido y los archivos que subes al Servicio (por ejemplo, documentos o material de anuncios). Debes contar con los derechos o permisos necesarios sobre fotos, videos, logotipos, música, testimonios y cualquier material de terceros.",
+      "No está permitido subir contenido ilegal, de odio, sexual explícito, engañoso o que infrinja derechos de autor de terceros. Podemos retirar u ocultar contenido que incumpla estos Términos, sin previo aviso.",
+    ],
+  },
+  {
+    heading: "Comunidad en Discord",
+    paragraphs: [
+      "La comunidad Ximo opera en un servidor de Discord. Discord es una plataforma externa: al unirte aplican sus propios términos, políticas de privacidad y normas, además de las Reglas de la comunidad de Ximo publicadas en /reglas-comunidad.",
     ],
   },
   {
@@ -76,9 +83,10 @@ const sections: LegalSection[] = [
     ],
   },
   {
-    heading: "Marcas y promociones de terceros",
+    heading: "Marcas y publicidad de terceros",
     paragraphs: [
-      "El Servicio puede mostrar promociones de marcas, previamente revisadas. Cualquier transacción que realices con una marca tercera es entre tú y dicha marca; Ximo no es parte ni responsable de dichas transacciones.",
+      "El Servicio puede mostrar anuncios de marcas externas, siempre revisados manualmente antes de publicarse y etiquetados como “Publicidad” o “Patrocinado”. Ximo no garantiza resultados, compras ni beneficios relacionados con dichos anuncios.",
+      "Cualquier transacción que realices con una marca tercera es entre tú y dicha marca; Ximo no es parte ni responsable de dichas transacciones. Las marcas que anuncian aceptan además los Términos para anunciantes y la Política de anuncios.",
     ],
   },
   {

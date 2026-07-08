@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import type { AdReviewStatus } from "./ads";
 
 export interface BrandAd {
   id: string;
@@ -29,7 +30,7 @@ export interface UserBrandAd {
   brandName: string;
   category: string | null;
   format: string | null;
-  review_status: "pending" | "approved" | "rejected";
+  review_status: AdReviewStatus;
   created_at: string;
 }
 
@@ -80,7 +81,7 @@ export async function getUserBrandAds(): Promise<UserBrandAd[]> {
       brandName: bInfo?.brandName ?? "Marca",
       category: bInfo?.category ?? null,
       format: a.format,
-      review_status: (a.review_status as "pending" | "approved" | "rejected") ?? "pending",
+      review_status: (a.review_status as AdReviewStatus) ?? "pending",
       created_at: a.created_at,
     };
   });

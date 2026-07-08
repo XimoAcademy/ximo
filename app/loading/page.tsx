@@ -55,10 +55,10 @@ export default function LoadingPage() {
             boxShadow: "0 0 0 1px rgba(7,19,31,0.6), inset 0 0 24px rgba(30,206,206,0.12)",
           }} />
 
-          {/* Logo medallion — fills the ring */}
-          <div className="ximo-logo-appear relative z-10 overflow-hidden rounded-full"
-            style={{ width: 176, height: 176, boxShadow: "0 0 32px rgba(30,206,206,0.3)" }}>
-            <Emblem size={176} rounded />
+          {/* Logo medallion — fills the ring (ring interior ≈ 196px) */}
+          <div className="ximo-logo-appear relative z-10 flex items-center justify-center overflow-hidden rounded-full"
+            style={{ width: "clamp(160px, 90%, 192px)", height: "clamp(160px, 90%, 192px)", boxShadow: "0 0 32px rgba(30,206,206,0.3)" }}>
+            <Emblem size={192} rounded style={{ width: "100%", height: "100%" }} />
           </div>
         </div>
 

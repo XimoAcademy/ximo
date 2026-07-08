@@ -9,25 +9,39 @@ type Tone = "warning" | "success" | "error";
 
 const STATUS_MAP: Record<string, { label: string; tone: Tone; icon: string; text: string; next: string }> = {
   pending: {
-    label: "Pendiente",
+    label: "Pendiente de revisión",
     tone: "warning",
     icon: "⏳",
-    text: "Tu anuncio fue recibido y está esperando revisión del equipo Ximo. Tiempo estimado: 48–72 horas.",
-    next: "Espera la respuesta del equipo. Te avisaremos por correo cuando haya una actualización.",
+    text: "Solicitud enviada. Ximo revisará tu anuncio manualmente. Si se aprueba, recibirás un correo para continuar con el pago.",
+    next: "Espera la respuesta del equipo (48–72 h). Te avisaremos por correo cuando haya una actualización.",
   },
-  approved: {
-    label: "Aprobado",
+  approved_pending_payment: {
+    label: "Aprobado · pendiente de pago",
     tone: "success",
     icon: "✓",
-    text: "Tu anuncio fue aprobado. Ahora puedes configurar presupuesto, duración y alcance.",
-    next: "Configura tu campaña para empezar a aparecer en Comunidad.",
+    text: "Tu anuncio fue aprobado. Ahora puedes configurar presupuesto y duración, y completar el pago.",
+    next: "Configura tu campaña y paga. Tras confirmarse el pago, el equipo Ximo activa la publicación.",
+  },
+  paid_ready_to_publish: {
+    label: "Pagado · en activación",
+    tone: "success",
+    icon: "💳",
+    text: "Tu pago fue confirmado. El equipo Ximo activará la publicación de tu anuncio manualmente.",
+    next: "No necesitas hacer nada más. Te avisaremos cuando tu anuncio esté visible en Marcas y oportunidades.",
+  },
+  approved: {
+    label: "Publicado",
+    tone: "success",
+    icon: "★",
+    text: "Tu anuncio está publicado en la sección Marcas y oportunidades, etiquetado como publicidad.",
+    next: "Puedes ver cómo lo ven los atletas en Marcas y oportunidades.",
   },
   rejected: {
     label: "No aprobado",
     tone: "error",
     icon: "✕",
-    text: "Tu anuncio no fue aprobado. Intenta enviar otro alineado con atletas y la comunidad Ximo.",
-    next: "Revisa los lineamientos y envía una nueva propuesta.",
+    text: "Tu anuncio no fue aprobado y no se requiere ningún pago. Puedes enviar otra propuesta alineada con atletas estudiantes.",
+    next: "Revisa la política de anuncios y envía una nueva propuesta.",
   },
 };
 
@@ -73,9 +87,14 @@ function AdCard({ ad, i }: { ad: UserBrandAd; i: number }) {
           </p>
         </InnerTile>
 
-        {ad.review_status !== "rejected" && (
+        {ad.review_status === "approved_pending_payment" && (
           <Link href="/app/promocionar/campana" className="ximo-glass-btn teal mt-4 inline-block text-xs">
             Configurar campaña y pagar
+          </Link>
+        )}
+        {ad.review_status === "approved" && (
+          <Link href="/app/marcas" className="ximo-glass-btn dark mt-4 inline-block text-xs">
+            Ver en Marcas y oportunidades
           </Link>
         )}
         {ad.review_status === "rejected" && (
@@ -110,9 +129,9 @@ export default async function RevisionPage(props: { searchParams: Promise<{ sent
       {sent && (
         <div className="ximo-fade-up rounded-2xl px-5 py-4"
           style={{ background: "var(--teal-bg)", border: "1px solid var(--teal-border)" }}>
-          <p className="text-sm font-black" style={{ color: "var(--teal)" }}>¡Anuncio enviado!</p>
+          <p className="text-sm font-black" style={{ color: "var(--teal)" }}>Solicitud enviada</p>
           <p className="mt-0.5 text-xs" style={{ color: "var(--text-2)" }}>
-            Tu anuncio fue recibido. El equipo Ximo lo revisará en 48–72 horas y te avisará por correo.
+            Ximo revisará tu anuncio manualmente. Si se aprueba, recibirás un correo para continuar con el pago.
           </p>
         </div>
       )}
@@ -122,7 +141,8 @@ export default async function RevisionPage(props: { searchParams: Promise<{ sent
           style={{ background: "var(--gold-bg)", border: "1px solid var(--gold-border)" }}>
           <p className="text-sm font-black" style={{ color: "var(--gold)" }}>¡Pago confirmado! 🎉</p>
           <p className="mt-0.5 text-xs" style={{ color: "var(--text-2)" }}>
-            Tu campaña fue pagada y tu anuncio se está publicando en el feed de Comunidad. Puede tardar unos segundos en activarse.
+            Recibimos tu pago. El equipo Ximo activará la publicación de tu anuncio manualmente; te avisaremos cuando
+            esté visible en Marcas y oportunidades.
           </p>
         </div>
       )}

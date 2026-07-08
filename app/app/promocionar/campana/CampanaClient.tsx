@@ -23,12 +23,10 @@ export default function CampanaClient({
   adId,
   adTitle,
   stripeOn,
-  approved,
 }: {
   adId: string;
   adTitle: string;
   stripeOn: boolean;
-  approved: boolean;
 }) {
   const [daily, setDaily] = useState(100); // MXN/día (controla el alcance)
   const [days, setDays] = useState(7); // duración
@@ -67,7 +65,7 @@ export default function CampanaClient({
           <h1 className="text-2xl font-black sm:text-3xl" style={{ color: "var(--text)" }}>
             Configurar campaña
           </h1>
-          <StatusBadge tone={approved ? "success" : "warning"}>{approved ? "Anuncio aprobado" : "En revisión"}</StatusBadge>
+          <StatusBadge tone="success">Anuncio aprobado</StatusBadge>
         </div>
         <p className="mt-1 text-sm" style={{ color: "var(--text-label)" }}>
           Anuncio: <span className="font-semibold" style={{ color: "var(--text-2)" }}>{adTitle}</span>. El presupuesto define a cuánta gente llega; los días, cuánto tiempo se publica.
@@ -148,7 +146,7 @@ export default function CampanaClient({
         {stripeOn ? (
           <button type="button" onClick={pay} disabled={loading}
             className="ximo-glass-btn teal block w-full text-center text-sm disabled:opacity-50">
-            {loading ? "Redirigiendo al pago…" : `Pagar $${total.toLocaleString("es-MX")} MXN y publicar →`}
+            {loading ? "Redirigiendo al pago…" : `Pagar $${total.toLocaleString("es-MX")} MXN →`}
           </button>
         ) : (
           <p className="rounded-xl px-4 py-3 text-center text-xs" style={{ background: "var(--surface-hover)", color: "var(--text-label)" }}>
@@ -157,7 +155,8 @@ export default function CampanaClient({
         )}
         {error && <p className="text-center text-xs font-semibold" style={{ color: "var(--error)" }}>{error}</p>}
         <p className="text-center text-[11px]" style={{ color: "var(--text-3)" }}>
-          Pago único y seguro con Stripe. Tu anuncio se publica en el feed de Comunidad al confirmarse el pago.
+          Pago único con Stripe. Tras confirmarse el pago, el equipo Ximo activa la publicación en Marcas y
+          oportunidades. El alcance mostrado es una estimación, no un resultado garantizado.
         </p>
         <Link href="/app/promocionar/preview" className="ximo-glass-btn dark block w-full text-center text-sm">Ver vista previa</Link>
       </div>

@@ -6,13 +6,56 @@
  * previous one is completed. Real videos and completion tracking come later.
  */
 
+/**
+ * Publication state of a lesson.
+ *  - "coming_soon": shown with the video placeholder (default while videos land)
+ *  - "published":   videoUrl is live and playable
+ */
+export type LessonStatus = "coming_soon" | "published";
+
+export interface LessonResource {
+  label: string;
+  /** Absent → shown as "Próximamente". */
+  url?: string;
+}
+
 export interface Lesson {
   id: string;
   title: string;
   duration: string;
   description: string;
+  /**
+   * Explicit position inside the course (1-based). Optional: when absent, the
+   * array order rules. To reorder lessons manually, set `order` on each lesson
+   * — `sortedLessons()` sorts by it — or simply move the entries in the array.
+   */
+  order?: number;
+  /**
+   * TODO(Manuel): paste the real video URL here when each video is ready
+   * (Supabase `lesson-videos` public URL, or a YouTube/Vimeo link) and flip
+   * `status` to "published". Until then the player shows the placeholder.
+   */
+  videoUrl?: string | null;
+  /** Optional poster/thumbnail image for the video. */
+  thumbnail?: string | null;
+  /** Defaults to "coming_soon" when omitted. */
+  status?: LessonStatus;
+  /** Downloadable guides, templates, readings. Empty/omitted → placeholders. */
+  resources?: LessonResource[];
+  /**
+   * TODO(quizzes): set to a quiz id defined in ./quizData.ts to attach a quiz.
+   * The quiz UI only renders when this resolves to real quiz data.
+   */
+  quizId?: string | null;
   /** Deprecated: real completion now comes from `lesson_progress` (a Set passed in). */
   completed?: boolean;
+}
+
+/** Lessons of a course in display order (explicit `order` wins over array position). */
+export function sortedLessons(course: Course): Lesson[] {
+  return [...course.lessons].sort(
+    (a, b) => (a.order ?? course.lessons.indexOf(a) + 1) - (b.order ?? course.lessons.indexOf(b) + 1)
+  );
 }
 
 /** Key used in the completed-set: `${courseSlug}/${lessonSlug}`. */

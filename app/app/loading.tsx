@@ -23,14 +23,14 @@ export default function AppLoading() {
           boxShadow: "inset 0 0 18px rgba(30,206,206,0.12)",
         }} />
 
-        {/* Logo medallion */}
+        {/* Logo medallion — sized to fill the ring (ring interior ≈ 142px) */}
         <div className="overflow-hidden rounded-full"
-          style={{ width: 128, height: 128, boxShadow: "0 0 24px rgba(30,206,206,0.25)" }}>
+          style={{ width: 138, height: 138, boxShadow: "0 0 24px rgba(30,206,206,0.25)" }}>
           <Image
             src="/brand/ximo-logo.png"
             alt="Ximo"
-            width={128}
-            height={128}
+            width={138}
+            height={138}
             className="h-full w-full object-cover"
             priority
           />

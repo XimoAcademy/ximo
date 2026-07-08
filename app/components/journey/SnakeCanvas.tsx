@@ -40,11 +40,10 @@ function lerpPalette(palette: THREE.Color[], p: number, out: THREE.Color) {
 function DragonModel({ disp }: { disp: React.RefObject<number> }) {
   const { scene } = useGLTF(MODEL_URL);
   const outer = useRef<THREE.Group>(null);
-  const mats = useRef<WaveMaterial[]>([]);
 
   // Centre + scale the model, and inject a SERPENTINE body wave into every
   // material's vertex shader so the mesh itself undulates (the GLB has no rig).
-  const { fitScale, offset } = useMemo(() => {
+  const { fitScale, offset, mats } = useMemo(() => {
     const box = new THREE.Box3().setFromObject(scene);
     const size = box.getSize(new THREE.Vector3());
     const center = box.getCenter(new THREE.Vector3());
@@ -87,14 +86,13 @@ function DragonModel({ disp }: { disp: React.RefObject<number> }) {
         list.push(m as WaveMaterial);
       });
     });
-    mats.current = list;
-    return { fitScale: 7 / maxDim, offset: center };
+    return { fitScale: 7 / maxDim, offset: center, mats: list };
   }, [scene]);
 
   useFrame((state, delta) => {
     const p = disp.current ?? 0;
     const t = state.clock.elapsedTime;
-    for (const m of mats.current) {
+    for (const m of mats) {
       const sh = m.userData.shader;
       if (sh) sh.uniforms.uTime.value = t;
     }

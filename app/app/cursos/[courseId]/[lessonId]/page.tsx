@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
-import { getCourse, getLesson, lessonKey } from "../../courseData";
+import { getCourse, getLesson, lessonKey, sortedLessons } from "../../courseData";
+import { getQuiz, getQuizForLesson } from "../../quizData";
 import { getCompletedLessons } from "@/lib/data/courses";
 import LessonPlayer from "./LessonPlayer";
 
@@ -17,9 +18,13 @@ export default async function LessonPage({
   if (!lesson) notFound();
 
   const completedSet = await getCompletedLessons();
-  const completedIds = course.lessons
+  const ordered = sortedLessons(course);
+  const completedIds = ordered
     .filter((l) => completedSet.has(lessonKey(course.id, l.id)))
     .map((l) => l.id);
+
+  // Quiz UI only renders when real quiz data exists for this lesson.
+  const quiz = getQuiz(lesson.quizId) ?? getQuizForLesson(course.id, lessonId);
 
   return (
     <LessonPlayer
@@ -27,11 +32,16 @@ export default async function LessonPage({
       courseTitle={course.title}
       lessonId={lessonId}
       completedIds={completedIds}
-      lessons={course.lessons.map((l) => ({
+      quiz={quiz ?? null}
+      lessons={ordered.map((l) => ({
         id: l.id,
         title: l.title,
         duration: l.duration,
         description: l.description,
+        videoUrl: l.videoUrl ?? null,
+        thumbnail: l.thumbnail ?? null,
+        status: l.status ?? "coming_soon",
+        resources: l.resources ?? [],
       }))}
     />
   );

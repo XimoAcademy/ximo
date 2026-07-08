@@ -67,6 +67,8 @@ export async function signUpAction(_prev: AuthState, formData: FormData): Promis
   const gradYearRaw = String(formData.get("graduation_year") ?? "").trim();
   const graduation_year = gradYearRaw ? Number(gradYearRaw) : null;
   const privacyAccepted = formData.get("privacy_accepted") != null;
+  // Optional, separate marketing consent (LFPDPPP: secondary purpose, opt-in).
+  const marketingOptIn = formData.get("marketing_opt_in") != null;
 
   if (!email || !password) return { error: "Ingresa tu correo y una contraseña." };
   if (password.length < 8) return { error: "La contraseña debe tener al menos 8 caracteres." };
@@ -86,6 +88,7 @@ export async function signUpAction(_prev: AuthState, formData: FormData): Promis
         graduation_year,
         privacy_accepted_at: new Date().toISOString(),
         privacy_notice_version: PRIVACY_NOTICE_VERSION,
+        marketing_opt_in: marketingOptIn,
       },
       emailRedirectTo: `${await originUrl()}/auth/confirm?next=/account-status`,
     },

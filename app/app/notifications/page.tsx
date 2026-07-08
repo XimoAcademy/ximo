@@ -66,7 +66,7 @@ export default async function NotificationsPage() {
             <InnerTile className="px-4 py-8 text-center">
               <p className="text-sm font-bold" style={{ color: "var(--text-label)" }}>Sin notificaciones todavía</p>
               <p className="mx-auto mt-1 max-w-sm text-[12px]" style={{ color: "var(--text-3)" }}>
-                Aquí verás avisos de tus coaches, respuestas de la comunidad y recordatorios de tu proceso.
+                Aquí verás avisos de tus coaches, novedades de Ximo y recordatorios de tu proceso.
               </p>
             </InnerTile>
           ) : (

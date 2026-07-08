@@ -36,7 +36,7 @@ export default function PrefsForm({ email, community }: { email: boolean; commun
       className="space-y-2.5"
     >
       <Toggle name="email_notifications" label="Notificaciones por correo" desc="Recibe avisos importantes en tu correo." defaultOn={email} />
-      <Toggle name="community_notifications" label="Notificaciones de comunidad" desc="Respuestas a tus publicaciones y menciones." defaultOn={community} />
+      <Toggle name="community_notifications" label="Notificaciones de comunidad" desc="Avisos sobre novedades de la comunidad Ximo." defaultOn={community} />
       <div className="flex items-center gap-3 pt-1">
         <button type="submit" className="ximo-glass-btn teal text-xs">Guardar preferencias</button>
         {saved && <span className="text-xs font-semibold" style={{ color: "var(--success)" }}>Guardado ✓</span>}

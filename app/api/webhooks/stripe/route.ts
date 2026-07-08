@@ -42,13 +42,17 @@ async function handleEvent(event: Stripe.Event, svc: SupabaseClient, stripe: Str
           duration_days: days,
           estimated_reach_min: Number(session.metadata.reach_min) || null,
           estimated_reach_max: Number(session.metadata.reach_max) || null,
-          status: "active",
+          status: "scheduled",
           starts_at: now.toISOString(),
           ends_at: ends.toISOString(),
         });
-        // Pay → publish: approve the ad so it shows in the feed (service role
-        // bypasses the review guard). In a stricter flow, approval precedes payment.
-        await svc.from("brand_ads").update({ review_status: "approved" }).eq("id", adId);
+        // Payment confirmed → paid_ready_to_publish. Publication stays manual:
+        // an admin presses "Publicar anuncio" in /app/admin/ads, which is what
+        // sets review_status='approved' (the only publicly visible status).
+        await svc
+          .from("brand_ads")
+          .update({ review_status: "paid_ready_to_publish", budget: Number(session.metadata.budget_mxn) || null })
+          .eq("id", adId);
         return;
       }
 

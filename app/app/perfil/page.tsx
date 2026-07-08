@@ -118,7 +118,7 @@ export default async function PerfilPage() {
             <GlassPanel className="p-5" tone="gold">
               <p className="mb-1.5 text-xs font-black" style={{ color: "var(--gold)" }}>¿Representas una marca?</p>
               <p className="mb-3 text-[11px] leading-relaxed" style={{ color: "var(--text-3)" }}>
-                Promociona productos, descuentos o patrocinios dentro de la comunidad Ximo.
+                Promociona productos, descuentos o patrocinios dentro de Ximo, con revisión manual.
               </p>
               <Link href="/app/promocionar" className="ximo-glass-btn gold shiny block w-full text-center text-xs">Promocionar con Ximo →</Link>
             </GlassPanel>

@@ -12,7 +12,7 @@ export default function AdPreviewPage() {
           Vista previa del anuncio
         </h1>
         <p className="mt-1 text-sm" style={{ color: "var(--text-label)" }}>
-          Así verán los atletas tu promoción dentro del feed de Comunidad.
+          Así verán los atletas tu promoción dentro de Marcas y oportunidades.
         </p>
       </div>
 
@@ -29,10 +29,10 @@ export default function AdPreviewPage() {
               </div>
               <div>
                 <p className="text-sm font-black" style={{ color: "var(--text)" }}>AquaTech Goggles</p>
-                <p className="text-[10px]" style={{ color: "var(--text-label)" }}>Promoción · Equipo deportivo</p>
+                <p className="text-[10px]" style={{ color: "var(--text-label)" }}>Publicidad · Equipo deportivo</p>
               </div>
             </div>
-            <StatusBadge tone="gold">Promocionado</StatusBadge>
+            <StatusBadge tone="gold">Publicidad</StatusBadge>
           </div>
 
           <p className="text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>
@@ -65,8 +65,9 @@ export default function AdPreviewPage() {
         <InnerTile className="flex items-start gap-3 px-4 py-3.5">
           <span className="mt-0.5 shrink-0 text-base">🛡</span>
           <p className="text-xs leading-relaxed" style={{ color: "var(--text-label)" }}>
-            Todas las promociones se muestran con la etiqueta <strong style={{ color: "var(--gold)" }}>Promoción revisada por Ximo</strong>{" "}
-            para que la comunidad siempre sepa qué es contenido patrocinado.
+            Todas las promociones se muestran con la etiqueta <strong style={{ color: "var(--gold)" }}>Publicidad</strong>{" "}
+            para que los atletas siempre sepan qué es contenido patrocinado. Los anuncios son enviados por marcas
+            externas y revisados por Ximo antes de publicarse; Ximo no garantiza resultados relacionados con ellos.
           </p>
         </InnerTile>
       </ScrollReveal>
@@ -75,8 +76,8 @@ export default function AdPreviewPage() {
         <Link href="/app/promocionar/campana" className="ximo-glass-btn teal text-sm">
           Volver a la campaña
         </Link>
-        <Link href="/app/comunidad" className="ximo-glass-btn dark text-sm">
-          Ver la comunidad
+        <Link href="/app/marcas" className="ximo-glass-btn dark text-sm">
+          Ver Marcas y oportunidades
         </Link>
       </div>
     </div>
