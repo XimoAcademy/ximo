@@ -81,41 +81,56 @@ export default async function SubscribePage({
         </div>
 
         {confirming ? (
-          <CheckoutConfirming />
+          <CheckoutConfirming demo={demo} />
         ) : demo ? (
-          /* ── Demo mode: free access, no payment ── */
+          /* ── Demo step: $0.00 MXN, explicit and honest — no charge, no card ── */
           <>
             <div className="ximo-fade-up mb-8 text-center">
               <span className="inline-flex items-center rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest" style={{ background: "var(--teal-bg)", color: "var(--teal)", border: "1px solid var(--teal-border)" }}>
-                Versión demo
+                Paso de demostración
               </span>
               <h1 className="mt-4 text-3xl font-black sm:text-4xl" style={{ color: "var(--text)" }}>
-                Acceso gratuito
+                Activa tu acceso demo
               </h1>
               <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>
-                Ximo está en fase de prueba. Entra y usa toda la plataforma sin costo. Si más adelante se habilita un plan de pago, te avisaremos antes y tendrás que aceptarlo — no se cobra nada automáticamente.
+                Este paso simula cómo funcionará la activación cuando exista un plan de pago:
+                verás el flujo de confirmación y activación, pero hoy todo cuesta $0.00 y no
+                se te cobra nada.
               </p>
             </div>
 
             <div className="ximo-lift ximo-fade-up delay-100 rounded-3xl p-8" style={{ background: "var(--surface)", border: "1px solid var(--teal-border)", boxShadow: "0 0 60px var(--teal-bg)" }}>
-              <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-label)" }}>Incluye</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-label)" }}>Precio durante el demo</p>
+              <div className="mt-3 flex items-baseline gap-2">
+                <span className="text-5xl font-black" style={{ color: "var(--text)" }}>$0.00</span>
+                <span className="text-sm font-bold" style={{ color: "var(--text-label)" }}>MXN</span>
+              </div>
+              <ul className="mt-3 space-y-1.5 text-[11px]" style={{ color: "var(--text-3)" }}>
+                <li>· Sin cargo y sin suscripción de pago.</li>
+                <li>· No se solicita ni guarda tu tarjeta.</li>
+                <li>· Solo se genera un registro de prueba de la activación (no es una factura ni un comprobante fiscal).</li>
+              </ul>
               <div className="my-5 h-px w-full" style={{ background: "var(--teal-border)" }} />
-              <FeatureList accent="var(--teal)" />
+              <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-label)" }}>Tu acceso incluye</p>
+              <div className="mt-4">
+                <FeatureList accent="var(--teal)" />
+              </div>
               {demoViaStripe ? (
-                /* Real Stripe flow at $0.00 — no card required */
-                <PlanCheckoutButton plan="demo" label="Entrar al demo gratis →" className="ximo-glass-btn teal w-full text-sm" />
+                /* Stripe checkout at $0.00 — no card requested */
+                <PlanCheckoutButton plan="demo" label="Continuar con demo →" className="ximo-glass-btn teal w-full text-sm" />
               ) : (
                 <form action={activateSubscriptionAction} className="mt-8 block">
                   <input type="hidden" name="plan" value="monthly" />
                   <button type="submit" className="ximo-glass-btn teal w-full text-sm">
-                    Entrar al demo gratis →
+                    Continuar con demo →
                   </button>
                 </form>
               )}
             </div>
 
             <p className="ximo-fade-up delay-300 mt-8 text-center text-[10px]" style={{ color: "var(--text-3)" }}>
-              Acceso inmediato · {demoViaStripe ? "Stripe a $0.00, sin tarjeta" : "Sin tarjeta"} · Sin cargos durante la fase de prueba
+              Acceso inmediato · Sin cargos durante la fase de prueba · Si algún día se habilita un plan de pago,
+              te avisaremos antes y tendrás que aceptarlo de forma expresa
             </p>
 
             <div className="ximo-fade-up delay-400 mt-6 flex flex-wrap justify-center gap-x-5 gap-y-2 text-[10px] font-medium" style={{ color: "var(--text-3)" }}>

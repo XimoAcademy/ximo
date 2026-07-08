@@ -94,7 +94,7 @@ export const COURSES: Course[] = [
       "El proceso de recruiting puede sentirse como una caja negra. Este curso te da el mapa completo: cómo funcionan las divisiones, qué buscan los coaches, cuándo empezar y cómo construir un proceso ordenado desde México.",
     whatYouLearn: [
       "Diferencias entre D1, D2, D3 y NAIA",
-      "El calendario real del recruiting",
+      "El calendario del recruiting, mes a mes",
       "Qué miran los coaches en un atleta internacional",
       "Cómo organizar tu lista de universidades",
     ],
@@ -111,7 +111,7 @@ export const COURSES: Course[] = [
     title: "Cómo escribirle a coaches",
     category: "Correos a coaches",
     level: "Práctico",
-    summary: "Estructura, plantillas y personalización que genera respuestas reales de coaches.",
+    summary: "Estructura, plantillas y personalización que genera respuestas de coaches.",
     description:
       "Un buen primer correo abre puertas; uno genérico se ignora. Aprende a escribir mensajes claros, personales y con la información correcta para que un coach quiera responderte.",
     whatYouLearn: [
@@ -129,15 +129,15 @@ export const COURSES: Course[] = [
   },
   {
     id: "scholarships",
-    title: "Becas y costo real",
+    title: "Becas y costo neto",
     category: "Becas",
     level: "Intermedio",
-    summary: "Entiende becas atléticas, need-based aid y cómo calcular el costo real de cada universidad.",
+    summary: "Entiende becas atléticas, need-based aid y cómo calcular el costo neto de cada universidad.",
     description:
-      "Una beca atlética no siempre cubre todo, y a veces una universidad sin beca atlética sale más barata. Aprende a leer ofertas, comparar costos reales y hacer las preguntas correctas.",
+      "Una beca atlética no siempre cubre todo, y a veces una universidad sin beca atlética sale más barata. Aprende a leer ofertas, comparar costos netos y hacer las preguntas correctas.",
     whatYouLearn: [
       "Beca atlética vs. need-based vs. mérito académico",
-      "Cómo calcular el costo neto real",
+      "Cómo calcular el costo neto",
       "Qué preguntar sobre becas a un coach",
       "Cómo comparar ofertas entre universidades",
     ],

@@ -1,10 +1,13 @@
-import Image from "next/image";
+import Emblem from "../components/Emblem";
 
 export default function AppLoading() {
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center">
-      {/* Medallion loader */}
-      <div className="relative mb-7 flex h-[152px] w-[152px] items-center justify-center">
+      {/* Medallion loader — sized with clamp so it breathes on mobile too. */}
+      <div
+        className="relative mb-7 flex items-center justify-center"
+        style={{ width: "clamp(140px, 38vw, 168px)", height: "clamp(140px, 38vw, 168px)" }}
+      >
 
         {/* Diffused glow */}
         <div className="ximo-ring-glow absolute rounded-full" style={{ inset: "-4px" }} />
@@ -23,17 +26,13 @@ export default function AppLoading() {
           boxShadow: "inset 0 0 18px rgba(30,206,206,0.12)",
         }} />
 
-        {/* Logo medallion — sized to fill the ring (ring interior ≈ 142px) */}
-        <div className="overflow-hidden rounded-full"
-          style={{ width: 138, height: 138, boxShadow: "0 0 24px rgba(30,206,206,0.25)" }}>
-          <Image
-            src="/brand/ximo-logo.png"
-            alt="Ximo"
-            width={138}
-            height={138}
-            className="h-full w-full object-cover"
-            priority
-          />
+        {/* Logo medallion — Emblem crops past the PNG's transparent padding so
+            the mark itself fills the ring (a raw <Image> renders it tiny). */}
+        <div
+          className="overflow-hidden rounded-full"
+          style={{ width: "91%", height: "91%", boxShadow: "0 0 24px rgba(30,206,206,0.25)" }}
+        >
+          <Emblem size={168} rounded style={{ width: "100%", height: "100%" }} />
         </div>
       </div>
 

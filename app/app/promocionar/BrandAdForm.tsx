@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { AD_MEDIA_RULE, safeStorageName, validateUpload } from "@/lib/uploads/validate";
 import { submitBrandAdAction, type BrandResult } from "./actions";
 
 /**
@@ -32,8 +33,6 @@ const AUDIENCES = [
 ];
 
 const STEPS = ["Anunciante", "Archivo", "Campaña", "Revisión", "Enviar"];
-
-const MAX_SIZE = 20 * 1024 * 1024; // 20 MB
 
 const Label = ({ children }: { children: React.ReactNode }) => (
   <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider" style={{ color: "var(--text-label)" }}>{children}</label>
@@ -99,33 +98,41 @@ export default function BrandAdForm() {
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
+    // Reset so re-selecting the same file after an error re-triggers onChange.
+    e.target.value = "";
     if (!file) return;
     setUploadErr("");
-    if (file.size > MAX_SIZE) { setUploadErr("El archivo supera 20 MB."); return; }
+
+    // Friendly rejection of empty / oversized / unsupported files — never crash.
+    const invalid = validateUpload(file, AD_MEDIA_RULE);
+    if (invalid) { setUploadErr(invalid); return; }
 
     const supabase = createClient();
     if (!supabase) {
-      // TODO: real file storage unavailable in this environment — the request
+      // TODO: file storage unavailable in this environment — the request
       // can still be sent with a reference link instead of an upload.
       setUploadErr("La subida de archivos no está disponible ahora. Puedes continuar sin archivo.");
       return;
     }
 
     setUploading(true);
-    const ext = file.name.split(".").pop() ?? "bin";
-    const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-    const { error: upErr } = await supabase.storage.from("brand-ads").upload(path, file, { upsert: false });
-    if (upErr) {
+    try {
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2)}-${safeStorageName(file.name)}`;
+      const { error: upErr } = await supabase.storage.from("brand-ads").upload(path, file, { upsert: false });
+      if (upErr) {
+        setUploadErr("No se pudo subir el archivo. Verifica tu conexión e intenta de nuevo.");
+        return;
+      }
+      const { data: pub } = supabase.storage.from("brand-ads").getPublicUrl(path);
+      setMediaUrl(pub.publicUrl);
+      setMediaName(file.name);
+      setIsVideo(file.type.startsWith("video/"));
+      setPreviewUrl(file.type.startsWith("image/") ? URL.createObjectURL(file) : null);
+    } catch {
+      setUploadErr("Se perdió la conexión durante la subida. Verifica tu red e intenta de nuevo.");
+    } finally {
       setUploading(false);
-      setUploadErr("No se pudo subir el archivo. Verifica tu conexión.");
-      return;
     }
-    const { data: pub } = supabase.storage.from("brand-ads").getPublicUrl(path);
-    setMediaUrl(pub.publicUrl);
-    setMediaName(file.name);
-    setIsVideo(file.type.startsWith("video/"));
-    setPreviewUrl(file.type.startsWith("image/") ? URL.createObjectURL(file) : null);
-    setUploading(false);
   }
 
   function clearMedia() {

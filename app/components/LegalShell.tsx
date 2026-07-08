@@ -62,7 +62,18 @@ export default function LegalShell({
           ))}
         </div>
 
-        <div className="mt-12 flex flex-wrap items-center gap-4 border-t pt-6 text-xs" style={{ borderColor: "var(--border)", color: "var(--text-label)" }}>
+        {/* TODO(legal-review): retirar o ajustar esta nota cuando un abogado
+            titulado haya validado el documento para el lanzamiento comercial. */}
+        <div className="mt-12 rounded-2xl px-5 py-4" style={{ background: "var(--surface-hover)", border: "1px dashed var(--border-strong)" }}>
+          <p className="text-xs leading-relaxed" style={{ color: "var(--text-label)" }}>
+            Este documento fue redactado de forma original con base en la legislación mexicana aplicable
+            (incluida la LFPDPPP y la Ley Federal de Protección al Consumidor) y refleja la operación actual
+            de Ximo en fase demo. Antes del lanzamiento comercial será revisado por un profesional del derecho.
+            Si tienes dudas, escríbenos a ximoacademy@gmail.com.
+          </p>
+        </div>
+
+        <div className="mt-8 flex flex-wrap items-center gap-4 border-t pt-6 text-xs" style={{ borderColor: "var(--border)", color: "var(--text-label)" }}>
           <Link href="/terminos" className="font-semibold transition-opacity hover:opacity-70" style={{ color: "var(--teal)" }}>Términos</Link>
           <Link href="/privacidad" className="font-semibold transition-opacity hover:opacity-70" style={{ color: "var(--teal)" }}>Privacidad</Link>
           <Link href="/cookies" className="font-semibold transition-opacity hover:opacity-70" style={{ color: "var(--teal)" }}>Cookies</Link>

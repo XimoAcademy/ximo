@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { DOCUMENT_RULE, safeStorageName, validateUpload } from "@/lib/uploads/validate";
 import { attachDocumentFileAction, getDocumentDownloadUrl } from "../actions";
 
 export default function DocumentFile({
@@ -21,40 +22,50 @@ export default function DocumentFile({
 
   async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
+    // Reset the input so choosing the same file again re-triggers onChange.
+    e.target.value = "";
     if (!file) return;
     setError(null);
 
-    if (file.size > 15 * 1024 * 1024) {
-      setError("El archivo supera el límite de 15 MB.");
+    // Friendly rejection of empty / oversized / unsupported files — never crash.
+    const invalid = validateUpload(file, DOCUMENT_RULE);
+    if (invalid) {
+      setError(invalid);
       return;
     }
 
     const supabase = createClient();
     if (!supabase) {
-      setError("Servicio no disponible.");
+      // TODO: storage not configured in this environment — the document row
+      // still works without a file; uploads activate when Supabase is set.
+      setError("La subida de archivos no está disponible por ahora. Intenta más tarde.");
       return;
     }
 
     setBusy(true);
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const path = `${userId}/${docId}/${Date.now()}-${safeName}`;
-    const { error: upErr } = await supabase.storage
-      .from("documents")
-      .upload(path, file, { upsert: true, cacheControl: "3600" });
+    try {
+      const path = `${userId}/${docId}/${Date.now()}-${safeStorageName(file.name)}`;
+      const { error: upErr } = await supabase.storage
+        .from("documents")
+        .upload(path, file, { upsert: true, cacheControl: "3600" });
 
-    if (upErr) {
+      if (upErr) {
+        setError("No se pudo subir el archivo. Revisa tu conexión e intenta de nuevo.");
+        return;
+      }
+
+      const res = await attachDocumentFileAction(docId, path);
+      if (!res.ok) {
+        setError(res.error ?? "El archivo subió, pero no se pudo guardar la referencia. Intenta de nuevo.");
+        return;
+      }
+      setUploaded(true);
+    } catch {
+      // Network drop mid-upload (slow connections) lands here instead of crashing.
+      setError("Se perdió la conexión durante la subida. Verifica tu red e intenta de nuevo.");
+    } finally {
       setBusy(false);
-      setError("No se pudo subir el archivo. Intenta de nuevo.");
-      return;
     }
-
-    const res = await attachDocumentFileAction(docId, path);
-    setBusy(false);
-    if (!res.ok) {
-      setError(res.error ?? "No se pudo guardar.");
-      return;
-    }
-    setUploaded(true);
   }
 
   async function onDownload() {
@@ -92,11 +103,13 @@ export default function DocumentFile({
           className="flex cursor-pointer flex-col items-center justify-center rounded-2xl px-6 py-10 text-center transition-colors hover:bg-[var(--surface-hover)]"
           style={{ background: "var(--surface-hover)", border: "1px dashed var(--border-strong)" }}
         >
-          <div className="text-3xl">⤒</div>
-          <p className="mt-2 text-sm font-bold" style={{ color: "var(--text-2)" }}>
-            {busy ? "Subiendo…" : "Selecciona tu archivo"}
+          <div className={busy ? "animate-pulse text-3xl" : "text-3xl"}>{busy ? "⏳" : "⤒"}</div>
+          <p className={`mt-2 text-sm font-bold ${busy ? "animate-pulse" : ""}`} style={{ color: "var(--text-2)" }}>
+            {busy ? "Subiendo tu archivo…" : "Selecciona tu archivo"}
           </p>
-          <p className="mt-1 text-[11px]" style={{ color: "var(--text-label)" }}>PDF, JPG, PNG o DOC · hasta 15 MB · privado</p>
+          <p className="mt-1 text-[11px]" style={{ color: "var(--text-label)" }}>
+            {busy ? "Esto puede tardar un poco con conexiones lentas." : "PDF, JPG, PNG, DOC o DOCX · hasta 15 MB · privado"}
+          </p>
           <input type="file" className="hidden" onChange={onFile} disabled={busy} accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" />
         </label>
       )}

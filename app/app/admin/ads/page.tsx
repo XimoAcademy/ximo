@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { GlassPanel, InnerTile, BackLink, StatusBadge } from "../../components/ui";
 import { getAdQueue, type AdItem } from "@/lib/data/ads";
-import { reviewAdAction, publishAdAction } from "./actions";
+import { discordAdsMode } from "@/lib/discord/ads";
+import { reviewAdAction, publishAdAction, postAdToDiscordAction } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -42,6 +43,7 @@ export default async function AdminAdsPage() {
   const pending = items.filter((i) => i.review_status === "pending");
   const readyToPublish = items.filter((i) => i.review_status === "paid_ready_to_publish");
   const rest = items.filter((i) => i.review_status !== "pending" && i.review_status !== "paid_ready_to_publish");
+  const discordMode = discordAdsMode();
 
   return (
     <div className="mx-auto max-w-[920px] space-y-5">
@@ -102,7 +104,7 @@ export default async function AdminAdsPage() {
             Historial ({rest.length})
           </p>
           {rest.map((ad) => (
-            <AdCard key={ad.id} ad={ad} actions="none" />
+            <AdCard key={ad.id} ad={ad} actions="none" discordMode={discordMode} />
           ))}
         </div>
       )}
@@ -110,7 +112,15 @@ export default async function AdminAdsPage() {
   );
 }
 
-function AdCard({ ad, actions }: { ad: AdItem; actions: "review" | "publish" | "none" }) {
+function AdCard({
+  ad,
+  actions,
+  discordMode = null,
+}: {
+  ad: AdItem;
+  actions: "review" | "publish" | "none";
+  discordMode?: "webhook" | "bot" | null;
+}) {
   const details: Array<[string, string | null]> = [
     ["Contacto", ad.contact_name],
     ["Correo", ad.contact_email],
@@ -183,6 +193,37 @@ function AdCard({ ad, actions }: { ad: AdItem; actions: "review" | "publish" | "
           <p className="text-[10px]" style={{ color: "var(--text-3)" }}>
             El pago está confirmado. Publicar lo hace visible en Marcas y oportunidades.
           </p>
+        </div>
+      )}
+
+      {/* Discord: manual, admin-only, and only for ads already approved + paid + published. */}
+      {ad.review_status === "approved" && (
+        <div className="mt-4 border-t pt-4" style={{ borderColor: "var(--border)" }}>
+          {ad.platform === "discord" ? (
+            <StatusBadge tone="success">Publicado en Discord ✓</StatusBadge>
+          ) : discordMode ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <form action={postAdToDiscordAction}>
+                <input type="hidden" name="id" value={ad.id} />
+                <button className="ximo-glass-btn dark text-xs">Publicar en Discord</button>
+              </form>
+              <p className="text-[10px]" style={{ color: "var(--text-3)" }}>
+                Publica este anuncio en el canal de anuncios del Discord de Ximo ({discordMode === "webhook" ? "vía webhook" : "vía bot"}), etiquetado como Publicidad.
+              </p>
+            </div>
+          ) : (
+            <InnerTile className="px-3 py-2.5">
+              <p className="text-[10px] font-bold uppercase tracking-wide" style={{ color: "var(--text-label)" }}>
+                Publicación en Discord — modo manual
+              </p>
+              <p className="mt-1 text-[11px] leading-relaxed" style={{ color: "var(--text-3)" }}>
+                No hay webhook/bot configurado (variables DISCORD_ADS_WEBHOOK_URL o DISCORD_BOT_TOKEN +
+                DISCORD_ADS_CHANNEL_ID). Para publicar: copia el título, la descripción y el link del anuncio,
+                y pégalos manualmente en el canal de anuncios del servidor de Discord, iniciando el mensaje con
+                “Publicidad · {ad.brand_name}”.
+              </p>
+            </InnerTile>
+          )}
         </div>
       )}
     </GlassPanel>

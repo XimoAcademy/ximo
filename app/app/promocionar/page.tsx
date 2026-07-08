@@ -7,7 +7,7 @@ const steps = [
   { n: "01", title: "Envía tu solicitud",      text: "Completa el asistente con tu marca, tu archivo y los detalles de la campaña. No pagas nada en este paso." },
   { n: "02", title: "Ximo la revisa a mano",   text: "El equipo evalúa manualmente si el anuncio es relevante, seguro y útil para atletas. Tiempo estimado: 48–72 h." },
   { n: "03", title: "Si se aprueba, pagas",    text: "Recibes un correo con el resultado. Solo si tu anuncio fue aprobado podrás configurar presupuesto y pagar." },
-  { n: "04", title: "Publicación controlada",  text: "Tras confirmarse el pago, el equipo Ximo activa la publicación en la sección de Marcas y oportunidades." },
+  { n: "04", title: "Publicación controlada",  text: "Tras confirmarse el pago, el equipo Ximo publica manualmente en Marcas y oportunidades y, cuando aplica, en el canal de anuncios del Discord de Ximo." },
 ];
 
 const oppTypes = [

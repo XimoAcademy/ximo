@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
+import { AVATAR_RULE, validateUpload } from "@/lib/uploads/validate";
 import { saveAvatarAction } from "./actions";
 
 export default function AvatarUploader({
@@ -20,24 +21,33 @@ export default function AvatarUploader({
 
   async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
+    e.target.value = "";
     if (!file) return;
     setError(null);
-    if (file.size > 5 * 1024 * 1024) { setError("La imagen supera 5 MB."); return; }
+
+    const invalid = validateUpload(file, AVATAR_RULE);
+    if (invalid) { setError(invalid); return; }
+
     const supabase = createClient();
-    if (!supabase) { setError("Servicio no disponible."); return; }
+    if (!supabase) { setError("La subida de imágenes no está disponible por ahora."); return; }
 
     setBusy(true);
-    const ext = file.name.split(".").pop() ?? "jpg";
-    const path = `${userId}/avatar-${Date.now()}.${ext}`;
-    const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
-    if (upErr) { setBusy(false); setError("No se pudo subir la imagen."); return; }
+    try {
+      const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase();
+      const path = `${userId}/avatar-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
+      if (upErr) { setError("No se pudo subir la imagen. Revisa tu conexión e intenta de nuevo."); return; }
 
-    const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
-    const publicUrl = pub.publicUrl;
-    const res = await saveAvatarAction(publicUrl);
-    setBusy(false);
-    if (!res.ok) { setError(res.error ?? "No se pudo guardar."); return; }
-    setUrl(publicUrl);
+      const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
+      const publicUrl = pub.publicUrl;
+      const res = await saveAvatarAction(publicUrl);
+      if (!res.ok) { setError(res.error ?? "No se pudo guardar."); return; }
+      setUrl(publicUrl);
+    } catch {
+      setError("Se perdió la conexión durante la subida. Intenta de nuevo.");
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -53,9 +63,9 @@ export default function AvatarUploader({
       <div>
         <label className="ximo-glass-btn dark cursor-pointer text-xs">
           {busy ? "Subiendo…" : "Cambiar foto"}
-          <input type="file" accept="image/*" className="hidden" onChange={onFile} disabled={busy} />
+          <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={onFile} disabled={busy} />
         </label>
-        <p className="mt-3 text-[11px]" style={{ color: "var(--text-label)" }}>JPG o PNG · hasta 5 MB</p>
+        <p className="mt-3 text-[11px]" style={{ color: "var(--text-label)" }}>JPG, PNG o WEBP · hasta 4 MB</p>
         {error && <p className="mt-1 text-[11px] font-semibold" style={{ color: "var(--error)" }}>{error}</p>}
       </div>
     </div>

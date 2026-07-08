@@ -20,6 +20,7 @@ const sections: LegalSection[] = [
       "Actualmente Ximo se ofrece como una VERSIÓN DEMO en fase de prueba. El acceso es gratuito y no se cobra ninguna cantidad por usar el Servicio durante esta etapa.",
       "Si Ximo avanza a una versión de pago, te lo notificaremos con anticipación (por correo y/o dentro de la app) antes de que inicie cualquier cobro. Para entonces se te pedirá aceptar de forma expresa los términos actualizados y, en su caso, un plan de pago.",
       "No realizaremos ningún cargo automático sin aviso previo y sin tu aceptación expresa. Si no aceptas los nuevos términos o el plan de pago, podrás dejar de usar el Servicio sin costo alguno.",
+      "El paso de activación del demo muestra un precio de $0.00 MXN y sirve únicamente para probar el flujo de activación y confirmación. No genera ningún cargo y el registro que produce es un registro de prueba: no constituye una factura ni un comprobante fiscal (CFDI). Si en el futuro se emiten comprobantes fiscales, se informará expresamente.",
       "Al ser una versión en pruebas, el Servicio puede presentar cambios, interrupciones o ajustes mientras lo mejoramos.",
     ],
   },

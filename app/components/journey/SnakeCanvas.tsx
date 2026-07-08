@@ -23,6 +23,24 @@ type WaveMaterial = THREE.Material & { userData: { shader?: { uniforms: { uTime:
 
 const MODEL_URL = "/models/dragon-opt.glb";
 
+/**
+ * ── Serpentine motion v2 ──────────────────────────────────────────────────
+ * TODO(Manuel): pon SERPENTINE_V2 en `false` para volver a la animación
+ * anterior (v1: onda simple) si no te gusta el resultado. Nada más que tocar.
+ *
+ * v2 = slither más largo y elegante: onda principal + segundo armónico suave,
+ * ondulación que viaja de la cabeza a la cola, latigazo progresivo en la cola,
+ * ligera compresión axial (efecto "avance") y cuerpo visualmente alargado.
+ * Mismo costo de GPU que v1 (solo cambia la fórmula del vertex shader), así
+ * que el rendimiento en móvil no se ve afectado.
+ */
+const SERPENTINE_V2 = true;
+
+// Tunables per version — v1 values are the original animation, untouched.
+const WAVE = SERPENTINE_V2
+  ? { freq: 8.5, speed: 1.55, amp: 0.075, stretchY: 1.16 }
+  : { freq: 6.5, speed: 2.0, amp: 0.08, stretchY: 1 };
+
 // Enchanted-forest "worlds" (scroll 0 → 1), inspired by the Ori games: deep
 // mossy dark backgrounds lit by bioluminescent spirit colours.
 const BG = ["#05140f", "#06231d", "#082a2a", "#16210a", "#071a2c"].map((c) => new THREE.Color(c));
@@ -51,7 +69,37 @@ function DragonModel({ disp }: { disp: React.RefObject<number> }) {
 
     const minY = box.min.y;
     const height = size.y || 1;
-    const amp = maxDim * 0.08;
+    const amp = maxDim * WAVE.amp;
+
+    // v1: one sine, linear tail weight. v2: travelling wave head→tail with a
+    // soft second harmonic, smooth tail-whip envelope and a slight axial
+    // compression so the body reads as slithering forward, not just swaying.
+    const waveGlsl = SERPENTINE_V2
+      ? [
+          "#include <begin_vertex>",
+          "float ph = (position.y - uMinY) / uHeight;", // 0 = tail, 1 = head
+          "float ph2 = ph * uFreq + uTime * uSpeed;",
+          // Smooth envelope: head almost still, mid-body waves, tail whips.
+          "float aw = 0.18 + 1.35 * pow(1.0 - ph, 1.6);",
+          // Primary S-curve + quieter out-of-phase harmonic → organic, not robotic.
+          "float sx = sin(ph2) + 0.32 * sin(ph2 * 2.13 + 1.4);",
+          "float sz = cos(ph2 * 0.82 + 0.6);",
+          "transformed.x += sx * uAmp * aw;",
+          "transformed.z += sz * uAmp * 0.5 * aw;",
+          // Subtle axial compression wave (accordion) — the "advance" of a slither.
+          "transformed.y += sin(ph2 - 1.5707) * uAmp * 0.16 * aw;",
+        ]
+      : [
+          "#include <begin_vertex>",
+          "float ph = (position.y - uMinY) / uHeight;",
+          "float ph2 = ph * uFreq + uTime * uSpeed;",
+          // Amplitude grows toward the tail (low y) so it swishes while the
+          // head stays comparatively steady — a natural serpentine slither.
+          "float aw = 1.25 - ph;",
+          "transformed.x += sin(ph2) * uAmp * aw;",
+          "transformed.z += cos(ph2) * uAmp * 0.5 * aw;",
+        ];
+
     const list: WaveMaterial[] = [];
     scene.traverse((o) => {
       const mesh = o as THREE.Mesh;
@@ -63,23 +111,11 @@ function DragonModel({ disp }: { disp: React.RefObject<number> }) {
           shader.uniforms.uAmp = { value: amp };
           shader.uniforms.uMinY = { value: minY };
           shader.uniforms.uHeight = { value: height };
-          shader.uniforms.uFreq = { value: 6.5 };
-          shader.uniforms.uSpeed = { value: 2.0 };
+          shader.uniforms.uFreq = { value: WAVE.freq };
+          shader.uniforms.uSpeed = { value: WAVE.speed };
           shader.vertexShader =
             "uniform float uTime,uAmp,uMinY,uHeight,uFreq,uSpeed;\n" + shader.vertexShader;
-          shader.vertexShader = shader.vertexShader.replace(
-            "#include <begin_vertex>",
-            [
-              "#include <begin_vertex>",
-              "float ph = (position.y - uMinY) / uHeight;",
-              "float ph2 = ph * uFreq + uTime * uSpeed;",
-              // Amplitude grows toward the tail (low y) so it swishes while the
-              // head stays comparatively steady — a natural serpentine slither.
-              "float aw = 1.25 - ph;",
-              "transformed.x += sin(ph2) * uAmp * aw;",
-              "transformed.z += cos(ph2) * uAmp * 0.5 * aw;",
-            ].join("\n"),
-          );
+          shader.vertexShader = shader.vertexShader.replace("#include <begin_vertex>", waveGlsl.join("\n"));
           (m as WaveMaterial).userData.shader = shader as unknown as WaveMaterial["userData"]["shader"];
         };
         m.needsUpdate = true;
@@ -115,9 +151,14 @@ function DragonModel({ disp }: { disp: React.RefObject<number> }) {
     void delta;
   });
 
+  // v2 elongates the body slightly along its length axis (local y) so the
+  // serpent reads longer; v1 keeps the original proportions (stretchY = 1).
   return (
     <group ref={outer}>
-      <group scale={fitScale} position={[-offset.x * fitScale, -offset.y * fitScale, -offset.z * fitScale]}>
+      <group
+        scale={[fitScale, fitScale * WAVE.stretchY, fitScale]}
+        position={[-offset.x * fitScale, -offset.y * fitScale * WAVE.stretchY, -offset.z * fitScale]}
+      >
         <primitive object={scene} />
       </group>
     </group>

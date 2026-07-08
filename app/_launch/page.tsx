@@ -1,4 +1,4 @@
-/**
+﻿/**
  * LANDING DE LANZAMIENTO — NO RUTEADA (carpeta privada _launch).
  * Esta es la página principal para el día del lanzamiento público:
  * header con login/registro, precios en vivo desde Stripe, FAQ y footer legal.
@@ -16,7 +16,7 @@ const features = [
     desc: "Organiza universidades, coaches, respuestas, llamadas, documentos y próximos pasos sin perder oportunidades importantes.",
   },
   {
-    title: "Recruiting pipeline real",
+    title: "Recruiting pipeline completo",
     desc: "Etapas claras por universidad y coach: primer contacto, seguimiento, llamadas y ofertas. Sabes siempre cuál es el siguiente paso.",
   },
   {
@@ -106,7 +106,7 @@ export default async function Home() {
         </div>
 
         <h1 className="max-w-4xl text-5xl font-black tracking-tight md:text-7xl">
-          Convierte tu camino deportivo en una oportunidad real.
+          Convierte tu camino deportivo en una oportunidad concreta.
         </h1>
 
         <p className="mt-6 max-w-2xl text-lg leading-8 text-[#5E7080]">
@@ -156,7 +156,7 @@ export default async function Home() {
 
         <ScrollReveal className="mt-12" delay={80}>
         <div className="rounded-2xl border border-[#C9A84C]/25 bg-white p-8 text-center shadow-sm">
-          <h3 className="text-xl font-black">Creado desde una historia real</h3>
+          <h3 className="text-xl font-black">Creado desde una historia vivida</h3>
           <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#5E7080]">
             ximo nace del camino de un nadador mexicano buscando oportunidades
             universitarias, becas y crecimiento deportivo fuera de México.{" "}
@@ -256,7 +256,7 @@ export default async function Home() {
           <h3 className="text-2xl font-black md:text-3xl">Tu camino empieza hoy.</h3>
           <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-white/65">
             Únete a la generación de atletas mexicanos que organiza su proceso
-            y convierte la disciplina en oportunidades reales.
+            y convierte la disciplina en oportunidades concretas.
           </p>
           <Link
             href="/register"

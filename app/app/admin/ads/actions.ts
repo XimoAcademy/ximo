@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getProfile } from "@/lib/auth/getUser";
 import { emailAdvertiserApproved, emailAdvertiserRejected } from "@/lib/email/advertiser";
 import { isStripeConfigured } from "@/lib/stripe/server";
+import { discordAdsMode, postAdToDiscord } from "@/lib/discord/ads";
 
 async function requireAdmin() {
   const supabase = await createClient();
@@ -100,4 +101,54 @@ export async function publishAdAction(formData: FormData): Promise<void> {
   revalidatePath("/app/admin/ads");
   revalidatePath("/app/marcas");
   revalidatePath("/app/promocionar/revision");
+}
+
+/**
+ * Manual, admin-only Discord post for a PUBLISHED (approved + paid) ad.
+ * Nothing posts automatically; this runs only when the admin clicks the button.
+ * NOTE: Claude cannot manage Discord without a configured bot/webhook and
+ * permissions — without them the UI shows manual-post instructions instead.
+ */
+export async function postAdToDiscordAction(formData: FormData): Promise<void> {
+  const supabase = await requireAdmin();
+  if (!supabase) return;
+  if (!discordAdsMode()) return;
+
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+
+  const { data } = await supabase
+    .from("brand_ads")
+    .select("id,title,body,media_url,cta_url,review_status,brand:brand_profiles(brand_name)")
+    .eq("id", id)
+    .maybeSingle();
+  const ad = data as {
+    id: string;
+    title: string | null;
+    body: string | null;
+    media_url: string | null;
+    cta_url: string | null;
+    review_status: string;
+    brand: { brand_name: string } | { brand_name: string }[] | null;
+  } | null;
+  // Only ads that already passed review AND payment can go to Discord.
+  if (!ad || ad.review_status !== "approved") return;
+  const brand = Array.isArray(ad.brand) ? ad.brand[0] : ad.brand;
+
+  const res = await postAdToDiscord({
+    brandName: brand?.brand_name ?? "Marca",
+    title: ad.title,
+    body: ad.body,
+    destinationUrl: ad.cta_url,
+    mediaUrl: ad.media_url,
+  });
+
+  if (res.ok) {
+    // Reuse the (previously unused) platform column to record the Discord post.
+    await supabase.from("brand_ads").update({ platform: "discord" }).eq("id", id);
+  } else {
+    console.error("[discord-ads] post failed:", res.error);
+  }
+
+  revalidatePath("/app/admin/ads");
 }
