@@ -408,7 +408,7 @@ export default function ProgresoClient({ initialSwims }: { initialSwims: Swim[] 
     <>
       <PageHeader
         title="Progreso deportivo"
-        subtitle="Registra tus marcas, visualiza tu progresión y sigue cada mejora hacia tus metas."
+        subtitle="Registra tus marcas, visualiza tu progresión y sigue cada mejora hacia tus metas. Los récords se rompen en silencio, un entrenamiento a la vez."
       />
 
       <ScrollReveal>

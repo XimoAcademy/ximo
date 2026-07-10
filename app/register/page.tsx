@@ -51,7 +51,7 @@ export default function RegisterPage() {
         </div>
 
         <p className="relative text-[10px] font-medium tracking-wide" style={{ color: "var(--text-3)" }}>
-          Ximo · México primero
+          Ximo · Tu futuro empieza con una decisión.
         </p>
       </div>
 

@@ -102,7 +102,7 @@ export default async function Home() {
       <section className="mx-auto flex max-w-6xl flex-col items-center px-6 pb-20 pt-24 text-center">
         <ScrollReveal className="flex flex-col items-center">
         <div className="mb-6 rounded-2xl border border-[#C9A84C]/30 bg-white/70 px-5 py-2 text-sm font-semibold tracking-[0.25em] text-[#C9A84C]">
-          MÉXICO PRIMERO
+          LIVE THE DREAM
         </div>
 
         <h1 className="max-w-4xl text-5xl font-black tracking-tight md:text-7xl">

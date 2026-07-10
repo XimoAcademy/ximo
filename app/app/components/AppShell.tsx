@@ -160,7 +160,7 @@ export default function AppShell({
             className="mt-2 inline-flex items-center rounded-full border px-2 py-0.5 text-[9px] font-bold tracking-widest uppercase"
             style={{ borderColor: "var(--gold-border)", color: "var(--gold)", background: "var(--gold-bg)" }}
           >
-            México primero
+            Live the Dream
           </span>
         </div>
 
@@ -291,7 +291,7 @@ export default function AppShell({
             </button>
           </form>
           <p className="text-center text-[9px] font-medium tracking-wide" style={{ color: "var(--text-3)" }}>
-            Ximo · México primero
+            Die with memories, not dreams.
           </p>
         </div>
       </aside>

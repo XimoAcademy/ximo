@@ -62,6 +62,9 @@ export default async function DashboardPage() {
             <p className="mt-2 max-w-lg text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>
               Tu centro de mando deportivo: convierte correos, dudas, tiempos y oportunidades en un camino claro.
             </p>
+            <p className="mt-2 text-xs italic" style={{ color: "var(--gold)" }}>
+              Un día vas a ser quien soñaste. Empieza hoy.
+            </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <Link href="/app/recruiting" className="ximo-glass-btn teal text-xs">Ver Recruiting →</Link>
               <Link href="/app/tareas" className="ximo-glass-btn gold text-xs">Tareas del día →</Link>

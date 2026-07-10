@@ -120,10 +120,22 @@ const DRAGON_WAVE_V1 = /* glsl */ `
   }
 `;
 
+// ── One-time cinematic entrance ─────────────────────────────────────────────
+// The dragon is HIDDEN during the initial hero view. When the visitor scrolls
+// past "↓ Entra al viaje ↓" (latched `entered` ref from JourneyBackground),
+// a TIME-based timeline plays exactly once: the dragon starts deep in the
+// background, small and below-left, swims a soft S-curve toward the camera
+// (head leading, body wave slightly amplified) and settles into the transform
+// the scroll-driven journey dictates. Scrolling up never reverses it.
+const ENTRANCE_SECS = 4.6;
+const easeInOutCubic = (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+
 /** Loads the dragon GLB, normalises its size/centre, and drives its motion. */
-function DragonModel({ disp }: { disp: React.RefObject<number> }) {
+function DragonModel({ disp, entered }: { disp: React.RefObject<number>; entered: React.RefObject<boolean> }) {
   const { scene } = useGLTF(MODEL_URL);
   const outer = useRef<THREE.Group>(null);
+  // Latched entrance state — never resets during the page visit.
+  const ent = useRef({ firstFrame: true, started: false, t0: 0, done: false });
   // JourneyBackground already skips the whole canvas on reduced motion; this is
   // belt-and-braces in case the component is ever mounted directly.
   const reducedMotion = useMemo(
@@ -180,15 +192,41 @@ function DragonModel({ disp }: { disp: React.RefObject<number> }) {
 
     const p = disp.current ?? 0;
     const t = state.clock.elapsedTime;
+
+    // ── Entrance state machine (one-way: hidden → entering → settled) ──
+    const e0 = ent.current;
+    if (!e0.started && entered.current) {
+      e0.started = true;
+      e0.t0 = t;
+      // Restored scroll (page loads already past the trigger) or reduced
+      // motion: skip the show, present the final state immediately.
+      if (e0.firstFrame || reducedMotion) e0.done = true;
+    }
+    e0.firstFrame = false;
+    let e = 1; // eased entrance progress (1 = settled in final transform)
+    if (!e0.done && e0.started) {
+      const lin = Math.min(1, (t - e0.t0) / ENTRANCE_SECS);
+      if (lin >= 1) e0.done = true;
+      e = easeInOutCubic(lin);
+    }
+    const k = e0.started ? 1 - e : 1; // remaining entrance amount
+
     for (const m of mats) {
       const sh = m.userData.shader;
       if (sh) {
         sh.uniforms.uTime.value = reducedMotion ? 0 : t;
         sh.uniforms.uScroll.value = p;
+        // Slightly stronger body wave while travelling in — the head leads and
+        // the tail whips a little more until it settles.
+        sh.uniforms.uStrength.value = reducedMotion ? 0 : 1 + 0.45 * k;
       }
     }
 
     if (outer.current) {
+      // Hidden until the visitor passes "Entra al viaje" — also guarantees the
+      // dragon never flashes at its final spot before the entrance begins.
+      outer.current.visible = e0.started;
+      if (!e0.started) return;
       // Base path: the journey's downward spiral (front-biased helix driven by
       // scroll). On top of it, a slow time-based looping drift + banking so the
       // whole creature keeps swimming even when the visitor stops scrolling.
@@ -207,11 +245,29 @@ function DragonModel({ disp }: { disp: React.RefObject<number> }) {
       outer.current.rotation.y = -ang + Math.PI / 2 + Math.sin(travel * 0.58) * 0.13 * drift;
       outer.current.rotation.x = -0.05 + p * 0.5 + Math.sin(t * 0.6) * 0.04 * drift;
       outer.current.rotation.z = Math.cos(travel * 0.83) * 0.09 * drift;
+
+      // ── Entrance offsets: fade out with k so the path CONVERGES onto the
+      // base transform above (the camera sits at +Z looking at the origin, so
+      // "deep in the background" = far negative Z). Starts ~30% scale, below
+      // and to the left, and weaves a 3D S-curve with restrained yaw/pitch/
+      // roll that relaxes as it approaches — head first, wave amplified above.
+      if (k > 0) {
+        outer.current.position.z += -16 * k * k;
+        outer.current.position.x += -1.6 * k + Math.sin(e * Math.PI * 3) * 2.1 * k;
+        outer.current.position.y += -2.4 * k + Math.sin(e * Math.PI * 2 + 0.6) * 0.9 * k;
+        outer.current.rotation.y += Math.sin(e * Math.PI * 2.4) * 0.45 * k;
+        outer.current.rotation.x += 0.22 * k + Math.sin(e * Math.PI * 2) * 0.1 * k;
+        outer.current.rotation.z += Math.sin(e * Math.PI * 3.1) * 0.28 * k;
+      }
+      const s = 0.3 + 0.7 * e;
+      outer.current.scale.setScalar(s);
     }
   });
 
   return (
-    <group ref={outer}>
+    // visible={false} until the entrance triggers (useFrame flips it) — the
+    // GLB is still preloaded and compiled while the hero is on screen.
+    <group ref={outer} visible={false}>
       <group
         scale={[fitScale, fitScale * STRETCH_Y, fitScale]}
         position={[-offset.x * fitScale, -offset.y * fitScale * STRETCH_Y, -offset.z * fitScale]}
@@ -335,7 +391,13 @@ function Forest() {
   );
 }
 
-export default function SnakeCanvas({ scroll }: { scroll: React.RefObject<number> }) {
+export default function SnakeCanvas({
+  scroll,
+  entered,
+}: {
+  scroll: React.RefObject<number>;
+  entered: React.RefObject<boolean>;
+}) {
   // Smooth (damped) scroll so the motion feels fluid, not jumpy.
   const disp = useRef(0);
   // Cap pixel ratio harder on phones — the dragon mesh is dense.
@@ -357,7 +419,7 @@ export default function SnakeCanvas({ scroll }: { scroll: React.RefObject<number
       <Forest />
       <Worlds disp={disp} />
       <Suspense fallback={null}>
-        <DragonModel disp={disp} />
+        <DragonModel disp={disp} entered={entered} />
       </Suspense>
     </Canvas>
   );

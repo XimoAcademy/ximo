@@ -57,7 +57,7 @@ export default function LoginPage() {
         </div>
 
         <p className="relative text-[10px] font-medium tracking-wide" style={{ color: "var(--text-3)" }}>
-          Ximo · México primero
+          Ximo · Live the Dream
         </p>
       </div>
 

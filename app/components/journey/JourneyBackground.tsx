@@ -218,6 +218,11 @@ function webglOK(): boolean {
  */
 export default function JourneyBackground() {
   const scroll = useRef(0);
+  // LATCHED one-time flag: flips to true when the visitor scrolls past the
+  // hero banner's "↓ Entra al viaje ↓" cue (the banner is the first 100vh, so
+  // its bottom edge crosses mid-viewport at ~0.55vh of scroll). It NEVER goes
+  // back to false during the visit — the dragon's entrance must not reverse.
+  const heroPassed = useRef(false);
   const [use3D, setUse3D] = useState(false);
 
   useEffect(() => {
@@ -229,6 +234,7 @@ export default function JourneyBackground() {
       const el = document.documentElement;
       const max = el.scrollHeight - el.clientHeight;
       scroll.current = max > 0 ? Math.min(1, Math.max(0, el.scrollTop / max)) : 0;
+      if (el.scrollTop > window.innerHeight * 0.55) heroPassed.current = true;
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -245,7 +251,7 @@ export default function JourneyBackground() {
   return (
     <div aria-hidden className="fixed inset-0" style={{ background: FALLBACK_BG, zIndex: 0 }}>
       <AtmosphereKeyframes />
-      {use3D && <SnakeCanvas scroll={scroll} />}
+      {use3D && <SnakeCanvas scroll={scroll} entered={heroPassed} />}
       <GodRays />
       <SpiritWisps />
       <FoliageFrame />

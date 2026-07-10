@@ -40,6 +40,9 @@ export default function AppLoading() {
       <p className="mt-1.5 text-xs" style={{ color: "var(--text-2)" }}>
         Preparando tu centro de mando deportivo
       </p>
+      <p className="mt-4 text-[11px] italic" style={{ color: "var(--text-3)" }}>
+        La constancia también es talento.
+      </p>
     </div>
   );
 }

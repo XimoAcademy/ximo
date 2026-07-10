@@ -62,7 +62,7 @@ export function renderEmail(opts: {
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:${CARD};border:1px solid ${BORDER};border-radius:16px;overflow:hidden;">
         <tr><td style="padding:22px 28px 0;">
           <span style="font-size:20px;font-weight:800;letter-spacing:-0.02em;color:${TEAL};">Ximo</span>
-          <span style="font-size:11px;font-weight:700;color:${GOLD};margin-left:8px;text-transform:uppercase;letter-spacing:0.12em;">México primero</span>
+          <span style="font-size:11px;font-weight:700;color:${GOLD};margin-left:8px;text-transform:uppercase;letter-spacing:0.12em;">Live the Dream</span>
         </td></tr>
         <tr><td style="padding:18px 28px 26px;">
           <h1 style="margin:0 0 14px;font-size:20px;line-height:1.3;color:${INK};font-weight:800;">${escapeHtml(heading)}</h1>

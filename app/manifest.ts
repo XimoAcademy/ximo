@@ -12,8 +12,8 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: "#0B1F33",
     lang: "es-MX",
     icons: [
-      { src: "/brand/ximo-logo.png", sizes: "512x512", type: "image/png" },
-      { src: "/brand/ximo-logo.png", sizes: "192x192", type: "image/png" },
+      { src: "/icons/android-chrome-512x512.png", sizes: "512x512", type: "image/png" },
+      { src: "/icons/android-chrome-192x192.png", sizes: "192x192", type: "image/png" },
     ],
   };
 }

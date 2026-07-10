@@ -63,6 +63,9 @@ export default async function RecruitingPage() {
           <p className="mt-1.5 max-w-lg text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>
             Tu proceso completo en un lugar: universidades, coaches, respuestas, becas y próximas decisiones.
           </p>
+          <p className="mt-1.5 text-xs italic" style={{ color: "var(--text-3)" }}>
+            Las oportunidades no llegan: se construyen.
+          </p>
         </div>
         <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-5">
           {statCards.map((s) => (

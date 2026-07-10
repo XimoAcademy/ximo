@@ -410,7 +410,7 @@ export default function SettingsPage() {
       </div>
 
       <p className="pb-4 text-center text-[10px]" style={{ color: "var(--text-3)" }}>
-        Ximo · Hecho para atletas mexicanos · México primero
+        Ximo · Hecho para atletas mexicanos · El futuro se entrena hoy.
       </p>
     </div>
   );
