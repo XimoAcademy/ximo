@@ -11,37 +11,44 @@ import { Suspense, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
-type WaveMaterial = THREE.Material & { userData: { shader?: { uniforms: { uTime: { value: number } } } } };
+type WaveShader = { uniforms: { uTime: { value: number }; uStrength: { value: number }; uScroll: { value: number } } };
+type WaveMaterial = THREE.Material & { userData: { shader?: WaveShader } };
 
 /**
- * Ximo's dragon — a real GLB model (public/models/dragon.glb) flown through the
- * scroll "journey". The model has no rig/animation, so it MOVES as a rigid body:
- * a slow showcase turn + idle float, and as the user scrolls DOWN it descends
- * and tips its head down to look where it's heading. Background, fog and a
- * drifting particle field lerp across five "worlds" so each scene change reads.
+ * Ximo's dragon — the founder-provided "fantasy dragon" GLB (single dense mesh,
+ * NO armature/skin/animation clips, so THREE.AnimationMixer cannot animate it).
+ * It swims like an Eastern serpent dragon via PROCEDURAL vertex-shader
+ * deformation (spec: prompt_para_claude_dragon.md, "web-only fallback"):
+ *
+ *  - per-vertex longitudinal coordinate (0 = tail at -Y, 1 = head at +Y)
+ *  - travelling waves whose phase is delayed toward the tail, so motion clearly
+ *    runs head → neck → torso → tail (overlapping action / follow-through)
+ *  - amplitude low at the head (face stays recognizable), strongest through the
+ *    middle body and tail (long smooth S-curves)
+ *  - subtle longitudinal roll/banking so the body doesn't read as a flat ribbon
+ *  - the root additionally drifts along a slow looping path on top of the
+ *    scroll-driven descent through the journey's "worlds"
+ *
+ * Respects prefers-reduced-motion (wave strength 0 → calm drift; note the
+ * canvas itself is also skipped entirely by JourneyBackground in that case)
+ * and pauses all updates while the tab is hidden.
  */
 
-// TODO(Manuel): dragón nuevo ("fantasy dragon", jul 2026). Para volver al
-// anterior, cambia esta ruta a "/models/dragon-opt.glb" — ambos viven en public/.
+// TODO(Manuel): para volver al dragón anterior, cambia esta ruta a
+// "/models/dragon-opt.glb" — ambos viven en public/models/.
 const MODEL_URL = "/models/dragon2-opt.glb";
 
 /**
- * ── Serpentine motion v2 ──────────────────────────────────────────────────
- * TODO(Manuel): pon SERPENTINE_V2 en `false` para volver a la animación
- * anterior (v1: onda simple) si no te gusta el resultado. Nada más que tocar.
- *
- * v2 = slither más largo y elegante: onda principal + segundo armónico suave,
- * ondulación que viaja de la cabeza a la cola, latigazo progresivo en la cola,
- * ligera compresión axial (efecto "avance") y cuerpo visualmente alargado.
- * Mismo costo de GPU que v1 (solo cambia la fórmula del vertex shader), así
- * que el rendimiento en móvil no se ve afectado.
+ * ── Dragon motion version ────────────────────────────────────────────────
+ * "v3": cinematic eastern-dragon swim (head-led travelling wave, tail
+ *       follow-through, banking roll, looping drift). Current.
+ * "v1": original subtle wave (pre jul-2026). Kept for instant revert.
+ * (v2 lives in git history — commit 1e199aa — if ever needed.)
  */
-const SERPENTINE_V2 = true;
+const DRAGON_MOTION: "v3" | "v1" = "v3";
 
-// Tunables per version — v1 values are the original animation, untouched.
-const WAVE = SERPENTINE_V2
-  ? { freq: 8.5, speed: 1.55, amp: 0.075, stretchY: 1.16 }
-  : { freq: 6.5, speed: 2.0, amp: 0.08, stretchY: 1 };
+// Visual elongation of the body along its length axis (reads more serpentine).
+const STRETCH_Y = 1.16;
 
 // Enchanted-forest "worlds" (scroll 0 → 1), inspired by the Ori games: deep
 // mossy dark backgrounds lit by bioluminescent spirit colours.
@@ -56,110 +63,158 @@ function lerpPalette(palette: THREE.Color[], p: number, out: THREE.Color) {
   return out;
 }
 
+// GLSL injected into <common>: the eastern-dragon swim. `t` is the longitudinal
+// coordinate (0 = tail, 1 = head). Phase is delayed toward the tail (lag), so a
+// crest born at the head visibly travels down the body — overlapping action.
+const DRAGON_WAVE_V3 = /* glsl */ `
+  attribute float aLongitudinal;
+  uniform float uTime;
+  uniform float uStrength;
+  uniform float uScroll;
+
+  vec3 dragonWave(vec3 p, float t) {
+    float lag = 1.0 - t;
+    float phaseA = uTime * 1.05 - lag * 7.2;
+    float phaseB = uTime * 0.72 - lag * 4.7 + 1.25;
+
+    // Head controlled and recognizable; middle/tail carry the follow-through.
+    float tailGain = mix(1.22, 0.30, smoothstep(0.30, 1.0, t));
+    float middleGain = 0.45 + 0.55 * sin(t * 3.14159265);
+    float amp = tailGain * middleGain * uStrength;
+
+    float side = sin(phaseA) * 0.115 * amp;
+    side += sin(phaseA * 0.53 + 1.9) * 0.038 * amp;
+
+    float depth = cos(phaseB) * 0.082 * amp;
+    depth += sin(phaseA * 1.42 - 0.8) * 0.020 * amp;
+
+    float lift = sin(uTime * 0.48 + t * 4.2) * 0.023 * uStrength;
+    lift += (uScroll - 0.5) * 0.06;
+
+    p.x += side;
+    p.z += depth;
+    p.y += lift;
+
+    // Slight longitudinal roll/banking so the body never reads as a flat ribbon.
+    float roll = sin(phaseA - 0.55) * 0.13 * amp;
+    float c = cos(roll);
+    float s = sin(roll);
+    p.xz = mat2(c, -s, s, c) * p.xz;
+    return p;
+  }
+`;
+
+// v1 legacy: single gentle sine, linear tail weight (kept for instant revert).
+const DRAGON_WAVE_V1 = /* glsl */ `
+  attribute float aLongitudinal;
+  uniform float uTime;
+  uniform float uStrength;
+  uniform float uScroll;
+
+  vec3 dragonWave(vec3 p, float t) {
+    float ph2 = t * 6.5 + uTime * 2.0;
+    float aw = (1.25 - t) * uStrength;
+    p.x += sin(ph2) * 0.08 * aw;
+    p.z += cos(ph2) * 0.04 * aw;
+    return p;
+  }
+`;
+
 /** Loads the dragon GLB, normalises its size/centre, and drives its motion. */
 function DragonModel({ disp }: { disp: React.RefObject<number> }) {
   const { scene } = useGLTF(MODEL_URL);
   const outer = useRef<THREE.Group>(null);
+  // JourneyBackground already skips the whole canvas on reduced motion; this is
+  // belt-and-braces in case the component is ever mounted directly.
+  const reducedMotion = useMemo(
+    () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    []
+  );
 
-  // Centre + scale the model, and inject a SERPENTINE body wave into every
-  // material's vertex shader so the mesh itself undulates (the GLB has no rig).
   const { fitScale, offset, mats } = useMemo(() => {
     const box = new THREE.Box3().setFromObject(scene);
     const size = box.getSize(new THREE.Vector3());
     const center = box.getCenter(new THREE.Vector3());
     const maxDim = Math.max(size.x, size.y, size.z) || 1;
-
     const minY = box.min.y;
     const height = size.y || 1;
-    const amp = maxDim * WAVE.amp;
-
-    // v1: one sine, linear tail weight. v2: travelling wave head→tail with a
-    // soft second harmonic, smooth tail-whip envelope and a slight axial
-    // compression so the body reads as slithering forward, not just swaying.
-    const waveGlsl = SERPENTINE_V2
-      ? [
-          "#include <begin_vertex>",
-          "float ph = (position.y - uMinY) / uHeight;", // 0 = tail, 1 = head
-          "float ph2 = ph * uFreq + uTime * uSpeed;",
-          // Smooth envelope: head almost still, mid-body waves, tail whips.
-          "float aw = 0.18 + 1.35 * pow(1.0 - ph, 1.6);",
-          // Primary S-curve + quieter out-of-phase harmonic → organic, not robotic.
-          "float sx = sin(ph2) + 0.32 * sin(ph2 * 2.13 + 1.4);",
-          "float sz = cos(ph2 * 0.82 + 0.6);",
-          "transformed.x += sx * uAmp * aw;",
-          "transformed.z += sz * uAmp * 0.5 * aw;",
-          // Subtle axial compression wave (accordion) — the "advance" of a slither.
-          "transformed.y += sin(ph2 - 1.5707) * uAmp * 0.16 * aw;",
-        ]
-      : [
-          "#include <begin_vertex>",
-          "float ph = (position.y - uMinY) / uHeight;",
-          "float ph2 = ph * uFreq + uTime * uSpeed;",
-          // Amplitude grows toward the tail (low y) so it swishes while the
-          // head stays comparatively steady — a natural serpentine slither.
-          "float aw = 1.25 - ph;",
-          "transformed.x += sin(ph2) * uAmp * aw;",
-          "transformed.z += cos(ph2) * uAmp * 0.5 * aw;",
-        ];
 
     const list: WaveMaterial[] = [];
     scene.traverse((o) => {
       const mesh = o as THREE.Mesh;
       if (!mesh.isMesh) return;
+
+      // Per-vertex longitudinal coordinate: 0 at the tail (-Y) → 1 at the head (+Y).
+      const pos = mesh.geometry.attributes.position as THREE.BufferAttribute;
+      const longitudinal = new Float32Array(pos.count);
+      for (let i = 0; i < pos.count; i += 1) {
+        longitudinal[i] = THREE.MathUtils.clamp((pos.getY(i) - minY) / height, 0, 1);
+      }
+      mesh.geometry.setAttribute("aLongitudinal", new THREE.BufferAttribute(longitudinal, 1));
+      // Shader displacement can leave the original bounds — never cull the dragon.
+      mesh.frustumCulled = false;
+
       const arr = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
       arr.forEach((m) => {
         m.onBeforeCompile = (shader) => {
           shader.uniforms.uTime = { value: 0 };
-          shader.uniforms.uAmp = { value: amp };
-          shader.uniforms.uMinY = { value: minY };
-          shader.uniforms.uHeight = { value: height };
-          shader.uniforms.uFreq = { value: WAVE.freq };
-          shader.uniforms.uSpeed = { value: WAVE.speed };
-          shader.vertexShader =
-            "uniform float uTime,uAmp,uMinY,uHeight,uFreq,uSpeed;\n" + shader.vertexShader;
-          shader.vertexShader = shader.vertexShader.replace("#include <begin_vertex>", waveGlsl.join("\n"));
-          (m as WaveMaterial).userData.shader = shader as unknown as WaveMaterial["userData"]["shader"];
+          shader.uniforms.uStrength = { value: reducedMotion ? 0 : 1 };
+          shader.uniforms.uScroll = { value: 0 };
+          shader.vertexShader = shader.vertexShader
+            .replace("#include <common>", "#include <common>\n" + (DRAGON_MOTION === "v3" ? DRAGON_WAVE_V3 : DRAGON_WAVE_V1))
+            .replace("#include <begin_vertex>", "vec3 transformed = dragonWave(position, aLongitudinal);");
+          (m as WaveMaterial).userData.shader = shader as unknown as WaveShader;
         };
+        m.customProgramCacheKey = () => `ximo-dragon-wave-${DRAGON_MOTION}`;
         m.needsUpdate = true;
         list.push(m as WaveMaterial);
       });
     });
     return { fitScale: 7 / maxDim, offset: center, mats: list };
-  }, [scene]);
+  }, [scene, reducedMotion]);
 
-  useFrame((state, delta) => {
+  useFrame((state) => {
+    // Pause everything while the tab is hidden (browsers throttle RAF anyway;
+    // this also freezes the clock-driven uniforms cheaply).
+    if (typeof document !== "undefined" && document.hidden) return;
+
     const p = disp.current ?? 0;
     const t = state.clock.elapsedTime;
     for (const m of mats) {
       const sh = m.userData.shader;
-      if (sh) sh.uniforms.uTime.value = t;
+      if (sh) {
+        sh.uniforms.uTime.value = reducedMotion ? 0 : t;
+        sh.uniforms.uScroll.value = p;
+      }
     }
+
     if (outer.current) {
-      // SPIRAL DOWNWARD: the dragon swings around a vertical axis while
-      // descending as the user scrolls — a helix path, FRONT-BIASED in depth so
-      // it never hides behind the origin. Phased so it's front-and-centre at the
-      // hero (≈16% scroll), then spirals out and down as you go deeper.
+      // Base path: the journey's downward spiral (front-biased helix driven by
+      // scroll). On top of it, a slow time-based looping drift + banking so the
+      // whole creature keeps swimming even when the visitor stops scrolling.
       const TURNS = 2.4;
-      const ang = (p - 0.16) * Math.PI * 2 * TURNS; // scroll-driven spiral
-      const R = 2.6 - p * 0.8; // the spiral tightens as it sinks
-      outer.current.position.x = Math.sin(ang) * R;
-      outer.current.position.z = 1.4 + Math.cos(ang) * 1.4; // 0 → 2.8, always in front
-      outer.current.position.y = 1.1 - p * 8.5 + Math.sin(t * 0.8) * 0.2;
-      // Bank into the turn (face along the spiral) + look down as you scroll.
-      outer.current.rotation.y = -ang + Math.PI / 2;
-      outer.current.rotation.x = -0.05 + p * 0.5 + Math.sin(t * 0.6) * 0.04;
-      outer.current.rotation.z = Math.sin(t * 0.4) * 0.06;
+      const ang = (p - 0.16) * Math.PI * 2 * TURNS;
+      const R = 2.6 - p * 0.8;
+      const travel = t * 0.22;
+      const drift = reducedMotion ? 0 : 1;
+
+      outer.current.position.x = Math.sin(ang) * R + Math.sin(travel) * 0.5 * drift;
+      outer.current.position.z = 1.4 + Math.cos(ang) * 1.4 + Math.cos(travel * 0.63) * 0.22 * drift;
+      outer.current.position.y = 1.1 - p * 8.5 + Math.sin(travel * 0.71 + 0.9) * 0.24 * drift;
+
+      // Face along the spiral, wander the heading slowly, look down as you
+      // scroll, and bank into the turns (roll follows with its own phase).
+      outer.current.rotation.y = -ang + Math.PI / 2 + Math.sin(travel * 0.58) * 0.13 * drift;
+      outer.current.rotation.x = -0.05 + p * 0.5 + Math.sin(t * 0.6) * 0.04 * drift;
+      outer.current.rotation.z = Math.cos(travel * 0.83) * 0.09 * drift;
     }
-    void delta;
   });
 
-  // v2 elongates the body slightly along its length axis (local y) so the
-  // serpent reads longer; v1 keeps the original proportions (stretchY = 1).
   return (
     <group ref={outer}>
       <group
-        scale={[fitScale, fitScale * WAVE.stretchY, fitScale]}
-        position={[-offset.x * fitScale, -offset.y * fitScale * WAVE.stretchY, -offset.z * fitScale]}
+        scale={[fitScale, fitScale * STRETCH_Y, fitScale]}
+        position={[-offset.x * fitScale, -offset.y * fitScale * STRETCH_Y, -offset.z * fitScale]}
       >
         <primitive object={scene} />
       </group>
@@ -173,7 +228,8 @@ function Worlds({ disp }: { disp: React.RefObject<number> }) {
   const pts = useRef<THREE.Points>(null);
   const { scene } = useThree();
 
-  const COUNT = 1700;
+  // Fewer spirit motes on small screens — the mist should never cost the phone.
+  const COUNT = typeof window !== "undefined" && window.innerWidth < 768 ? 700 : 1700;
   const particleGeo = useMemo(() => {
     const pos = new Float32Array(COUNT * 3);
     for (let i = 0; i < COUNT; i++) {
@@ -282,9 +338,11 @@ function Forest() {
 export default function SnakeCanvas({ scroll }: { scroll: React.RefObject<number> }) {
   // Smooth (damped) scroll so the motion feels fluid, not jumpy.
   const disp = useRef(0);
+  // Cap pixel ratio harder on phones — the dragon mesh is dense.
+  const maxDpr = typeof window !== "undefined" && window.innerWidth < 768 ? 1.25 : 1.5;
   return (
     <Canvas
-      dpr={[1, 1.6]}
+      dpr={[1, maxDpr]}
       camera={{ position: [0, 0, 12], fov: 50 }}
       gl={{ antialias: true, powerPreference: "high-performance" }}
       style={{ position: "fixed", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}
