@@ -21,7 +21,9 @@ type WaveMaterial = THREE.Material & { userData: { shader?: { uniforms: { uTime:
  * drifting particle field lerp across five "worlds" so each scene change reads.
  */
 
-const MODEL_URL = "/models/dragon-opt.glb";
+// TODO(Manuel): dragón nuevo ("fantasy dragon", jul 2026). Para volver al
+// anterior, cambia esta ruta a "/models/dragon-opt.glb" — ambos viven en public/.
+const MODEL_URL = "/models/dragon2-opt.glb";
 
 /**
  * ── Serpentine motion v2 ──────────────────────────────────────────────────
