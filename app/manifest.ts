@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Ximo — Tu camino al college deportivo",
+    name: "Ximo — Live the Dream",
     short_name: "Ximo",
     description:
       "Ximo ayuda a atletas mexicanos a llegar a universidades de Estados Unidos: recruiting, coaches, becas, tiempos y comunidad en un solo lugar.",

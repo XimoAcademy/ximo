@@ -44,7 +44,7 @@ const description =
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Ximo — Tu camino al college deportivo",
+    default: "Ximo — Live the Dream",
     template: "%s · Ximo",
   },
   description,
@@ -64,14 +64,14 @@ export const metadata: Metadata = {
     type: "website",
     locale: "es_MX",
     siteName: "Ximo",
-    title: "Ximo — Tu camino al college deportivo",
+    title: "Ximo — Live the Dream",
     description,
     url: siteUrl,
     images: [{ url: "/brand/ximo-logo.png", width: 512, height: 512, alt: "Ximo" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Ximo — Tu camino al college deportivo",
+    title: "Ximo — Live the Dream",
     description,
     images: ["/brand/ximo-logo.png"],
   },

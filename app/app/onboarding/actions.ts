@@ -113,7 +113,7 @@ export async function completeOnboardingAction(
 
   await emailCurrentUser(supabase, {
     subject: "¡Bienvenido a Ximo! 🏊",
-    heading: "Tu camino al college deportivo empieza hoy",
+    heading: "Live the Dream empieza hoy",
     body: [
       "Tu cuenta está lista y tu primer plan de acción ya está en tu dashboard.",
       "Empieza por tu primera tarea, agrega las universidades que te interesen desde el directorio NCAA, y registra tus tiempos en Progreso.",

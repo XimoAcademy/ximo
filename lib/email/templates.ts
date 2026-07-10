@@ -73,7 +73,7 @@ export function renderEmail(opts: {
           <p style="margin:0;font-size:12px;line-height:1.5;color:${MUTED};">${escapeHtml(footer)}</p>
         </td></tr>
       </table>
-      <p style="margin:14px 0 0;font-size:11px;color:${MUTED};">Ximo · Tu camino al college deportivo</p>
+      <p style="margin:14px 0 0;font-size:11px;color:${MUTED};">Ximo · Live the Dream</p>
     </td></tr>
   </table>
 </body></html>`;

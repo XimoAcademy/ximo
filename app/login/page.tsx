@@ -6,7 +6,7 @@ import LoginForm from "./LoginForm";
 
 export const metadata: Metadata = {
   title: "Iniciar sesión",
-  description: "Entra a tu cuenta de Ximo y continúa tu camino al college deportivo.",
+  description: "Entra a tu cuenta de Ximo. Live the Dream.",
 };
 
 export default function LoginPage() {
