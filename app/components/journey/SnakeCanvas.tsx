@@ -186,10 +186,10 @@ function DragonModel({ disp, entered }: { disp: React.RefObject<number>; entered
   }, [scene, reducedMotion]);
 
   useFrame((state) => {
-    // Pause everything while the tab is hidden (browsers throttle RAF anyway;
-    // this also freezes the clock-driven uniforms cheaply).
-    if (typeof document !== "undefined" && document.hidden) return;
-
+    // NOTE: no manual document.hidden guard — r3f's frameloop runs on
+    // requestAnimationFrame, which the browser already suspends for hidden
+    // tabs/occluded windows, so rendering pauses natively. (A manual guard
+    // here also freezes forced composites, e.g. screenshots/preview tools.)
     const p = disp.current ?? 0;
     const t = state.clock.elapsedTime;
 
