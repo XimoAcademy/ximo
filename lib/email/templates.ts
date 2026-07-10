@@ -16,6 +16,9 @@ function escapeHtml(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
+const DEFAULT_FOOTER =
+  "Recibes este correo porque tienes una cuenta en Ximo. Puedes ajustar tus notificaciones en la app, en Notificaciones.";
+
 export function renderEmail(opts: {
   preview?: string;
   heading: string;
@@ -23,8 +26,12 @@ export function renderEmail(opts: {
   body: string[];
   ctaLabel?: string;
   ctaUrl?: string;
+  /** Why-you-got-this line. Defaults to the app-account wording; advertiser and
+   *  review-inbox mails pass their own so the reason is always accurate. */
+  footer?: string;
 }): { html: string; text: string } {
   const { heading, body, ctaLabel, ctaUrl, preview } = opts;
+  const footer = opts.footer ?? DEFAULT_FOOTER;
 
   const paragraphs = body
     .map(
@@ -63,10 +70,7 @@ export function renderEmail(opts: {
           ${cta}
         </td></tr>
         <tr><td style="padding:16px 28px 22px;border-top:1px solid ${BORDER};">
-          <p style="margin:0;font-size:12px;line-height:1.5;color:${MUTED};">
-            Recibes este correo porque tienes una cuenta en Ximo. Puedes ajustar tus
-            notificaciones en la app, en Notificaciones.
-          </p>
+          <p style="margin:0;font-size:12px;line-height:1.5;color:${MUTED};">${escapeHtml(footer)}</p>
         </td></tr>
       </table>
       <p style="margin:14px 0 0;font-size:11px;color:${MUTED};">Ximo · Tu camino al college deportivo</p>

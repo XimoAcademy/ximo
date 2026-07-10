@@ -1,9 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 import { getProfile } from "@/lib/auth/getUser";
-import { emailAdvertiserApproved, emailAdvertiserRejected } from "@/lib/email/advertiser";
+import { emailAdvertiserApproved, emailAdvertiserRejected, emailAdvertiserPublished } from "@/lib/email/advertiser";
+import { emailUserViaService, type MailContent } from "@/lib/email/notify";
 import { isStripeConfigured } from "@/lib/stripe/server";
 import { discordAdsMode, postAdToDiscord } from "@/lib/discord/ads";
 
@@ -15,17 +16,19 @@ async function requireAdmin() {
   return supabase;
 }
 
+type BrandJoin = { brand_name: string; contact_email: string | null; user_id: string | null };
+
 interface AdWithBrand {
   id: string;
   title: string | null;
   review_status: string;
-  brand: { brand_name: string; contact_email: string | null } | { brand_name: string; contact_email: string | null }[] | null;
+  brand: BrandJoin | BrandJoin[] | null;
 }
 
 async function getAdWithBrand(supabase: NonNullable<Awaited<ReturnType<typeof requireAdmin>>>, id: string) {
   const { data } = await supabase
     .from("brand_ads")
-    .select("id,title,review_status,brand:brand_profiles(brand_name,contact_email)")
+    .select("id,title,review_status,brand:brand_profiles(brand_name,contact_email,user_id)")
     .eq("id", id)
     .maybeSingle();
   const ad = data as AdWithBrand | null;
@@ -37,7 +40,40 @@ async function getAdWithBrand(supabase: NonNullable<Awaited<ReturnType<typeof re
     review_status: ad.review_status,
     brandName: brand?.brand_name ?? "Marca",
     contactEmail: brand?.contact_email ?? null,
+    ownerUserId: brand?.user_id ?? null,
   };
+}
+
+/**
+ * In-app notification + account email for the app user who submitted the ad.
+ * The advertiser contact address gets its own email separately; to avoid
+ * duplicates, the account email is only sent when it differs from the contact.
+ * No-ops gracefully without a service-role key.
+ */
+async function notifyAdOwner(opts: {
+  ownerUserId: string | null;
+  contactEmail: string | null;
+  notification: { title: string; body: string };
+  email: MailContent | null;
+}): Promise<void> {
+  if (!opts.ownerUserId) return;
+  const service = createServiceRoleClient();
+  if (!service) return;
+
+  await service.from("notifications").insert({
+    user_id: opts.ownerUserId,
+    title: opts.notification.title,
+    body: opts.notification.body,
+    type: "ads",
+  });
+
+  if (!opts.email) return;
+  const { data } = await service.auth.admin.getUserById(opts.ownerUserId);
+  const accountEmail = data?.user?.email?.toLowerCase() ?? null;
+  const contact = opts.contactEmail?.toLowerCase() ?? null;
+  if (accountEmail && accountEmail !== contact) {
+    await emailUserViaService(service, opts.ownerUserId, opts.email);
+  }
 }
 
 /**
@@ -60,7 +96,7 @@ export async function reviewAdAction(formData: FormData): Promise<void> {
   const { error } = await supabase.from("brand_ads").update({ review_status: nextStatus }).eq("id", id);
   if (error) return;
 
-  // Notify the advertiser (null-safe if email isn't configured).
+  // Notify the advertiser contact (null-safe if email isn't configured).
   if (ad.contactEmail) {
     if (decision === "approved") {
       await emailAdvertiserApproved({
@@ -73,6 +109,45 @@ export async function reviewAdAction(formData: FormData): Promise<void> {
       await emailAdvertiserRejected({ to: ad.contactEmail, brandName: ad.brandName, adTitle: ad.title });
     }
   }
+
+  // Notify the app user who submitted it (in-app always; email if their account
+  // address differs from the advertiser contact). Copy mirrors /app/promocionar/revision.
+  await notifyAdOwner({
+    ownerUserId: ad.ownerUserId,
+    contactEmail: ad.contactEmail,
+    notification:
+      decision === "approved"
+        ? {
+            title: "Tu anuncio fue aprobado",
+            body: `${ad.title ?? ad.brandName}: aprobado · pendiente de pago. Configura tu campaña y paga; tras confirmarse el pago, el equipo Ximo activa la publicación.`,
+          }
+        : {
+            title: "Resultado de la revisión de tu anuncio",
+            body: `${ad.title ?? ad.brandName}: no fue aprobado y no se requiere ningún pago. Revisa la política de anuncios y envía una nueva propuesta.`,
+          },
+    email:
+      decision === "approved"
+        ? {
+            subject: "Tu anuncio fue aprobado en Ximo",
+            heading: "Aprobado · pendiente de pago",
+            body: [
+              `Buenas noticias: tu anuncio${ad.title ? ` “${ad.title}”` : ""} fue aprobado. Ahora puedes configurar presupuesto y duración, y completar el pago.`,
+              "Tras confirmarse el pago, el equipo Ximo activa la publicación. Te avisaremos cuando tu anuncio esté visible en Marcas y oportunidades.",
+            ],
+            ctaLabel: "Configurar campaña y pagar",
+            ctaPath: "/app/promocionar/campana",
+          }
+        : {
+            subject: "Resultado de revisión de anuncio en Ximo",
+            heading: "Resultado de la revisión",
+            body: [
+              `Tu anuncio${ad.title ? ` “${ad.title}”` : ""} no fue aprobado en esta ocasión. No se requiere ningún pago y no se realizará ningún cargo.`,
+              "Revisa la política de anuncios y envía una nueva propuesta alineada con atletas estudiantes cuando quieras.",
+            ],
+            ctaLabel: "Ver estado de revisión",
+            ctaPath: "/app/promocionar/revision",
+          },
+  });
 
   revalidatePath("/app/admin/ads");
   revalidatePath("/app/promocionar");
@@ -97,6 +172,29 @@ export async function publishAdAction(formData: FormData): Promise<void> {
 
   // Activate the campaign row created at payment time.
   await supabase.from("brand_campaigns").update({ status: "active" }).eq("ad_id", id).eq("status", "scheduled");
+
+  // The app promises "te avisaremos cuando tu anuncio esté visible" — keep it.
+  if (ad.contactEmail) {
+    await emailAdvertiserPublished({ to: ad.contactEmail, brandName: ad.brandName, adTitle: ad.title });
+  }
+  await notifyAdOwner({
+    ownerUserId: ad.ownerUserId,
+    contactEmail: ad.contactEmail,
+    notification: {
+      title: "Tu anuncio está publicado",
+      body: `${ad.title ?? ad.brandName} ya está visible en Marcas y oportunidades, etiquetado como publicidad.`,
+    },
+    email: {
+      subject: "Tu anuncio ya está publicado en Ximo",
+      heading: "Tu anuncio está publicado",
+      body: [
+        `Tu anuncio${ad.title ? ` “${ad.title}”` : ""} está publicado en la sección Marcas y oportunidades, etiquetado como publicidad.`,
+        "Puedes ver cómo lo ven los atletas en Marcas y oportunidades.",
+      ],
+      ctaLabel: "Ver en Marcas y oportunidades",
+      ctaPath: "/app/marcas",
+    },
+  });
 
   revalidatePath("/app/admin/ads");
   revalidatePath("/app/marcas");

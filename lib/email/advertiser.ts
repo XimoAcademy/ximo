@@ -18,6 +18,13 @@ import { renderEmail } from "./templates";
 
 const REVIEW_EMAIL_FALLBACK = "ximoacademy@gmail.com";
 
+// Why-you-got-this footers (the default template footer talks about app
+// notification settings, which doesn't apply to advertisers or the reviewer).
+const ADVERTISER_FOOTER =
+  "Recibes este correo porque enviaste una solicitud de anuncio a Ximo. Puedes seguir su estado en la app, en Promocionar → Estado de revisión.";
+const REVIEWER_FOOTER =
+  "Recibes este correo porque eres el contacto de revisión de anuncios de Ximo.";
+
 export function reviewInboxAddress(): string {
   return process.env.XIMO_REVIEW_EMAIL || REVIEW_EMAIL_FALLBACK;
 }
@@ -72,6 +79,7 @@ export async function emailReviewInbox(ad: AdSubmissionSummary): Promise<void> {
     ],
     ctaLabel: "Abrir panel de anuncios",
     ctaUrl: `${appUrl()}/app/admin/ads`,
+    footer: REVIEWER_FOOTER,
   });
 
   await sendEmail({
@@ -96,10 +104,12 @@ export async function emailAdvertiserApproved(opts: {
     ? `${appUrl()}/app/promocionar/campana`
     : process.env.PAYMENT_LINK_PLACEHOLDER || null;
 
+  // Wording mirrors the "Aprobado · pendiente de pago" card in
+  // /app/promocionar/revision so email and app always tell the same story.
   const body = [
     `Hola${opts.brandName ? ` ${opts.brandName}` : ""},`,
-    `Buenas noticias: tu anuncio${opts.adTitle ? ` “${opts.adTitle}”` : ""} fue revisado y aprobado por el equipo de Ximo.`,
-    "El siguiente paso es configurar tu campaña y completar el pago. Tu anuncio se publicará después de confirmarse el pago y de una activación final por parte del equipo Ximo.",
+    `Buenas noticias: tu anuncio${opts.adTitle ? ` “${opts.adTitle}”` : ""} fue aprobado. Ahora puedes configurar presupuesto y duración, y completar el pago.`,
+    "Tras confirmarse el pago, el equipo Ximo activa la publicación. Te avisaremos cuando tu anuncio esté visible en Marcas y oportunidades.",
     ...(paymentUrl
       ? []
       : [
@@ -110,12 +120,37 @@ export async function emailAdvertiserApproved(opts: {
 
   const { html, text } = renderEmail({
     preview: "Tu anuncio fue aprobado en Ximo",
-    heading: "Tu anuncio fue aprobado",
+    heading: "Aprobado · pendiente de pago",
     body,
-    ...(paymentUrl ? { ctaLabel: "Continuar con el pago", ctaUrl: paymentUrl } : {}),
+    ...(paymentUrl ? { ctaLabel: "Configurar campaña y pagar", ctaUrl: paymentUrl } : {}),
+    footer: ADVERTISER_FOOTER,
   });
 
   await sendEmail({ to: opts.to, subject: "Tu anuncio fue aprobado en Ximo", html, text });
+}
+
+/** Publication email: the paid ad is now live in Marcas y oportunidades. */
+export async function emailAdvertiserPublished(opts: {
+  to: string;
+  brandName: string;
+  adTitle: string | null;
+}): Promise<void> {
+  // Wording mirrors the "Publicado" card in /app/promocionar/revision.
+  const { html, text } = renderEmail({
+    preview: "Tu anuncio ya está publicado en Ximo",
+    heading: "Tu anuncio está publicado",
+    body: [
+      `Hola${opts.brandName ? ` ${opts.brandName}` : ""},`,
+      `Tu anuncio${opts.adTitle ? ` “${opts.adTitle}”` : ""} está publicado en la sección Marcas y oportunidades, etiquetado como publicidad.`,
+      "Puedes ver cómo lo ven los atletas en Marcas y oportunidades.",
+      "Si tienes dudas, responde a este correo.",
+    ],
+    ctaLabel: "Ver en Marcas y oportunidades",
+    ctaUrl: `${appUrl()}/app/marcas`,
+    footer: ADVERTISER_FOOTER,
+  });
+
+  await sendEmail({ to: opts.to, subject: "Tu anuncio ya está publicado en Ximo", html, text });
 }
 
 /** Rejection email: polite, no payment required. */
@@ -124,6 +159,7 @@ export async function emailAdvertiserRejected(opts: {
   brandName: string;
   adTitle: string | null;
 }): Promise<void> {
+  // Wording mirrors the "No aprobado" card in /app/promocionar/revision.
   const { html, text } = renderEmail({
     preview: "Resultado de revisión de anuncio en Ximo",
     heading: "Resultado de la revisión",
@@ -131,11 +167,12 @@ export async function emailAdvertiserRejected(opts: {
       `Hola${opts.brandName ? ` ${opts.brandName}` : ""},`,
       `Gracias por tu interés en promocionarte con Ximo. Después de revisarlo manualmente, tu anuncio${opts.adTitle ? ` “${opts.adTitle}”` : ""} no fue aprobado en esta ocasión.`,
       "No se requiere ningún pago y no se realizará ningún cargo.",
-      "Puedes revisar nuestra política de anuncios y enviar una nueva propuesta alineada con atletas estudiantes cuando quieras.",
+      "Revisa la política de anuncios y envía una nueva propuesta alineada con atletas estudiantes cuando quieras.",
       "Si tienes dudas sobre la decisión, responde a este correo.",
     ],
     ctaLabel: "Ver política de anuncios",
     ctaUrl: `${appUrl()}/politica-de-anuncios`,
+    footer: ADVERTISER_FOOTER,
   });
 
   await sendEmail({ to: opts.to, subject: "Resultado de revisión de anuncio en Ximo", html, text });

@@ -1,8 +1,24 @@
 import Link from "next/link";
-import { GlassPanel, InnerTile, BackLink, StatusBadge } from "../../components/ui";
+import { InnerTile, BackLink, StatusBadge, GlassPanel } from "../../components/ui";
 import ScrollReveal from "../../../components/ScrollReveal";
+import BrandAdCard from "../../components/BrandAdCard";
+import { getMyAdPreview } from "@/lib/data/brands";
 
-export default function AdPreviewPage() {
+export const dynamic = "force-dynamic";
+
+// Human labels consistent with /app/promocionar/revision.
+const STATUS_LABEL: Record<string, { label: string; tone: "warning" | "success" | "error" }> = {
+  pending: { label: "Pendiente de revisión", tone: "warning" },
+  approved_pending_payment: { label: "Aprobado · pendiente de pago", tone: "success" },
+  paid_ready_to_publish: { label: "Pagado · en activación", tone: "success" },
+  approved: { label: "Publicado", tone: "success" },
+  rejected: { label: "No aprobado", tone: "error" },
+};
+
+export default async function AdPreviewPage() {
+  const preview = await getMyAdPreview();
+  const status = preview ? STATUS_LABEL[preview.review_status] ?? STATUS_LABEL.pending : null;
+
   return (
     <div className="mx-auto max-w-[680px] space-y-5">
       <BackLink href="/app/promocionar/campana">Configurar campaña</BackLink>
@@ -12,53 +28,42 @@ export default function AdPreviewPage() {
           Vista previa del anuncio
         </h1>
         <p className="mt-1 text-sm" style={{ color: "var(--text-label)" }}>
-          Así verán los atletas tu promoción dentro de Marcas y oportunidades.
+          {preview
+            ? "Esta es la tarjeta exacta de tu anuncio, tal como los atletas la verán en Marcas y oportunidades cuando se publique."
+            : "Aquí verás tu anuncio exactamente como aparecerá en Marcas y oportunidades."}
         </p>
       </div>
 
-      {/* Sponsored card preview */}
-      <ScrollReveal>
-        <GlassPanel className="p-4 sm:p-5">
-          <div className="mb-2 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div
-                className="flex h-10 w-10 items-center justify-center rounded-xl text-sm font-black"
-                style={{ background: "var(--gold-bg)", color: "var(--gold)", border: "1px solid var(--gold-border)" }}
-              >
-                AT
-              </div>
-              <div>
-                <p className="text-sm font-black" style={{ color: "var(--text)" }}>AquaTech Goggles</p>
-                <p className="text-[10px]" style={{ color: "var(--text-label)" }}>Publicidad · Equipo deportivo</p>
-              </div>
+      {preview ? (
+        <>
+          {/* The REAL card: same component + same data the published section renders. */}
+          <ScrollReveal>
+            <div className="mx-auto max-w-[420px]">
+              <BrandAdCard b={preview.ad} />
             </div>
-            <StatusBadge tone="gold">Publicidad</StatusBadge>
-          </div>
+          </ScrollReveal>
 
-          <p className="text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>
-            Lentes de competencia con visión panorámica y antiempañante. 15% de descuento para atletas Ximo
-            con suscripción activa.
+          <ScrollReveal delay={40}>
+            <InnerTile className="flex items-center justify-between gap-3 px-4 py-3">
+              <p className="text-xs font-semibold" style={{ color: "var(--text-label)" }}>
+                Estado actual de este anuncio
+              </p>
+              {status && <StatusBadge tone={status.tone}>{status.label}</StatusBadge>}
+            </InnerTile>
+          </ScrollReveal>
+        </>
+      ) : (
+        <GlassPanel className="px-6 py-12 text-center">
+          <p className="text-sm font-black" style={{ color: "var(--text)" }}>Aún no has enviado anuncios</p>
+          <p className="mx-auto mt-1.5 max-w-md text-xs leading-relaxed" style={{ color: "var(--text-label)" }}>
+            Envía tu primer anuncio a revisión y aquí verás la tarjeta exacta con la que aparecerá frente a los
+            atletas.
           </p>
-
-          {/* Media placeholder */}
-          <div
-            className="mt-3 flex aspect-video w-full items-center justify-center rounded-xl"
-            style={{ background: "linear-gradient(135deg, #0B1F33 0%, #143845 60%, #1F5F66 100%)" }}
-          >
-            <span className="text-[11px] font-semibold" style={{ color: "rgba(255,255,255,0.5)" }}>
-              Imagen o video de la marca
-            </span>
-          </div>
-
-          {/* CTA inside ad */}
-          <div className="mt-3 flex items-center justify-between border-t pt-3" style={{ borderColor: "var(--border-subtle)" }}>
-            <span className="text-[10px] font-semibold" style={{ color: "var(--text-label)" }}>
-              Promoción revisada por Ximo
-            </span>
-            <span className="ximo-glass-btn gold shiny text-xs">Ver oferta →</span>
-          </div>
+          <Link href="/app/promocionar" className="ximo-glass-btn teal mt-5 inline-block text-xs">
+            Crear anuncio
+          </Link>
         </GlassPanel>
-      </ScrollReveal>
+      )}
 
       {/* Notes */}
       <ScrollReveal delay={60}>
