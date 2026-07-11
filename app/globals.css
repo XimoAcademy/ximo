@@ -103,9 +103,9 @@
    Future settings page will toggle this.
    ────────────────────────────────────────────────────────────── */
 .theme-light {
-  /* Premium light theme — soft mint-cream base from the brand gradient image.
-     Not generic white: tinted toward the teal/green of the palette. */
-  --bg:            #EDF4EE;   /* pale mint-cream */
+  /* Premium light theme — warm peach base.
+     Not generic white: tinted toward the warm end of the palette. */
+  --bg:            #fbd1a2;   /* warm peach */
   --bg-mid:        #E2EFE6;
   --bg-surf:       #D6E9DC;
   --surface:       rgba(252, 254, 252, 0.86);   /* tinted off-white, never pure */
@@ -159,8 +159,8 @@
   --hero-panel:    rgba(255,255,255,0.55);
   --hero-panel-bd: rgba(18,138,150,0.22);
 
-  /* Light-mode app background: very light diagonal, ONLY teal-blue (top-left) → gold (bottom-right) */
-  --app-bg: linear-gradient(135deg, #CFEAF2 0%, #F5EBCD 100%);
+  /* Light-mode app background: solid warm peach, same as --bg */
+  --app-bg: var(--bg);
 
   --background: var(--bg);
   --foreground: var(--text);
