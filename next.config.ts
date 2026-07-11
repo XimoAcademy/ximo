@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 // Baseline security headers applied to every route. (CSP is intentionally left
 // out here — a strict policy needs per-source testing against Stripe, Supabase,
@@ -24,4 +25,15 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// Sentry build-time wrapper: uploads source maps (when SENTRY_AUTH_TOKEN is set)
+// so production stack traces show original code, and proxies events through
+// /monitoring to survive ad-blockers. NOTE: this project uses Turbopack, so the
+// webpack-only tree-shaking options are intentionally omitted.
+export default withSentryConfig(nextConfig, {
+  org: "ximo",
+  project: "javascript-nextjs",
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  widenClientFileUpload: true,
+  tunnelRoute: "/monitoring",
+  silent: !process.env.CI,
+});
