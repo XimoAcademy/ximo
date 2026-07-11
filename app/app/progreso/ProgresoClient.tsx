@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition, type FormEvent } from "react";
 import PageHeader from "../components/PageHeader";
 import ScrollReveal from "../../components/ScrollReveal";
 import { addProgressEntryAction, deleteProgressEntryAction } from "./actions";
+import posthog from "posthog-js";
 import { parseTime, fmtTime } from "@/lib/util/swim-time";
 import {
   buildStrokeStats,
@@ -379,6 +380,7 @@ export default function ProgresoClient({ initialSwims }: { initialSwims: Swim[] 
     startTransition(async () => {
       const res = await addProgressEntryAction(null, fd);
       if (!res.ok || !res.swim) { setFErr(res.error ?? "No se pudo guardar."); return; }
+      posthog.capture("swim_time_recorded", { event: fEvent, course: fCourse });
       setSwims(prev => [...prev, res.swim!]);
       setFTime(""); setFMeet("");
       setSelEvent(fEvent); setCourse(fCourse); setShowForm(false);

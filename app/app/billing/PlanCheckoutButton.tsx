@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createCheckoutSession } from "./actions";
+import posthog from "posthog-js";
 
 export default function PlanCheckoutButton({
   plan,
@@ -18,6 +19,7 @@ export default function PlanCheckoutButton({
   async function go() {
     setError(null);
     setLoading(true);
+    posthog.capture("checkout_started", { plan });
     const res = await createCheckoutSession(plan);
     if (res.url) {
       window.location.href = res.url;

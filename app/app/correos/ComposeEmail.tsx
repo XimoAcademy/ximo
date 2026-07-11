@@ -5,6 +5,7 @@ import { createEmailAction, type ActionResult } from "./actions";
 import { EMAIL_STATUSES, EMAIL_TEMPLATES } from "@/lib/data/email-templates";
 import { FieldLabel } from "../components/ui";
 import type { CoachOption } from "@/lib/data/emails";
+import posthog from "posthog-js";
 
 export default function ComposeEmail({ coaches }: { coaches: CoachOption[] }) {
   const [open, setOpen] = useState(false);
@@ -37,8 +38,12 @@ export default function ComposeEmail({ coaches }: { coaches: CoachOption[] }) {
     );
   }
 
+  function handleSubmit() {
+    posthog.capture("coach_email_saved", { has_coach: subject.length > 0 });
+  }
+
   return (
-    <form action={formAction} className="rounded-2xl p-4 sm:p-5"
+    <form action={formAction} onSubmit={handleSubmit} className="rounded-2xl p-4 sm:p-5"
       style={{ background: "var(--surface)", border: "1px solid var(--teal-border)" }}>
       <div className="mb-3 flex items-center justify-between">
         <p className="text-sm font-black" style={{ color: "var(--text)" }}>Nuevo correo</p>

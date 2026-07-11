@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { getStripe } from "@/lib/stripe/server";
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import { upsertSubscription, payloadFromSubscription } from "@/lib/stripe/sync";
+import { getPostHogClient } from "@/lib/posthog-server";
 
 // Stripe SDK needs Node (not Edge); webhooks are always dynamic.
 export const runtime = "nodejs";
@@ -69,6 +70,17 @@ async function handleEvent(event: Stripe.Event, svc: SupabaseClient, stripe: Str
       }
       payload.customerId = typeof session.customer === "string" ? session.customer : payload.customerId;
       await upsertSubscription(svc, payload);
+
+      const posthog = getPostHogClient();
+      posthog.capture({
+        distinctId: userId,
+        event: "subscription_activated",
+        properties: {
+          payment_status: session.payment_status,
+          subscription_status: payload.status,
+        },
+      });
+      await posthog.flush();
       return;
     }
 

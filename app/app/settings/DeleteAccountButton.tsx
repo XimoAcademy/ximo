@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { deleteAccountAction } from "@/lib/settings/actions";
+import posthog from "posthog-js";
 
 export default function DeleteAccountButton() {
   const [confirming, setConfirming] = useState(false);
@@ -14,6 +15,7 @@ export default function DeleteAccountButton() {
   function onDelete() {
     if (!canDelete) return;
     setError(null);
+    posthog.capture("account_deleted");
     start(async () => {
       const res = await deleteAccountAction();
       // On success the action redirects; we only reach here on failure.
