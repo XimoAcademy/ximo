@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getPostHogClient } from "@/lib/posthog-server";
 
 export interface ActionResult {
   ok: boolean;
@@ -42,6 +43,19 @@ export async function createUniversityAction(
   });
 
   if (error) return { ok: false, error: "No se pudo agregar la universidad." };
+
+  const posthog = getPostHogClient();
+  posthog.capture({
+    distinctId: userId,
+    event: "university_added",
+    properties: {
+      division: String(formData.get("division") ?? "").trim() || null,
+      priority: String(formData.get("priority") ?? "Media").trim() || "Media",
+      recruiting_stage: String(formData.get("recruiting_stage") ?? "Investigando").trim() || "Investigando",
+    },
+  });
+  await posthog.flush();
+
   revalidatePath("/app/universidades");
   revalidatePath("/app/recruiting");
   revalidatePath("/app");

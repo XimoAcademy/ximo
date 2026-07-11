@@ -6,6 +6,7 @@ import { GlassPanel, InnerTile, BackLink, StatusBadge } from "../../../component
 import { markLessonCompleteAction } from "../../actions";
 import type { LessonResource, LessonStatus } from "../../courseData";
 import type { Quiz } from "../../quizData";
+import posthog from "posthog-js";
 
 interface LessonLite {
   id: string;
@@ -54,6 +55,7 @@ export default function LessonPlayer({ courseId, courseTitle, lessons, lessonId,
   const markComplete = () => {
     if (done.includes(lessonId)) return;
     setDone((prev) => [...prev, lessonId]);
+    posthog.capture("lesson_completed", { course_id: courseId, lesson_id: lessonId, lesson_index: index + 1 });
     startTransition(async () => {
       await markLessonCompleteAction(courseId, lessonId);
     });
@@ -332,7 +334,10 @@ function LessonQuiz({ quiz }: { quiz: Quiz }) {
           <button
             type="button"
             disabled={!allAnswered}
-            onClick={() => setSubmitted(true)}
+            onClick={() => {
+              setSubmitted(true);
+              posthog.capture("quiz_submitted", { quiz_id: quiz.quizId, score, passed, total_questions: total });
+            }}
             className="ximo-glass-btn teal text-sm disabled:opacity-50"
           >
             Calificar quiz

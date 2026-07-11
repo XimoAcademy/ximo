@@ -2,6 +2,15 @@
 // The DSN is public (it ships in the client bundle by design); the env var lets
 // ops override it without a code change, with the real project DSN as fallback.
 import * as Sentry from "@sentry/nextjs";
+import posthog from "posthog-js";
+
+posthog.init(process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN!, {
+  api_host: "/ingest",
+  ui_host: "https://us.posthog.com",
+  defaults: "2026-01-30",
+  capture_exceptions: true,
+  debug: process.env.NODE_ENV === "development",
+});
 
 const DSN =
   process.env.NEXT_PUBLIC_SENTRY_DSN ??

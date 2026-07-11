@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { STANDARD_DOCS } from "@/lib/data/documents";
 import { emailCurrentUser } from "@/lib/email/notify";
+import { getPostHogClient } from "@/lib/posthog-server";
 
 export interface OnboardingResult {
   ok: boolean;
@@ -122,6 +123,20 @@ export async function completeOnboardingAction(
     ctaLabel: "Ir a mi dashboard",
     ctaPath: "/app",
   });
+
+  const posthog = getPostHogClient();
+  posthog.capture({
+    distinctId: user.id,
+    event: "onboarding_completed",
+    properties: {
+      primary_event: primaryEvent,
+      goal,
+      target_division: targetDivision,
+      universities_count: universities.length,
+      seed_docs: seedDocs,
+    },
+  });
+  await posthog.flush();
 
   revalidatePath("/app");
   revalidatePath("/app/notifications");
