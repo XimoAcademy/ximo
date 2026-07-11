@@ -13,9 +13,14 @@ Fecha: 2026-07-10 · Rama: `international-expansion`
 
 Verificado hoy además: la `SUPABASE_SERVICE_ROLE_KEY` solo se usa en `lib/supabase/{env,server}.ts` (nunca en código cliente) ✓; secretos de webhook TEST y LIVE ya son distintos ✓.
 
+## Actualización 2026-07-10 (tarde)
+
+- **Backups CONFIRMADO en dashboard: el plan Free NO incluye respaldos** ("Free Plan does not include project backups"). Mitigación aplicada: snapshot lógico completo de datos (27 tablas) vía service-role → `D:\XIMO\backups\prod-data-2026-07-10.json` (LOCAL, fuera del repo público; el esquema ya vive en `supabase/migrations/`). Decisión de compra pendiente del fundador: Supabase Pro (respaldos 7 días) — recomendado antes de cualquier migración de la expansión.
+- **Proyecto staging CREADO**: `ximo-staging`, ref `wpzwdmsqrgpvrjoltqff`, org Ximo (Free), región Americas, Data API habilitada (la contraseña de la DB quedó guardada localmente en `D:\XIMO\backups\`). PENDIENTE: aplicar migraciones 001–009 + make_admin.sql en su SQL editor, capturar anon/service keys a `.env.local` y a las env de Preview en Vercel.
+
 ## Gaps críticos y acciones
 
-1. **Local/preview usan la base de PRODUCCIÓN.** Acción (fundador, ~10 min): crear un segundo proyecto Supabase gratuito "ximo-staging", correr las migraciones 001–009 + `make_admin.sql`, y con eso:
+1. **Local/preview usan la base de PRODUCCIÓN.** Acción (fundador, ~10 min): crear un segundo proyecto Supabase gratuito "ximo-staging" ✅ HECHO (ver arriba), correr las migraciones 001–009 + `make_admin.sql`, y con eso:
    - `.env.local` pasa a apuntar a staging (datos personales de prod fuera del dev local, como exige el plan).
    - En Vercel, definir las env de **Preview** con las credenciales de staging + Stripe TEST (hoy Preview hereda las de producción). Vercel permite valores por entorno (Production/Preview/Development) en cada variable.
 2. **Seed sanitizado:** crear `scripts/seed-staging.mjs` con datos ficticios (pendiente; sin datos reales copiados).
