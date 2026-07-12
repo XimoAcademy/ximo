@@ -58,3 +58,11 @@ Reglas de uso (obligatorias para las fases siguientes):
 ## Convenciones de commits en esta rama
 
 Commits incrementales por unidad de trabajo (`intl: …`), nunca un mega-commit. Preview de Vercel por push para inspección visual. Merge a main solo tras pasar regresión completa (tests + build + smoke E2E del flujo MX actual, que no debe cambiar).
+
+## Estado del entorno de staging (actualizado 2026-07-12)
+
+- **Base de datos**: `ximo-staging` (ref `wpzwdmsqrgpvrjoltqff`) tiene las migraciones 001-010 aplicadas y verificadas (27 tablas + `country_code`, RLS activo, 5 buckets). La 010 se probó aquí ANTES que en producción, como manda esta guía.
+- **Datos de prueba**: `scripts/seed-staging.mjs` (idempotente, se niega a correr contra producción). Usuarios: `admin@staging.ximo.test` (admin), `atleta@staging.ximo.test`, `marca@staging.ximo.test` — contraseña en el propio script. Login E2E aún sin verificar (pendiente de P0-3).
+- **Decisión P1-1 (dominio)**: SIN subdominio fijo por ahora; se usan las URLs automáticas de Vercel Preview. Revisar si aparece la necesidad de una URL estable (p. ej. webhook de Stripe TEST permanente).
+- **Guard de seguridad**: desde `main` (commit 8ad6703), un deployment Preview que apunte a la base de PRODUCCIÓN falla el build a propósito (`lib/supabase/env.ts`). Hasta que Vercel Preview tenga las env vars de staging (P0-3, acción manual en dashboard), los Previews fallarán — eso es intencional y protege datos reales.
+- **Analytics**: PostHog etiqueta `environment` (production/preview/development) en cliente y servidor; Sentry ya lo hacía vía `VERCEL_ENV`. Los deployments no-production mandan `X-Robots-Tag: noindex`.
