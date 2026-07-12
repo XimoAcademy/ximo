@@ -10,6 +10,25 @@
 export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 export const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
 
+// SAFETY GUARD: a Vercel Preview deployment must never talk to the production
+// database (real user data, including minors). Until the Preview environment
+// variables point at the staging project, previews fail loudly here instead of
+// silently reading/writing production. The project ref is public (it ships in
+// NEXT_PUBLIC_SUPABASE_URL). Escape hatch: NEXT_PUBLIC_ALLOW_PROD_DB_IN_PREVIEW=1.
+const PRODUCTION_PROJECT_REF = "pqmekjbqbyitkhsgizab";
+const DEPLOY_ENV = process.env.NEXT_PUBLIC_VERCEL_ENV ?? process.env.VERCEL_ENV;
+if (
+  DEPLOY_ENV === "preview" &&
+  SUPABASE_URL.includes(PRODUCTION_PROJECT_REF) &&
+  process.env.NEXT_PUBLIC_ALLOW_PROD_DB_IN_PREVIEW !== "1"
+) {
+  throw new Error(
+    "[ximo] Este deployment Preview está apuntando a la base de datos de PRODUCCIÓN. " +
+      "Configura las variables de entorno de Preview en Vercel (Supabase staging + Stripe TEST) " +
+      "o, solo si es intencional, define NEXT_PUBLIC_ALLOW_PROD_DB_IN_PREVIEW=1."
+  );
+}
+
 /** Server-only. Never import this into client components. */
 export const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
 

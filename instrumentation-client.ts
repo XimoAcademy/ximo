@@ -22,6 +22,12 @@ posthog.init(
   }
 );
 
+// Tag every event with the deployment environment (production / preview /
+// development) so staging traffic can be filtered out of real dashboards.
+posthog.register({
+  environment: process.env.NEXT_PUBLIC_VERCEL_ENV ?? process.env.NODE_ENV,
+});
+
 const DSN =
   process.env.NEXT_PUBLIC_SENTRY_DSN ??
   "https://79e5a892d27f9bba6a997e07faff5781@o4511714448637952.ingest.us.sentry.io/4511714525511680";

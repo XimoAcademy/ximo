@@ -21,7 +21,13 @@ const nextConfig: NextConfig = {
     ],
   },
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    // Preview/dev deployments must never be indexed by search engines — their
+    // URLs are technically public. Production (ximo.com.mx) stays indexable.
+    const nonProdHeaders =
+      process.env.VERCEL_ENV && process.env.VERCEL_ENV !== "production"
+        ? [{ key: "X-Robots-Tag", value: "noindex, nofollow" }]
+        : [];
+    return [{ source: "/:path*", headers: [...securityHeaders, ...nonProdHeaders] }];
   },
   async rewrites() {
     return [
