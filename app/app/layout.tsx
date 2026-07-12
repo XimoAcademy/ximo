@@ -1,7 +1,7 @@
 import AppShell from "./components/AppShell";
 import { requireSubscription } from "@/lib/subscription/requireSubscription";
 import { getIdentity } from "@/lib/data/identity";
-import { getProfile } from "@/lib/auth/getUser";
+import { getProfile, getCurrentUser } from "@/lib/auth/getUser";
 import { getUnreadCount } from "@/lib/data/notifications";
 import { touchDailyStreak } from "@/lib/data/streak";
 
@@ -15,9 +15,10 @@ export default async function AppLayout({
   // redirects to /login (no user) or /subscribe (inactive) otherwise.
   await requireSubscription();
 
-  const [identity, profile, unreadCount, streak] = await Promise.all([
+  const [identity, profile, currentUser, unreadCount, streak] = await Promise.all([
     getIdentity(),
     getProfile(),
+    getCurrentUser(),
     getUnreadCount(),
     touchDailyStreak(),
   ]);
@@ -27,6 +28,7 @@ export default async function AppLayout({
       isAdmin={profile?.role === "admin"}
       unreadCount={unreadCount}
       streak={streak.current}
+      userId={currentUser?.id ?? null}
       identity={
         identity
           ? {

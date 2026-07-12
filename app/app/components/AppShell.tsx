@@ -3,9 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { signOutAction } from "@/lib/auth/actions";
+import posthog from "posthog-js";
 
 interface NavItem {
   href: string;
@@ -83,16 +84,29 @@ const STREAK_GOAL = 30;
 export default function AppShell({
   children,
   identity,
+  userId,
   isAdmin = false,
   unreadCount = 0,
   streak = 0,
 }: {
   children: ReactNode;
   identity?: ShellIdentity | null;
+  userId?: string | null;
   isAdmin?: boolean;
   unreadCount?: number;
   streak?: number;
 }) {
+  useEffect(() => {
+    if (userId) {
+      posthog.identify(userId, {
+        name: identity?.name,
+        sport: identity?.sport,
+        graduation_year: identity?.gradYear,
+        country: identity?.country,
+      });
+    }
+  }, [userId, identity?.name, identity?.sport, identity?.gradYear, identity?.country]);
+
   const baseGroups = isAdmin ? [...navGroups, adminGroup] : navGroups;
   // Inject the real unread-notifications badge onto the Notificaciones item.
   const groups: NavGroup[] = baseGroups.map((g) => ({
@@ -285,7 +299,7 @@ export default function AppShell({
               Ximo active
             </span>
           </div>
-          <form action={signOutAction} className="mb-2">
+          <form action={signOutAction} onSubmit={() => posthog.reset()} className="mb-2">
             <button type="submit" className="ximo-glass-chip flex w-full items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-[11px] font-semibold" style={{ color: "var(--text-2)" }}>
               <span aria-hidden>⎋</span> Cerrar sesión
             </button>

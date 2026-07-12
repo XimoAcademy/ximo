@@ -6,6 +6,7 @@ import { updateUniversityAction, deleteUniversityAction, type ActionResult } fro
 import { RECRUITING_STAGES, PRIORITIES } from "@/lib/data/recruiting-constants";
 import { FieldLabel } from "../../components/ui";
 import type { UniversityRow } from "@/lib/data/universities";
+import posthog from "posthog-js";
 
 export default function EditUniversityForm({ uni }: { uni: UniversityRow }) {
   const router = useRouter();
@@ -14,8 +15,16 @@ export default function EditUniversityForm({ uni }: { uni: UniversityRow }) {
     null
   );
 
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    const fd = new FormData(e.currentTarget);
+    posthog.capture("recruiting_stage_updated", {
+      recruiting_stage: String(fd.get("recruiting_stage") ?? ""),
+      priority: String(fd.get("priority") ?? ""),
+    });
+  }
+
   return (
-    <form action={formAction} className="space-y-4">
+    <form action={formAction} onSubmit={handleSubmit} className="space-y-4">
       <input type="hidden" name="id" value={uni.id} />
 
       <label className="block">

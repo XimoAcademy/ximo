@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { isSubscriptionActive } from "@/lib/subscription/requireSubscription";
+import { getPostHogClient } from "@/lib/posthog-server";
 
 export type AuthState = { error?: string; sent?: boolean };
 
@@ -49,8 +50,12 @@ export async function signInAction(_prev: AuthState, formData: FormData): Promis
   const password = String(formData.get("password") ?? "");
   if (!email || !password) return { error: "Ingresa tu correo y contraseña." };
 
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) return { error: translateAuthError(error.message) };
+
+  const posthog = getPostHogClient();
+  posthog.capture({ distinctId: data.user.id, event: "user_signed_in" });
+  await posthog.flush();
 
   redirect("/account-status");
 }
@@ -94,6 +99,13 @@ export async function signUpAction(_prev: AuthState, formData: FormData): Promis
     },
   });
   if (error) return { error: translateAuthError(error.message) };
+
+  if (data.user) {
+    const posthog = getPostHogClient();
+    posthog.identify({ distinctId: data.user.id, properties: { sport: "Natación", country, graduation_year, marketing_opt_in: marketingOptIn } });
+    posthog.capture({ distinctId: data.user.id, event: "user_registered", properties: { country, graduation_year, marketing_opt_in: marketingOptIn } });
+    await posthog.flush();
+  }
 
   // If email confirmation is OFF, a session exists immediately → go choose a plan.
   // If it's ON, no session yet → tell the user to verify their email.

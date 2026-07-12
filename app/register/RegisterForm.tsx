@@ -3,8 +3,8 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import { signUpAction, type AuthState } from "@/lib/auth/actions";
+import { RESIDENCE_COUNTRIES } from "@/lib/intl/residenceCountries";
 
-const COUNTRIES = ["México", "Estados Unidos", "Colombia", "Argentina", "Otro"];
 const YEARS = ["2025", "2026", "2027", "2028", "2029"];
 
 const labelClass = "mb-1.5 block text-[10px] font-bold uppercase tracking-widest";
@@ -45,15 +45,21 @@ export default function RegisterForm() {
           </div>
           <div>
             <label className={labelClass} style={labelStyle}>País</label>
-            <select name="country" defaultValue="México" className={selectClass} style={fieldStyle}>
-              {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
+            <div className="relative">
+              <select name="country" defaultValue="México" className={`${selectClass} pr-7`} style={fieldStyle}>
+                {RESIDENCE_COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
+              </select>
+              <span aria-hidden className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px]" style={{ color: "var(--text-label)" }}>▼</span>
+            </div>
           </div>
           <div>
             <label className={labelClass} style={labelStyle}>Graduación</label>
-            <select name="graduation_year" defaultValue="2027" className={selectClass} style={fieldStyle}>
-              {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
-            </select>
+            <div className="relative">
+              <select name="graduation_year" defaultValue="2027" className={`${selectClass} pr-7`} style={fieldStyle}>
+                {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
+              </select>
+              <span aria-hidden className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px]" style={{ color: "var(--text-label)" }}>▼</span>
+            </div>
           </div>
         </div>
       </div>
