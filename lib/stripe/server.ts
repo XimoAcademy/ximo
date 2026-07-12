@@ -98,5 +98,12 @@ export async function getDisplayPrices(): Promise<Partial<Record<Plan, DisplayPr
 }
 
 export function appUrl(): string {
-  return process.env.NEXT_PUBLIC_APP_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  // VERCEL_URL (server-only, per-deployment) makes Preview deployments work
+  // without pinning a fixed URL: Stripe redirects/email links point at the
+  // preview itself instead of localhost. Explicit env vars still win (prod).
+  return (
+    process.env.NEXT_PUBLIC_APP_URL ??
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")
+  );
 }

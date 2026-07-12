@@ -89,7 +89,11 @@ export async function upsertSubscription(
     if (incomingEnd >= existingEnd) row.current_period_end = p.periodEnd;
   }
 
-  await svc.from("subscriptions").upsert(row, { onConflict: "user_id" });
+  // supabase-js reports failures via `error` and never throws; the webhook
+  // relies on a thrown error here to return 500 so Stripe retries. Without
+  // this, a transient DB failure would silently lose a paid activation.
+  const { error } = await svc.from("subscriptions").upsert(row, { onConflict: "user_id" });
+  if (error) throw new Error(`subscriptions upsert failed: ${error.message}`);
 }
 
 /** Build a payload from a Stripe Subscription object. */

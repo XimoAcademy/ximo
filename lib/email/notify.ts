@@ -3,7 +3,13 @@ import { sendEmail } from "./resend";
 import { renderEmail } from "./templates";
 
 function siteUrl(): string {
-  return process.env.NEXT_PUBLIC_APP_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  // Same fallback chain as lib/stripe/server.ts appUrl(): explicit env vars
+  // first, then the per-deployment VERCEL_URL so Preview email links work.
+  return (
+    process.env.NEXT_PUBLIC_APP_URL ??
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")
+  );
 }
 
 export interface MailContent {
