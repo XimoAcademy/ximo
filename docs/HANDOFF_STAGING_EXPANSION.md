@@ -1,8 +1,34 @@
 # Handoff — Staging + Expansión Internacional
 
-Documento generado: 2026-07-11 · Última rama de trabajo: `main` (HEAD `6b3edcc`) y `international-expansion` (HEAD `111a42a`, mergebase con main = `1bdb2bb`)
+Documento generado: 2026-07-11 · **Actualizado: 2026-07-12** · Ramas: `main` y `international-expansion` (reconciliada, ahora = main + trabajo intl)
 
 Este documento reemplaza el contexto de la sesión anterior. Está escrito para que una sesión nueva de Claude pueda **empezar a ejecutar de inmediato**, sin releer ni auditar el repo completo.
+
+---
+
+## ⚡ ACTUALIZACIÓN 2026-07-12 — qué cambió desde que se escribió este documento
+
+**Completado en esta sesión (verificado con build+tests, no asumido):**
+
+- ✅ **P0-1** — `international-expansion` reconciliada con `main` (merge limpio, 0 conflictos). La rama ahora es main + los archivos intl. Sentry/PostHog/selector/tema intactos. Se le siguen mergeando los commits nuevos de main.
+- ✅ **P0-2** — Las **10** migraciones (001-009 + la nueva 010) aplicadas y verificadas en `ximo-staging` por conexión directa a Postgres: 27 tablas, RLS en todas, 5 buckets, backfill de `country_code` correcto.
+- ⚠️ **P0-3** — SIGUE PENDIENTE (única tarea P0 restante; requiere dashboards, ver abajo). **Mitigación ya desplegada en producción**: `lib/supabase/env.ts` hace fallar el build de cualquier Preview que apunte a la base de producción. Ya NO es posible que un PR escriba datos reales por accidente — el Preview simplemente no arranca hasta hacer P0-3.
+- ✅ **P1-1** — Decisión documentada en `docs/intl/ENVIRONMENTS.md`: sin subdominio fijo, se usan URLs de Preview.
+- ✅ **P1-3 + P1-4** — `scripts/seed-staging.mjs` creado Y ejecutado contra staging: 3 usuarios (`admin@staging.ximo.test` es admin, password en el script), directorio NCAA, marca + anuncios, cursos. Login E2E pendiente de P0-3.
+- ✅ **P1-5** — PostHog etiqueta `environment` en TODOS los eventos (cliente vía `posthog.register`, servidor envolviendo `capture`/`identify`).
+- ✅ **P2-1** — Expedientes legales de **España, Colombia y Argentina** (`docs/intl/legal/{ES,CO,AR}.md`) con fuentes oficiales verificadas 2026-07-12; STATUS.md actualizado a `legal_research_complete (1ª pasada)`. Aprobación de abogado sigue PENDIENTE (no fabricada).
+- ✅ **P2-2** — `lib/intl/countries.ts` (registro tipado ISO), `residenceCountries.ts` ahora deriva de él, signUp manda `country_code`, y migración `010_country_iso_codes.sql` (columna paralela + backfill + `handle_new_user` actualizado) **probada en staging**. **En producción la 010 AÚN NO se corre** — correrla al mergear la rama (es segura: solo añade columna/función; el código de main funciona sin ella).
+- ✅ **P2-3** — Gating server-side con `lib/intl/gate.ts` en `createCheckoutSession` y `payCampaignAction`. FAIL-SAFE: con switches apagados (hoy) nada cambia para nadie.
+- ✅ **Hardening extra (revisión interna completa, ya en producción):** el webhook de Stripe ahora detecta errores de BD (supabase-js no lanza excepciones — antes un fallo de BD perdía la activación de un pago SIN retry de Stripe) y reporta a Sentry; el cron aísla fallos por usuario; `appUrl()`/`siteUrl()` usan `VERCEL_URL` como fallback (los links/redirects de Preview ya no apuntan a localhost); `X-Robots-Tag: noindex` en deployments no-production; CI corre también en pushes a `international-expansion`.
+- ✅ **Regresión de producción verificada** tras los deploys: landing 200 sin errores de consola, /register con los 20 países, `/ingest` 200, `/api/health` ok.
+
+**Trabajo P0-3 restante (manual de Manuel, ~20 min, sección 9 tiene el detalle):**
+1. Supabase `ximo-staging` → Settings → API: copiar anon key y service_role key.
+2. Vercel → ximo → Environment Variables: crear valores solo-Preview (Supabase staging + Stripe TEST + precios TEST). NO tocar los de Production.
+3. Supabase `ximo-staging` → Auth → URL Configuration: agregar `https://ximo-git-*-ximo-academy.vercel.app/**` a Redirect URLs (P1-2).
+4. Redeploy de cualquier Preview → el guard deja de fallar → smoke test (sección 10, pasos 8-19).
+
+**Pendientes que siguen igual:** decisión Supabase Pro (backups), webhook Stripe TEST (esperar a decidir URL estable o probar manual), tunnel `/monitoring` con adblocker real (P1-6), 010 en producción tras merge, resto de países legales, decisión de Manuel sobre mergear `international-expansion` → main.
 
 ---
 
