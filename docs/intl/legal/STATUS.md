@@ -10,14 +10,14 @@ Elegibilidad SIEMPRE por país de residencia actual + estado de lanzamiento, nun
 
 | País | ISO | Locale | Moneda candidata* | Estado | Ancla normativa inicial (verificar vigencia) |
 |---|---|---|---|---|---|
-| Argentina | AR | es-AR | ARS | research_required | Ley 25.326 de datos personales y reglamentos |
+| Argentina | AR | es-AR | ARS | legal_research_complete (1ª pasada — [AR.md](AR.md)) | Ley 25.326 de datos personales y reglamentos |
 | Bolivia | BO | es-BO | BOB | research_required | SIN ley integral privada confirmada; verificar marco constitucional/sectorial (no inventarla) |
 | Chile | CL | es-CL | CLP | research_required | Marco vigente + Ley 21.719 (entra en vigor 2026-12-01): construir para ambos regímenes |
-| Colombia | CO | es-CO | COP | research_required | Ley 1581 de 2012 + decretos; verificar reformas pendientes |
+| Colombia | CO | es-CO | COP | legal_research_complete (1ª pasada — [CO.md](CO.md)) | Ley 1581 de 2012 + decretos; verificar reformas pendientes |
 | Costa Rica | CR | es-CR | CRC | research_required | Ley 8968 y reglamento vigente |
 | Ecuador | EC | es-EC | USD | research_required | Ley Orgánica de Protección de Datos Personales y reglamento |
 | El Salvador | SV | es-SV | USD | research_required | Decreto Legislativo 144 (Ley de Protección de Datos); verificar reglamento e implementación |
-| España | ES | es-ES | EUR | research_required | RGPD + LO 3/2018; cookies/comunicaciones electrónicas; menores: 14 años para consentimiento de datos |
+| España | ES | es-ES | EUR | legal_research_complete (1ª pasada — [ES.md](ES.md)) | RGPD + LO 3/2018; cookies/comunicaciones electrónicas; menores: 14 años para consentimiento de datos |
 | Guatemala | GT | es-GT | GTQ | research_required | Verificar marco constitucional/civil/consumo/e-commerce; NO asumir ley integral aprobada |
 | Guinea Ecuatorial | GQ | es-GQ | XAF | research_required | Ley 1/2016 de datos personales; verificar regulador y exigibilidad real |
 | Honduras | HN | es-HN | HNL | research_required | Verificar marco privado vigente (no asumir proyectos); Ley de Comercio Electrónico, Decreto 149-2014 |
