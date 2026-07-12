@@ -4,13 +4,23 @@
 import * as Sentry from "@sentry/nextjs";
 import posthog from "posthog-js";
 
-posthog.init(process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN!, {
-  api_host: "/ingest",
-  ui_host: "https://us.posthog.com",
-  defaults: "2026-01-30",
-  capture_exceptions: true,
-  debug: process.env.NODE_ENV === "development",
-});
+// Project API key is public (write-only, ships in the browser bundle by
+// design) — env var overrides, with the real token as fallback so prod works.
+posthog.init(
+  process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN ?? "phc_yJ9JqM5BiQoCCyEYLbehBoUf6bkyfLx8RrtkQEpQeJxf",
+  {
+    api_host: "/ingest",
+    ui_host: "https://us.posthog.com",
+    defaults: "2026-01-30",
+    // Errors go through Sentry (privacy-configured); don't double-capture here.
+    capture_exceptions: false,
+    // PRIVACY (LFPDPPP / minors): only build person profiles for logged-in
+    // users, and never record full sessions from this SDK.
+    person_profiles: "identified_only",
+    disable_session_recording: true,
+    debug: process.env.NODE_ENV === "development",
+  }
+);
 
 const DSN =
   process.env.NEXT_PUBLIC_SENTRY_DSN ??

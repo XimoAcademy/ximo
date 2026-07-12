@@ -19,7 +19,9 @@ const noop: ServerAnalytics = {
 let posthogClient: PostHog | null = null;
 
 export function getPostHogClient(): ServerAnalytics {
-  const token = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
+  // Public write-only token (env override + fallback, mirrors the client).
+  const token =
+    process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN ?? "phc_yJ9JqM5BiQoCCyEYLbehBoUf6bkyfLx8RrtkQEpQeJxf";
   if (!token) return noop;
 
   if (!posthogClient) {
