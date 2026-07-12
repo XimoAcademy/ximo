@@ -56,44 +56,50 @@ export async function GET(req: Request): Promise<Response> {
   for (const t of (tasks as { user_id: string; title: string }[]) ?? []) add(t.user_id, "tasks", t.title);
 
   let notified = 0;
+  let failed = 0;
   for (const [userId, b] of byUser) {
-    const parts: string[] = [];
-    if (b.coaches.length) parts.push(`${b.coaches.length} follow-up${b.coaches.length > 1 ? "s" : ""} con coaches`);
-    if (b.tasks.length) parts.push(`${b.tasks.length} tarea${b.tasks.length > 1 ? "s" : ""}`);
-    if (parts.length === 0) continue;
-    const summary = parts.join(" y ") + " para hoy.";
+    try {
+      const parts: string[] = [];
+      if (b.coaches.length) parts.push(`${b.coaches.length} follow-up${b.coaches.length > 1 ? "s" : ""} con coaches`);
+      if (b.tasks.length) parts.push(`${b.tasks.length} tarea${b.tasks.length > 1 ? "s" : ""}`);
+      if (parts.length === 0) continue;
+      const summary = parts.join(" y ") + " para hoy.";
 
-    // Avoid duplicate reminder notifications if the job runs twice in a day.
-    const { data: existing } = await svc
-      .from("notifications")
-      .select("id")
-      .eq("user_id", userId)
-      .eq("type", "reminder")
-      .gte("created_at", start.toISOString())
-      .limit(1);
-    if (existing && existing.length > 0) continue;
+      // Avoid duplicate reminder notifications if the job runs twice in a day.
+      const { data: existing } = await svc
+        .from("notifications")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("type", "reminder")
+        .gte("created_at", start.toISOString())
+        .limit(1);
+      if (existing && existing.length > 0) continue;
 
-    await svc.from("notifications").insert({
-      user_id: userId,
-      title: "Tus pendientes de hoy",
-      body: summary,
-      type: "reminder",
-    });
+      await svc.from("notifications").insert({
+        user_id: userId,
+        title: "Tus pendientes de hoy",
+        body: summary,
+        type: "reminder",
+      });
 
-    const lines: string[] = [`Tienes ${summary}`];
-    if (b.coaches.length) lines.push("Coaches por contactar: " + b.coaches.slice(0, 5).join(", ") + (b.coaches.length > 5 ? "…" : ""));
-    if (b.tasks.length) lines.push("Tareas: " + b.tasks.slice(0, 5).join(", ") + (b.tasks.length > 5 ? "…" : ""));
-    lines.push("Dale seguimiento hoy para no perder ninguna oportunidad.");
+      const lines: string[] = [`Tienes ${summary}`];
+      if (b.coaches.length) lines.push("Coaches por contactar: " + b.coaches.slice(0, 5).join(", ") + (b.coaches.length > 5 ? "…" : ""));
+      if (b.tasks.length) lines.push("Tareas: " + b.tasks.slice(0, 5).join(", ") + (b.tasks.length > 5 ? "…" : ""));
+      lines.push("Dale seguimiento hoy para no perder ninguna oportunidad.");
 
-    await emailUserViaService(svc, userId, {
-      subject: "Tus pendientes de hoy en Ximo",
-      heading: "Pendientes para hoy",
-      body: lines,
-      ctaLabel: "Abrir Ximo",
-      ctaPath: "/app/tareas",
-    });
-    notified++;
+      await emailUserViaService(svc, userId, {
+        subject: "Tus pendientes de hoy en Ximo",
+        heading: "Pendientes para hoy",
+        body: lines,
+        ctaLabel: "Abrir Ximo",
+        ctaPath: "/app/tareas",
+      });
+      notified++;
+    } catch {
+      // One user failing must not abort reminders for everyone else.
+      failed++;
+    }
   }
 
-  return Response.json({ ok: true, usersNotified: notified });
+  return Response.json({ ok: true, usersNotified: notified, usersFailed: failed });
 }

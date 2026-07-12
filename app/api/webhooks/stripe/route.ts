@@ -1,4 +1,5 @@
 import type Stripe from "stripe";
+import * as Sentry from "@sentry/nextjs";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getStripe } from "@/lib/stripe/server";
 import { createServiceRoleClient } from "@/lib/supabase/server";
@@ -37,7 +38,19 @@ async function handleEvent(event: Stripe.Event, svc: SupabaseClient, stripe: Str
         const days = Number(session.metadata.duration_days) || 1;
         const now = new Date();
         const ends = new Date(now.getTime() + days * 86_400_000);
-        await svc.from("brand_campaigns").insert({
+        // supabase-js reports failures via `error`, it never throws — check and
+        // throw explicitly so the outer catch returns 500 and Stripe retries.
+        // The idempotent update runs FIRST so a retry after a partial failure
+        // can't create a duplicate campaign row.
+        const { error: adErr } = await svc
+          .from("brand_ads")
+          .update({ review_status: "paid_ready_to_publish", budget: Number(session.metadata.budget_mxn) || null })
+          .eq("id", adId);
+        if (adErr) throw new Error(`brand_ads update failed: ${adErr.message}`);
+        // Payment confirmed → paid_ready_to_publish. Publication stays manual:
+        // an admin presses "Publicar anuncio" in /app/admin/ads, which is what
+        // sets review_status='approved' (the only publicly visible status).
+        const { error: campErr } = await svc.from("brand_campaigns").insert({
           ad_id: adId,
           budget_mxn: Number(session.metadata.budget_mxn) || null,
           duration_days: days,
@@ -47,13 +60,7 @@ async function handleEvent(event: Stripe.Event, svc: SupabaseClient, stripe: Str
           starts_at: now.toISOString(),
           ends_at: ends.toISOString(),
         });
-        // Payment confirmed → paid_ready_to_publish. Publication stays manual:
-        // an admin presses "Publicar anuncio" in /app/admin/ads, which is what
-        // sets review_status='approved' (the only publicly visible status).
-        await svc
-          .from("brand_ads")
-          .update({ review_status: "paid_ready_to_publish", budget: Number(session.metadata.budget_mxn) || null })
-          .eq("id", adId);
+        if (campErr) throw new Error(`brand_campaigns insert failed: ${campErr.message}`);
         return;
       }
 
@@ -157,9 +164,18 @@ export async function POST(req: Request): Promise<Response> {
 
   try {
     await handleEvent(event, svc, stripe);
-  } catch {
-    // We've recorded the event; surface a 500 so Stripe retries the handler.
-    await svc.from("processed_webhook_events").delete().eq("event_id", event.id);
+  } catch (err) {
+    // Report — a webhook failure can mean a paid user without activation.
+    Sentry.captureException(err, { tags: { webhook_event: event.type }, extra: { event_id: event.id } });
+    // We've recorded the event; un-record it and surface a 500 so Stripe
+    // retries. If the un-record itself fails, the retry would dedupe to 200
+    // and the event would be lost — that combination is also reported.
+    const { error: delErr } = await svc.from("processed_webhook_events").delete().eq("event_id", event.id);
+    if (delErr) {
+      Sentry.captureException(
+        new Error(`webhook ledger rollback failed for ${event.id}: ${delErr.message} — event may be lost`)
+      );
+    }
     return new Response("handler error", { status: 500 });
   }
 
