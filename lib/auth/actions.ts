@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { isSubscriptionActive } from "@/lib/subscription/requireSubscription";
 import { getPostHogClient } from "@/lib/posthog-server";
+import { codeFromResidenceText } from "@/lib/intl/countries";
 
 export type AuthState = { error?: string; sent?: boolean };
 
@@ -69,6 +70,9 @@ export async function signUpAction(_prev: AuthState, formData: FormData): Promis
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   const country = String(formData.get("country") ?? "").trim();
+  // ISO code stored alongside the display text (profiles.country_code,
+  // migration 010). Null for "Otro"/unrecognised — never invented.
+  const country_code = codeFromResidenceText(country);
   const gradYearRaw = String(formData.get("graduation_year") ?? "").trim();
   const graduation_year = gradYearRaw ? Number(gradYearRaw) : null;
   const privacyAccepted = formData.get("privacy_accepted") != null;
@@ -90,6 +94,7 @@ export async function signUpAction(_prev: AuthState, formData: FormData): Promis
         full_name: fullName,
         sport: "Natación",
         country,
+        country_code,
         graduation_year,
         privacy_accepted_at: new Date().toISOString(),
         privacy_notice_version: PRIVACY_NOTICE_VERSION,
@@ -102,8 +107,8 @@ export async function signUpAction(_prev: AuthState, formData: FormData): Promis
 
   if (data.user) {
     const posthog = getPostHogClient();
-    posthog.identify({ distinctId: data.user.id, properties: { sport: "Natación", country, graduation_year, marketing_opt_in: marketingOptIn } });
-    posthog.capture({ distinctId: data.user.id, event: "user_registered", properties: { country, graduation_year, marketing_opt_in: marketingOptIn } });
+    posthog.identify({ distinctId: data.user.id, properties: { sport: "Natación", country, country_code, graduation_year, marketing_opt_in: marketingOptIn } });
+    posthog.capture({ distinctId: data.user.id, event: "user_registered", properties: { country, country_code, graduation_year, marketing_opt_in: marketingOptIn } });
     await posthog.flush();
   }
 

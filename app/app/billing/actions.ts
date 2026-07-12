@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { getStripe, stripePrices, appUrl, type CheckoutPlan } from "@/lib/stripe/server";
+import { paidFlowsAllowedForUser, PAID_FLOWS_BLOCKED_ERROR } from "@/lib/intl/gate";
 
 export interface CheckoutResult {
   url?: string;
@@ -22,6 +23,12 @@ export async function createCheckoutSession(plan: CheckoutPlan): Promise<Checkou
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Inicia sesión para continuar." };
+
+  // Country gate (server-side, can't be bypassed from the client). Fail-safe:
+  // with the expansion switches off this always allows — today's behaviour.
+  if (!(await paidFlowsAllowedForUser(supabase, user.id))) {
+    return { error: PAID_FLOWS_BLOCKED_ERROR };
+  }
 
   const prices = stripePrices();
   const price = prices[plan];

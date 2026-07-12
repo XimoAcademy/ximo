@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { getStripe, appUrl } from "@/lib/stripe/server";
+import { paidFlowsAllowedForUser, PAID_FLOWS_BLOCKED_ERROR } from "@/lib/intl/gate";
 
 export interface AdPayResult {
   url?: string;
@@ -34,6 +35,12 @@ export async function payCampaignAction(input: {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Inicia sesión para continuar." };
+
+  // Country gate (server-side, can't be bypassed from the client). Fail-safe:
+  // with the expansion switches off this always allows — today's behaviour.
+  if (!(await paidFlowsAllowedForUser(supabase, user.id))) {
+    return { error: PAID_FLOWS_BLOCKED_ERROR };
+  }
 
   const dailyBudget = Math.min(MAX_DAILY, Math.max(MIN_DAILY, Math.round(input.dailyBudget)));
   const days = Math.min(MAX_DAYS, Math.max(1, Math.round(input.days)));
