@@ -12,9 +12,14 @@
 //
 // Crea:
 //   - 3 usuarios de prueba (contraseña: XimoStaging2026!):
-//       admin@staging.ximo.test   (rol admin — habilita /app/admin/*)
-//       atleta@staging.ximo.test  (atleta normal)
-//       marca@staging.ximo.test   (dueño del perfil de marca)
+//       admin@ximostaging.com   (rol admin — habilita /app/admin/*)
+//       atleta@ximostaging.com  (atleta normal)
+//       marca@ximostaging.com   (dueño del perfil de marca)
+//     NOTA: el dominio DEBE tener un TLD válido (ej. .com). Supabase Auth
+//     rechaza dominios de prueba como .test/.local y example.com al iniciar
+//     sesión por la UI (aunque el insert directo en auth.users sí los acepta).
+//     Verificado: login UI en un Preview de Vercel con admin@ximostaging.com
+//     entra a staging (no producción). Cambia el dominio aquí si registras uno.
 //   - 3 programas NCAA con coaches (directorio)
 //   - 1 perfil de marca verificado + 1 anuncio aprobado + 1 pendiente
 //   - 2 cursos publicados con lecciones
@@ -84,13 +89,13 @@ async function createAuthUser(email, meta) {
 }
 
 console.log("Creando usuarios de prueba…");
-const adminId = await createAuthUser("admin@staging.ximo.test", {
+const adminId = await createAuthUser("admin@ximostaging.com", {
   full_name: "Admin Staging", country: "México", sport: "Natación",
 });
-const athleteId = await createAuthUser("atleta@staging.ximo.test", {
+const athleteId = await createAuthUser("atleta@ximostaging.com", {
   full_name: "Atleta Prueba", country: "México", sport: "Natación",
 });
-const brandUserId = await createAuthUser("marca@staging.ximo.test", {
+const brandUserId = await createAuthUser("marca@ximostaging.com", {
   full_name: "Marca Prueba", country: "México", sport: "Natación",
 });
 
@@ -118,7 +123,7 @@ for (const [slug, name, division, sport, conference, location, website] of progr
   );
   await client.query(
     `insert into public.ncaa_coaches (program_id, name, title, email, sort_order)
-     select $1, 'Coach de Prueba ' || $2, 'Head Coach', 'coach+' || $2 || '@staging.ximo.test', 0
+     select $1, 'Coach de Prueba ' || $2, 'Head Coach', 'coach+' || $2 || '@ximostaging.com', 0
      where not exists (select 1 from public.ncaa_coaches where program_id = $1)`,
     [rows[0].id, slug]
   );
@@ -127,7 +132,7 @@ for (const [slug, name, division, sport, conference, location, website] of progr
 console.log("Sembrando marca + anuncios…");
 const { rows: brandRows } = await client.query(
   `insert into public.brand_profiles (user_id, brand_name, contact_email, website, category, verification_status)
-   select $1, 'Marca Staging', 'marca@staging.ximo.test', 'https://example.com', 'Deportes', 'verified'
+   select $1, 'Marca Staging', 'marca@ximostaging.com', 'https://example.com', 'Deportes', 'verified'
    where not exists (select 1 from public.brand_profiles where user_id = $1)
    returning id`,
   [brandUserId]
