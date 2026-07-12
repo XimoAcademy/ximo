@@ -17,6 +17,12 @@ const noop: ServerAnalytics = {
 };
 
 let posthogClient: PostHog | null = null;
+let wrapped: ServerAnalytics | null = null;
+
+// Deployment environment (production / preview / development) — stamped on
+// every server event so staging traffic can be filtered in dashboards,
+// mirroring the client-side posthog.register() in instrumentation-client.ts.
+const ENVIRONMENT = process.env.VERCEL_ENV ?? process.env.NODE_ENV ?? "unknown";
 
 export function getPostHogClient(): ServerAnalytics {
   // Public write-only token (env override + fallback, mirrors the client).
@@ -31,5 +37,22 @@ export function getPostHogClient(): ServerAnalytics {
       flushInterval: 0,
     });
   }
-  return posthogClient;
+  if (!wrapped) {
+    const client = posthogClient;
+    wrapped = {
+      capture: (message) =>
+        client.capture({
+          ...message,
+          properties: { environment: ENVIRONMENT, ...message.properties },
+        }),
+      identify: (message) =>
+        client.identify({
+          ...message,
+          properties: { environment: ENVIRONMENT, ...message.properties },
+        }),
+      flush: () => client.flush(),
+      shutdown: () => client.shutdown(),
+    };
+  }
+  return wrapped;
 }
