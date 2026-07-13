@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { isSubscriptionActive } from "@/lib/subscription/requireSubscription";
 import { getPostHogClient } from "@/lib/posthog-server";
 import { codeFromResidenceText } from "@/lib/intl/countries";
+import { validateGradYear, validateDob } from "@/lib/education/fields";
 
 export type AuthState = { error?: string; sent?: boolean };
 
@@ -73,8 +74,23 @@ export async function signUpAction(_prev: AuthState, formData: FormData): Promis
   // ISO code stored alongside the display text (profiles.country_code,
   // migration 010). Null for "Otro"/unrecognised — never invented.
   const country_code = codeFromResidenceText(country);
-  const gradYearRaw = String(formData.get("graduation_year") ?? "").trim();
-  const graduation_year = gradYearRaw ? Number(gradYearRaw) : null;
+
+  // Four-digit graduation year — authoritative server validation (never trust
+  // the client). Rejects letters/spaces/decimals/signs and out-of-range values.
+  const gradResult = validateGradYear(String(formData.get("graduation_year") ?? ""), { required: true });
+  if (!gradResult.ok) {
+    return { error: "Escribe un año de graduación válido de cuatro dígitos (por ejemplo, 2027)." };
+  }
+  const graduation_year = gradResult.value;
+
+  // Date of birth — date-only, timezone-safe. Rejects future/impossible dates.
+  // Kept out of all analytics/logs (private, possibly a minor).
+  const dobResult = validateDob(String(formData.get("date_of_birth") ?? ""), { required: true });
+  if (!dobResult.ok) {
+    return { error: "Ingresa una fecha de nacimiento válida (no puede estar en el futuro)." };
+  }
+  const date_of_birth = dobResult.value;
+
   const privacyAccepted = formData.get("privacy_accepted") != null;
   // Optional, separate marketing consent (LFPDPPP: secondary purpose, opt-in).
   const marketingOptIn = formData.get("marketing_opt_in") != null;
@@ -96,6 +112,9 @@ export async function signUpAction(_prev: AuthState, formData: FormData): Promis
         country,
         country_code,
         graduation_year,
+        // handle_new_user() seeds athlete_profiles.date_of_birth from this.
+        // Private: never forwarded to analytics/logs below.
+        date_of_birth,
         privacy_accepted_at: new Date().toISOString(),
         privacy_notice_version: PRIVACY_NOTICE_VERSION,
         marketing_opt_in: marketingOptIn,

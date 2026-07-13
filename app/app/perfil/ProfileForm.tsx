@@ -3,12 +3,14 @@
 import { useActionState } from "react";
 import { saveProfileAction, type ActionResult } from "./actions";
 import type { ProfileRow, AthleteRow } from "@/lib/data/profile";
+import type { Dict } from "@/lib/i18n/dictionaries";
+import EducationTimeline from "./EducationTimeline";
 
 const Label = ({ children }: { children: React.ReactNode }) => (
   <span className="mb-1 block text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--text-label)" }}>{children}</span>
 );
 
-export default function ProfileForm({ profile, athlete }: { profile: ProfileRow | null; athlete: AthleteRow | null }) {
+export default function ProfileForm({ profile, athlete, education }: { profile: ProfileRow | null; athlete: AthleteRow | null; education: Dict["education"] }) {
   const [state, formAction, pending] = useActionState<ActionResult | null, FormData>(saveProfileAction, null);
 
   return (
@@ -57,6 +59,9 @@ export default function ProfileForm({ profile, athlete }: { profile: ProfileRow 
         </div>
         <label className="mt-3 block"><Label>Meta académica</Label><input name="academic_goal" defaultValue={athlete?.academic_goal ?? ""} placeholder="Estudiar ingeniería o negocios" className="ximo-input" /></label>
       </div>
+
+      {/* Education & college timeline (international expansion) */}
+      <EducationTimeline athlete={athlete} t={education} />
 
       {state?.ok && <p className="text-xs font-semibold" style={{ color: "var(--success)" }}>Perfil guardado.</p>}
       {state?.error && <p className="text-xs font-semibold" style={{ color: "var(--error)" }}>{state.error}</p>}

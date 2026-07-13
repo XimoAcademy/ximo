@@ -8,6 +8,7 @@ import { getUserSettings, saveUserSettings, getAccountSummary } from "@/lib/sett
 import { saveNotificationPrefsAction } from "@/app/app/notifications/actions";
 import DeleteAccountButton from "./DeleteAccountButton";
 import ExportDataButton from "./ExportDataButton";
+import ThemeToggle from "@/app/components/ThemeToggle";
 
 const LANGUAGES = ["Español", "English"];
 const LANG_TO_CODE: Record<string, string> = { Español: "es", English: "en" };
@@ -106,7 +107,7 @@ const T = {
 type LangKey = keyof typeof T;
 
 export default function SettingsPage() {
-  const { theme, setTheme, resolved } = useTheme();
+  const { theme } = useTheme();
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [lang, setLang] = useState("Español");
@@ -116,8 +117,6 @@ export default function SettingsPage() {
   const [emailNotif, setEmailNotif] = useState(true);
   const [communityNotif, setCommunityNotif] = useState(true);
   const [pushGranted, setPushGranted] = useState<NotificationPermission | null>(null);
-
-  const isLight = theme === "light" || (theme === "system" && resolved === "light");
 
   useEffect(() => {
     let cancelled = false;
@@ -160,8 +159,12 @@ export default function SettingsPage() {
       saveUserSettings({ theme, language: langCode }),
       saveNotificationPrefsAction(fd),
     ]);
-    // Persist language to localStorage so the HTML lang attr updates on reload.
+    // Persist language to localStorage (pre-paint) AND a cookie (so the first
+    // server-rendered response after reload is already in the chosen language).
     try { localStorage.setItem("ximo-lang", langCode); } catch {}
+    try {
+      document.cookie = `ximo-lang=${langCode}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
+    } catch {}
     setSaving(false);
     setSaved(true);
     // Reload after a short delay so the lang attr flips immediately.
@@ -200,54 +203,18 @@ export default function SettingsPage() {
           </p>
         </div>
 
-        {/* Sliding toggle: Oscuro (left) ↔ Claro (right) */}
-        <div className="flex flex-col items-center gap-4">
-          <div className="relative w-full max-w-[240px]">
-            <button
-              type="button"
-              role="switch"
-              aria-checked={isLight}
-              aria-label="Cambiar entre modo oscuro y claro"
-              onClick={() => setTheme(isLight ? "dark" : "light")}
-              className="ximo-glass-chip relative flex h-12 w-full items-center rounded-full p-1.5"
-            >
-              {/* Sliding pill */}
-              <span
-                aria-hidden
-                className="ximo-glass-chip active absolute top-1.5 bottom-1.5 left-1.5 rounded-full"
-                style={{
-                  width: "calc(50% - 6px)",
-                  transform: isLight ? "translateX(100%)" : "translateX(0)",
-                  transition: "transform 0.42s cubic-bezier(0.22,1,0.36,1)",
-                }}
-              />
-              {/* Dark label — LEFT */}
-              <span
-                className="relative z-10 flex flex-1 items-center justify-center text-sm font-bold transition-colors duration-300"
-                style={{ color: isLight ? "var(--text-label)" : "#ffffff" }}
-              >
-                {t.dark}
-              </span>
-              {/* Light label — RIGHT */}
-              <span
-                className="relative z-10 flex flex-1 items-center justify-center text-sm font-bold transition-colors duration-300"
-                style={{ color: isLight ? "#ffffff" : "var(--text-label)" }}
-              >
-                {t.light}
-              </span>
-            </button>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setTheme("system")}
-            className={`ximo-glass-chip rounded-full px-4 py-2 text-xs font-semibold ${theme === "system" ? "active" : ""}`}
-          >
-            {t.followSystem}
-            {theme === "system" && (
-              <span className="ml-1.5" style={{ color: "var(--gold)" }}>{t.active}</span>
-            )}
-          </button>
+        {/* Compact glass light/dark toggle + subtle "follow system" secondary. */}
+        <div className="flex justify-center">
+          <ThemeToggle
+            showSystem
+            labels={{
+              dark: t.dark,
+              light: t.light,
+              aria: lang === "English" ? "Switch between light and dark mode" : "Cambiar entre modo claro y oscuro",
+              system: t.followSystem,
+              systemActive: t.active,
+            }}
+          />
         </div>
       </div>
 

@@ -61,6 +61,47 @@ export async function isSubscriptionActive(): Promise<boolean> {
 }
 
 /**
+ * Resolve routing access in ONE place, distinguishing a transient lookup
+ * failure from a genuinely-inactive subscription. Used by the root route and
+ * the login/register redirects (requirements #2/#3):
+ *
+ *  - "unauthenticated" → no valid session (or Supabase unconfigured).
+ *  - "active"          → signed in with an access-granting status.
+ *  - "inactive"        → signed in, but no access-granting status.
+ *  - "error"           → signed in, but the subscription lookup FAILED. We must
+ *                        NOT sign the user out and NOT grant premium access —
+ *                        the caller shows a recoverable/retry screen instead.
+ *
+ * The session itself is never destroyed here; a failed subscription read only
+ * affects access, not authentication.
+ */
+export type AccessResolution = "unauthenticated" | "active" | "inactive" | "error";
+
+export async function resolveAccess(): Promise<AccessResolution> {
+  const supabase = await createClient();
+  if (!supabase) return "unauthenticated"; // unconfigured: behave as logged-out for routing
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return "unauthenticated";
+
+  const { data, error } = await supabase
+    .from("subscriptions")
+    .select("status")
+    .eq("user_id", user.id)
+    .order("updated_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  // Transient DB/network error — keep the session, don't grant access.
+  if (error) return "error";
+
+  const status = (data?.status as string) ?? "inactive";
+  return (ACTIVE_STATUSES as readonly string[]).includes(status) ? "active" : "inactive";
+}
+
+/**
  * Guard for protected (dashboard) routes. NOT wired into any page yet — call it
  * from a Server Component / layout once auth is fully connected.
  *

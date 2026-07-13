@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import ScrollReveal from "./components/ScrollReveal";
 import JourneyBackground from "./components/journey/JourneyBackground";
+import { resolveAccess } from "@/lib/subscription/requireSubscription";
 
 export const metadata: Metadata = {
   title: "Ximo — Live the Dream",
@@ -23,7 +25,19 @@ export const metadata: Metadata = {
 const panel =
   "rounded-3xl border border-white/10 bg-[rgba(8,11,22,0.55)] px-7 py-10 backdrop-blur-md shadow-2xl sm:px-11 sm:py-12";
 
-export default function Home() {
+export default async function Home() {
+  // Root-route behavior (requirement #3): a Google visitor with a valid session
+  // should land where they belong, server-side, before the landing renders.
+  //  - active subscriber        → straight to the dashboard (/app)
+  //  - inactive (definitively)  → subscription page, still signed in
+  //  - transient lookup failure → recoverable status screen (never sign out,
+  //                               never wrongly grant access)
+  //  - no valid session         → public landing (below)
+  const access = await resolveAccess();
+  if (access === "active") redirect("/app");
+  if (access === "inactive") redirect("/subscribe");
+  if (access === "error") redirect("/account-status");
+
   const year = new Date().getFullYear();
   return (
     <main className="relative text-white">

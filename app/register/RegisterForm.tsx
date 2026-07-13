@@ -1,11 +1,10 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
 import { signUpAction, type AuthState } from "@/lib/auth/actions";
 import { RESIDENCE_COUNTRIES } from "@/lib/intl/residenceCountries";
-
-const YEARS = ["2025", "2026", "2027", "2028", "2029"];
+import { validateGradYear, validateDob } from "@/lib/education/fields";
 
 const labelClass = "mb-1.5 block text-[10px] font-bold uppercase tracking-widest";
 const labelStyle = { color: "var(--text-label)" } as const;
@@ -15,8 +14,36 @@ const fieldStyle = { background: "var(--bg-surf)", border: "1px solid var(--bord
 
 const initial: AuthState = {};
 
+// Today as YYYY-MM-DD (date-only, no timezone shift) for the max attribute.
+function todayISO(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+const GRAD_ERR: Record<string, string> = {
+  required: "Escribe tu año de graduación.",
+  not_four_digits: "Escribe exactamente cuatro dígitos (por ejemplo, 2027).",
+  out_of_range: "Escribe un año válido.",
+  invalid: "Escribe un año válido.",
+};
+const DOB_ERR: Record<string, string> = {
+  future: "La fecha no puede estar en el futuro.",
+  invalid: "Ingresa una fecha válida.",
+  too_old: "Ingresa una fecha válida.",
+  required: "Ingresa tu fecha de nacimiento.",
+};
+
 export default function RegisterForm() {
   const [state, formAction, pending] = useActionState(signUpAction, initial);
+  const [gradYear, setGradYear] = useState("2027");
+  const [dob, setDob] = useState("");
+
+  // Client-side validation (server re-validates authoritatively).
+  const gradResult = validateGradYear(gradYear, { required: true });
+  const gradError = !gradResult.ok ? GRAD_ERR[gradResult.error] : null;
+  const dobResult = validateDob(dob);
+  const dobError = !dobResult.ok ? DOB_ERR[dobResult.error] : null;
+  const clientInvalid = !gradResult.ok || !dobResult.ok;
 
   return (
     <form action={formAction}>
@@ -34,7 +61,29 @@ export default function RegisterForm() {
           <label className={labelClass} style={labelStyle}>Contraseña</label>
           <input name="password" type="password" required minLength={8} autoComplete="new-password" placeholder="Mínimo 8 caracteres" className={fieldClass} style={fieldStyle} />
         </div>
-        {/* 3-col grid */}
+        {/* Date of birth — private, masked from analytics/session replay. */}
+        <div>
+          <label className={labelClass} style={labelStyle} htmlFor="date_of_birth">Fecha de nacimiento</label>
+          <input
+            id="date_of_birth"
+            name="date_of_birth"
+            type="date"
+            required
+            max={todayISO()}
+            autoComplete="bday"
+            value={dob}
+            onChange={(e) => setDob(e.target.value)}
+            className={`${fieldClass} ph-no-capture`}
+            style={fieldStyle}
+            data-sentry-mask="true"
+            aria-invalid={dobError ? true : undefined}
+            aria-describedby={dobError ? "dob-error" : undefined}
+          />
+          {dobError && (
+            <p id="dob-error" className="mt-1 text-[11px] font-semibold" style={{ color: "var(--error)" }}>{dobError}</p>
+          )}
+        </div>
+        {/* Sport / country / four-digit graduation year */}
         <div className="grid grid-cols-3 gap-3">
           <div>
             <label className={labelClass} style={labelStyle}>Deporte</label>
@@ -53,15 +102,27 @@ export default function RegisterForm() {
             </div>
           </div>
           <div>
-            <label className={labelClass} style={labelStyle}>Graduación</label>
-            <div className="relative">
-              <select name="graduation_year" defaultValue="2027" className={`${selectClass} pr-7`} style={fieldStyle}>
-                {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
-              </select>
-              <span aria-hidden className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px]" style={{ color: "var(--text-label)" }}>▼</span>
-            </div>
+            <label className={labelClass} style={labelStyle} htmlFor="graduation_year">Graduación</label>
+            <input
+              id="graduation_year"
+              name="graduation_year"
+              type="text"
+              inputMode="numeric"
+              maxLength={4}
+              required
+              placeholder="2027"
+              value={gradYear}
+              onChange={(e) => setGradYear(e.target.value.replace(/[^\d]/g, "").slice(0, 4))}
+              className={fieldClass}
+              style={fieldStyle}
+              aria-invalid={gradError ? true : undefined}
+              aria-describedby={gradError ? "grad-error" : undefined}
+            />
           </div>
         </div>
+        {gradError && (
+          <p id="grad-error" className="text-[11px] font-semibold" style={{ color: "var(--error)" }}>{gradError}</p>
+        )}
       </div>
 
       {/* Demo notice (replaces pricing during the free testing phase) */}
@@ -117,7 +178,7 @@ export default function RegisterForm() {
 
       {/* CTA */}
       <div className="ximo-fade-up delay-400 mt-5 space-y-3">
-        <button type="submit" disabled={pending} className="ximo-glass-btn teal w-full text-sm">
+        <button type="submit" disabled={pending || clientInvalid} className="ximo-glass-btn teal w-full text-sm disabled:opacity-50">
           {pending ? "Creando cuenta…" : "Crear cuenta"}
         </button>
         <Link href="/login" className="block">

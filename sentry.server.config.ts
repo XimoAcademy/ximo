@@ -1,5 +1,6 @@
 // Sentry — Node.js server runtime (loaded from instrumentation.ts).
 import * as Sentry from "@sentry/nextjs";
+import { scrubSentryEvent } from "@/lib/observability/scrub";
 
 const DSN =
   process.env.SENTRY_DSN ??
@@ -14,4 +15,8 @@ Sentry.init({
   // Attach local variable values to stack frames — invaluable for debugging
   // server errors. Only sent when an error occurs; Sentry is the data processor.
   includeLocalVariables: true,
+
+  // Redact private fields (date of birth, passwords, tokens…) from request
+  // bodies, extra data, and captured local variables before sending.
+  beforeSend: scrubSentryEvent,
 });
