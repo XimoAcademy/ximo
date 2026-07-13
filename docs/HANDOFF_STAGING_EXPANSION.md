@@ -6,6 +6,21 @@ Este documento reemplaza el contexto de la sesión anterior. Está escrito para 
 
 ---
 
+## ⚡⚡ ACTUALIZACIÓN 2026-07-12 (tarde-2) — staging E2E, webhook y pendientes de dashboard
+
+- ✅ **Staging E2E de pago probado hasta Stripe**: login en un Preview como `admin@ximostaging.com` → /subscribe → "Continuar con demo" → **llegó a un checkout real de Stripe TEST** (`cs_test_...`, "Entorno de prueba de Ximo"). Confirma que `STRIPE_SECRET_KEY` (TEST) + precios funcionan en Preview.
+- ✅ **Los 5 secretos de Preview quedaron puestos por Manuel** (solo-Preview): `SUPABASE_SERVICE_ROLE_KEY` (staging), `STRIPE_SECRET_KEY`, `STRIPE_PRICE_MONTHLY/ANNUAL/DEMO`, `STRIPE_WEBHOOK_SECRET` (todos TEST de la cuenta `acct_1ThDX7QKM5mBxbyb`). En cada uno se quitó Preview del valor de producción y se creó una entrada nueva solo-Preview.
+- ✅ **Webhook de Stripe TEST reapuntado**: el webhook `we_1ThJuOQKM5mBxbyb7uEWr8fe` (cuenta TEST `acct_1ThDX7QKM5mBxbyb`) se editó de la URL muerta `ximo-theta` a `https://ximo-git-international-expansion-ximo-academy.vercel.app/api/webhooks/stripe`, renombrado "Ximo staging (Vercel Preview)". Su firma coincide con el `STRIPE_WEBHOOK_SECRET` de `.env.local` (verificado). Nota: la URL es del **branch preview** — si se mergea/borra la rama, muere (como pasó con ximo-theta).
+- ✅ **Bug de redirect corregido**: `NEXT_PUBLIC_APP_URL` y `NEXT_PUBLIC_SITE_URL` en Vercel se quitaron de Preview (ahora Production+Development) para que en Preview caiga al fallback `VERCEL_URL` y los redirects/links apunten al propio preview, no a producción. (Antes, el success_url del checkout mandaba a `ximo.com.mx`.)
+- ✅ **Login: link "¿Olvidaste tu contraseña?" ahora visible** (era 10px, easy to miss → text-xs, bold, subrayado). Ya existía la ruta `/forgot-password` con flujo de reset completo. Commit `274656c` en main. Además confirmado: **el tema YA es oscuro por defecto** (`:root` oscuro, provider+inline-script default "dark", DB default 'dark') — el usuario veía claro solo porque su navegador tiene `ximo-theme=light` guardado.
+- ✅ **Cuenta accidental en producción borrada**: `admin@ximostaging.com` se había creado por error en producción (`pqmekjbqbyitkhsgizab`); estaba sin confirmar y sin uso; se borró vía admin API. Producción quedó con sus 2 cuentas reales.
+- ⚠️ **BLOQUEANTE del webhook — DECISIÓN DE MANUEL**: las entregas del webhook a la URL del Preview devuelven **401** — NO es nuestro código (que responde 400/500), es la **Vercel Deployment Protection** ("Vercel Authentication → Require Log In = Standard Protection"): Stripe (server-to-server) no está logueado en Vercel, así que Vercel lo bloquea antes de llegar a `/api/webhooks/stripe`. La activación de la suscripción en staging NO se completa hasta resolver esto. Dos opciones (ambas en Vercel → Settings → Deployment Protection):
+  1. **(Recomendada, quirúrgica) Protection Bypass for Automation**: crear un secreto ahí → agregar `?x-vercel-protection-bypass=<secreto>` a la URL del webhook en Stripe. Mantiene el login para navegadores; solo Stripe pasa.
+  2. **(Simple) Apagar "Require Log In"**: los previews quedan públicos (aceptable porque staging está aislado + noindex, y /app igual pide login). El webhook pasa directo.
+  Stripe reintenta las entregas fallidas (~cada hora), así que en cuanto se relaje la protección, los eventos pendientes se procesan solos y activan la suscripción. Cambiar esto es acceso/seguridad → lo decide Manuel; luego se re-verifica.
+
+---
+
 ## ⚡ ACTUALIZACIÓN 2026-07-12 — qué cambió desde que se escribió este documento
 
 **Completado en esta sesión (verificado con build+tests, no asumido):**
