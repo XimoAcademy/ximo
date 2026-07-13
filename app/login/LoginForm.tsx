@@ -60,7 +60,7 @@ export default function LoginForm() {
             <label htmlFor="password" className={labelClass} style={labelStyle}>
               Contraseña
             </label>
-            <Link href="/forgot-password" className="text-[10px] font-semibold transition-opacity hover:opacity-70" style={{ color: "var(--teal)" }}>
+            <Link href="/forgot-password" className="text-xs font-bold underline underline-offset-2 transition-opacity hover:opacity-70" style={{ color: "var(--teal)" }}>
               ¿Olvidaste tu contraseña?
             </Link>
           </div>
