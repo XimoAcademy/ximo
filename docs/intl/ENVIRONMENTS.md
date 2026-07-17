@@ -1,0 +1,68 @@
+# Expansión Internacional — Fase 2: Estrategia de entornos y despliegue seguro
+
+Fecha: 2026-07-10 · Rama: `international-expansion`
+
+## Estado actual (verificado, no asumido)
+
+| Entorno | App | Supabase | Stripe | Resend |
+|---|---|---|---|---|
+| Local dev | `npm run dev` | ⚠️ **PRODUCCIÓN** (`pqmekjbqbyitkhsgizab`) | TEST (`acct_1ThDX7…`) | key send-only real (sandbox sender) |
+| Tests | `npm test` (vitest) | no toca red (lógica pura) | — | — |
+| Preview | Vercel preview por rama (esta rama ya genera previews) | ⚠️ producción | ⚠️ LIVE (hereda env de Vercel) | real |
+| Producción | ximo.com.mx | producción | LIVE (`acct_1ThDWt3…`) | real |
+
+Verificado hoy además: la `SUPABASE_SERVICE_ROLE_KEY` solo se usa en `lib/supabase/{env,server}.ts` (nunca en código cliente) ✓; secretos de webhook TEST y LIVE ya son distintos ✓.
+
+## Actualización 2026-07-10 (tarde)
+
+- **Backups CONFIRMADO en dashboard: el plan Free NO incluye respaldos** ("Free Plan does not include project backups"). Mitigación aplicada: snapshot lógico completo de datos (27 tablas) vía service-role → `D:\XIMO\backups\prod-data-2026-07-10.json` (LOCAL, fuera del repo público; el esquema ya vive en `supabase/migrations/`). Decisión de compra pendiente del fundador: Supabase Pro (respaldos 7 días) — recomendado antes de cualquier migración de la expansión.
+- **Proyecto staging CREADO**: `ximo-staging`, ref `wpzwdmsqrgpvrjoltqff`, org Ximo (Free), región Americas, Data API habilitada (la contraseña de la DB quedó guardada localmente en `D:\XIMO\backups\`). PENDIENTE: aplicar migraciones 001–009 + make_admin.sql en su SQL editor, capturar anon/service keys a `.env.local` y a las env de Preview en Vercel.
+
+## Gaps críticos y acciones
+
+1. **Local/preview usan la base de PRODUCCIÓN.** Acción (fundador, ~10 min): crear un segundo proyecto Supabase gratuito "ximo-staging" ✅ HECHO (ver arriba), correr las migraciones 001–009 + `make_admin.sql`, y con eso:
+   - `.env.local` pasa a apuntar a staging (datos personales de prod fuera del dev local, como exige el plan).
+   - En Vercel, definir las env de **Preview** con las credenciales de staging + Stripe TEST (hoy Preview hereda las de producción). Vercel permite valores por entorno (Production/Preview/Development) en cada variable.
+2. **Seed sanitizado:** crear `scripts/seed-staging.mjs` con datos ficticios (pendiente; sin datos reales copiados).
+3. **Backups antes de migraciones:** política obligatoria (abajo) + confirmar plan de Supabase (Free no tiene PITR).
+
+## Política de migraciones (vigente desde ya en esta rama)
+
+- Toda migración nueva vive en `supabase/migrations/NNN_*.sql` con **sección `-- DOWN` comentada** al final cuando la reversión sea técnicamente posible (drops destructivos documentan el porqué de su irreversibilidad).
+- Antes de aplicar en producción: respaldo manual (Dashboard → Database → Backups, o `pg_dump` con la connection string) y anotar el timestamp en el PR.
+- Las migraciones se aplican primero en staging y se corre `npm test` + smoke E2E antes de tocar producción.
+
+## Rollback (runbook)
+
+- **App:** Vercel → Deployments → deployment anterior con estado READY → ⋯ → *Promote to Production* (o `vercel rollback` con CLI). Los deployments previos quedan listados con `isRollbackCandidate`.
+- **Env vars:** cada cambio de env se anota en el PR correspondiente; revertir = restaurar el valor anotado y redeploy.
+- **Kill switches (sin redeploy de código):** ver abajo — apagar `INTL_EXPANSION_ENABLED` revierte TODO el comportamiento internacional al estado actual MX-only.
+- **DB:** restaurar respaldo pre-migración (por eso es obligatorio) o aplicar la sección DOWN de la migración.
+
+## Kill switches (implementados en `lib/intl/killSwitch.ts`, con pruebas)
+
+Todos leen env vars server-side y **fallan a seguro** (sin env ⇒ todo apagado ⇒ la app se comporta exactamente como hoy):
+
+| Env var | Efecto |
+|---|---|
+| `INTL_EXPANSION_ENABLED` | Interruptor maestro. Apagado = cero comportamiento internacional. |
+| `INTL_PAYMENTS_ENABLED` | Pagos fuera de MX (subordinado al maestro). |
+| `INTL_ADS_ENABLED` | Flujos de anunciantes fuera de MX (subordinado). |
+| `INTL_COMMUNITY_LINK_ENABLED` | Entrada a comunidad/Discord fuera de MX (subordinado). |
+| `INTL_PAUSED_COUNTRIES` | Pausa de emergencia por país, CSV ISO-2 (ej. `AR,CL`). `MX` se ignora: la operación viva actual no se apaga por env. |
+
+Reglas de uso (obligatorias para las fases siguientes):
+- La decisión final de disponibilidad de cualquier función pagada se verifica **server-side** con estos switches + el estado de lanzamiento del país (config de la Fase 4). Nunca solo con flags de cliente ni botones ocultos.
+- Todo país nuevo nace con pagos en OFF; `paid_launch_enabled` requiere todas las compuertas del plan satisfechas.
+
+## Convenciones de commits en esta rama
+
+Commits incrementales por unidad de trabajo (`intl: …`), nunca un mega-commit. Preview de Vercel por push para inspección visual. Merge a main solo tras pasar regresión completa (tests + build + smoke E2E del flujo MX actual, que no debe cambiar).
+
+## Estado del entorno de staging (actualizado 2026-07-12)
+
+- **Base de datos**: `ximo-staging` (ref `wpzwdmsqrgpvrjoltqff`) tiene las migraciones 001-010 aplicadas y verificadas (27 tablas + `country_code`, RLS activo, 5 buckets). La 010 se probó aquí ANTES que en producción, como manda esta guía.
+- **Datos de prueba**: `scripts/seed-staging.mjs` (idempotente, se niega a correr contra producción). Usuarios: `admin@staging.ximo.test` (admin), `atleta@staging.ximo.test`, `marca@staging.ximo.test` — contraseña en el propio script. Login E2E aún sin verificar (pendiente de P0-3).
+- **Decisión P1-1 (dominio)**: SIN subdominio fijo por ahora; se usan las URLs automáticas de Vercel Preview. Revisar si aparece la necesidad de una URL estable (p. ej. webhook de Stripe TEST permanente).
+- **Guard de seguridad**: desde `main` (commit 8ad6703), un deployment Preview que apunte a la base de PRODUCCIÓN falla el build a propósito (`lib/supabase/env.ts`). Hasta que Vercel Preview tenga las env vars de staging (P0-3, acción manual en dashboard), los Previews fallarán — eso es intencional y protege datos reales.
+- **Analytics**: PostHog etiqueta `environment` (production/preview/development) en cliente y servidor; Sentry ya lo hacía vía `VERCEL_ENV`. Los deployments no-production mandan `X-Robots-Tag: noindex`.

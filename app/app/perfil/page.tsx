@@ -7,6 +7,8 @@ import { getCurrentUser } from "@/lib/auth/getUser";
 import { computeInitials } from "@/lib/data/identity";
 import ProfileForm from "./ProfileForm";
 import AvatarUploader from "./AvatarUploader";
+import { getLocale } from "@/lib/i18n/server";
+import { getDictionary } from "@/lib/i18n/dictionaries";
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +22,8 @@ const SUB_LABEL: Record<string, string> = {
 };
 
 export default async function PerfilPage() {
-  const [{ profile, athlete }, user] = await Promise.all([getFullProfile(), getCurrentUser()]);
+  const [{ profile, athlete }, user, locale] = await Promise.all([getFullProfile(), getCurrentUser(), getLocale()]);
+  const education = getDictionary(locale).education;
   const name = profile?.full_name || "Atleta Ximo";
   const initials = computeInitials(name);
   const subStatus = profile?.subscription_status ?? "inactive";
@@ -53,7 +56,7 @@ export default async function PerfilPage() {
                   </p>
                 </div>
               </div>
-              <ProfileForm profile={profile} athlete={athlete} />
+              <ProfileForm profile={profile} athlete={athlete} education={education} />
             </GlassPanel>
           </ScrollReveal>
         </div>

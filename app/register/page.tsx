@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import Emblem from "../components/Emblem";
 import RegisterForm from "./RegisterForm";
+import { resolveAccess } from "@/lib/subscription/requireSubscription";
 
 export const metadata: Metadata = {
   title: "Crear cuenta",
@@ -9,7 +11,10 @@ export const metadata: Metadata = {
 };
 
 // Ximo is swimming-only for now — no other sports are offered.
-export default function RegisterPage() {
+export default async function RegisterPage() {
+  // Already signed in with active access → no need to register again.
+  if ((await resolveAccess()) === "active") redirect("/app");
+
   return (
     <div className="relative flex min-h-screen">
 

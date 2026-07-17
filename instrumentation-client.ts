@@ -3,6 +3,7 @@
 // ops override it without a code change, with the real project DSN as fallback.
 import * as Sentry from "@sentry/nextjs";
 import posthog from "posthog-js";
+import { scrubSentryEvent } from "@/lib/observability/scrub";
 
 // Project API key is public (write-only, ships in the browser bundle by
 // design) — env var overrides, with the real token as fallback so prod works.
@@ -48,6 +49,9 @@ Sentry.init({
   integrations: [
     Sentry.replayIntegration({ maskAllText: true, blockAllMedia: true }),
   ],
+
+  // Redact private fields (date of birth, passwords, tokens…) before sending.
+  beforeSend: scrubSentryEvent,
 });
 
 // App Router navigation instrumentation.

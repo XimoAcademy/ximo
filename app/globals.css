@@ -932,3 +932,125 @@ label.ximo-glass-btn:focus-within {
 .ximo-skip-link:focus {
   left: 0;
 }
+
+/* ──────────────────────────────────────────────────────────────
+   THEME TOGGLE — compact glass light/dark switch.
+   A rounded capsule with the current mode's label on one half and a
+   frosted-glass thumb (sun / moon) that slides across the other half.
+   Themed via CSS vars so it reads well in both dark and light. The
+   thumb overlaps the track top/bottom for the floating-lens look.
+   ────────────────────────────────────────────────────────────── */
+.ximo-theme-toggle {
+  --tt-w: 96px;
+  --tt-h: 40px;
+  --tt-thumb: 46px;
+  --tt-pad: 3px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: var(--tt-w);
+  height: var(--tt-h);
+  min-height: 44px; /* accessible touch target even if visual height is 40 */
+  padding: 0;
+  border-radius: 9999px;
+  cursor: pointer;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0.18) 100%),
+    var(--surface-2);
+  border: 1px solid var(--border);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.28);
+  -webkit-tap-highlight-color: transparent;
+}
+/* the visual pill is 40px tall but the hit area is >=44 — center the art */
+.ximo-theme-toggle > .tt-label,
+.ximo-theme-toggle > .tt-thumb {
+  top: 50%;
+}
+
+/* Mode labels: each sits in the half opposite the thumb. */
+.ximo-theme-toggle .tt-label {
+  position: absolute;
+  transform: translateY(-50%);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--text-2);
+  transition: opacity 0.28s ease;
+  pointer-events: none;
+  user-select: none;
+}
+.tt-label--dark { left: 16px; }              /* shown in dark: label on the left */
+.tt-label--light { right: 16px; }            /* shown in light: label on the right */
+.ximo-theme-toggle[data-light="false"] .tt-label--dark { opacity: 1; color: var(--text); }
+.ximo-theme-toggle[data-light="false"] .tt-label--light { opacity: 0; }
+.ximo-theme-toggle[data-light="true"] .tt-label--dark { opacity: 0; }
+.ximo-theme-toggle[data-light="true"] .tt-label--light { opacity: 1; color: var(--text); }
+
+/* Frosted glass thumb. Overlaps the track by (thumb-h)/2 - (track-h)/2. */
+.ximo-theme-toggle .tt-thumb {
+  position: absolute;
+  transform: translateY(-50%);
+  width: var(--tt-thumb);
+  height: var(--tt-thumb);
+  border-radius: 9999px;
+  display: grid;
+  place-items: center;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.04) 55%, rgba(0,0,0,0.10) 100%),
+    var(--surface);
+  backdrop-filter: blur(10px) saturate(160%);
+  -webkit-backdrop-filter: blur(10px) saturate(160%);
+  border: 1px solid rgba(255,255,255,0.30);
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,0.55),
+    0 4px 12px rgba(0,0,0,0.32);
+  transition: left 0.4s cubic-bezier(0.22,1,0.36,1);
+  will-change: left;
+}
+.ximo-theme-toggle[data-light="false"] .tt-thumb {
+  left: calc(var(--tt-w) - var(--tt-thumb) + var(--tt-pad));  /* right side */
+  color: var(--gold);
+}
+.ximo-theme-toggle[data-light="true"] .tt-thumb {
+  left: calc(-1 * var(--tt-pad));                              /* left side */
+  color: var(--gold);
+}
+
+/* Icon crossfade inside the thumb (moon ↔ sun). */
+.ximo-theme-toggle .tt-icon {
+  position: absolute;
+  display: inline-flex;
+  transition: opacity 0.24s ease, transform 0.4s cubic-bezier(0.22,1,0.36,1);
+}
+.ximo-theme-toggle[data-light="false"] .tt-icon--moon { opacity: 1; transform: rotate(0deg); }
+.ximo-theme-toggle[data-light="false"] .tt-icon--sun { opacity: 0; transform: rotate(-40deg); }
+.ximo-theme-toggle[data-light="true"] .tt-icon--moon { opacity: 0; transform: rotate(40deg); }
+.ximo-theme-toggle[data-light="true"] .tt-icon--sun { opacity: 1; transform: rotate(0deg); }
+
+.ximo-theme-toggle:hover .tt-thumb { border-color: rgba(255,255,255,0.45); }
+.ximo-theme-toggle:active .tt-thumb { transform: translateY(-50%) scale(0.94); }
+.ximo-theme-toggle:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 3px;
+}
+.ximo-theme-toggle:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Subtle secondary "follow system" control. */
+.ximo-theme-system {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-3);
+  padding: 0.25rem 0.6rem;
+  border-radius: 9999px;
+  transition: color 0.15s ease, background 0.15s ease;
+  cursor: pointer;
+}
+.ximo-theme-system:hover { color: var(--text-2); background: var(--surface-hover); }
+.ximo-theme-system[data-active="true"] { color: var(--text-2); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ximo-theme-toggle .tt-thumb,
+  .ximo-theme-toggle .tt-icon,
+  .ximo-theme-toggle .tt-label { transition: none; }
+  .ximo-theme-toggle:active .tt-thumb { transform: translateY(-50%); }
+}

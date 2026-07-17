@@ -1,15 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import Emblem from "../components/Emblem";
 import LoginForm from "./LoginForm";
+import { resolveAccess } from "@/lib/subscription/requireSubscription";
 
 export const metadata: Metadata = {
   title: "Iniciar sesión",
   description: "Entra a tu cuenta de Ximo. Live the Dream.",
 };
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  // Already signed in with active access → skip login, go to the dashboard.
+  if ((await resolveAccess()) === "active") redirect("/app");
+
   return (
     <div className="relative flex min-h-screen">
 
