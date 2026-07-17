@@ -29,7 +29,12 @@ function translateAuthError(message: string): string {
     return "La contraseña debe tener al menos 8 caracteres.";
   if (m.includes("rate limit") || m.includes("too many"))
     return "Demasiados intentos. Espera un momento e inténtalo de nuevo.";
-  if (m.includes("unable to validate email") || m.includes("invalid email"))
+  if (
+    m.includes("unable to validate email") ||
+    m.includes("invalid email") ||
+    // GoTrue signup deliverability check: `Email address "x@y" is invalid`
+    (m.includes("email address") && m.includes("is invalid"))
+  )
     return "Ingresa un correo válido.";
   return message;
 }

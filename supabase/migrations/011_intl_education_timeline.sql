@@ -115,7 +115,11 @@ begin
     new.raw_user_meta_data->>'country',
     meta_code,
     coalesce(new.raw_user_meta_data->>'sport', 'Natación'),
-    nullif(new.raw_user_meta_data->>'graduation_year','')::int
+    -- Cast defensivo: el signup API de GoTrue es público y el metadata puede
+    -- traer cualquier cosa. Un valor no numérico NO debe reventar el alta.
+    case when new.raw_user_meta_data->>'graduation_year' ~ '^\d{4}$'
+         then (new.raw_user_meta_data->>'graduation_year')::int
+         else null end
   )
   on conflict (id) do nothing;
 
