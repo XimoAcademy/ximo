@@ -31,15 +31,16 @@ const deg = (d) => (d * Math.PI) / 180;
 
 // ── Shape emitters (relative to a center; caller translates) ──────────────
 
-/** Broken-ring rosette: 1-2 chunky arcs + sometimes an inner dot. */
+/** Broken-ring rosette: thick, nearly-closed C shapes with a small inner
+ *  hole — matching the chunky stamped rings of the reference print. */
 function rosette() {
-  const r = between(11, 22);
-  const sw = between(6.5, 10.5);
+  const r = between(9, 17);
+  const sw = r * between(0.52, 0.7);
   const parts = [];
-  const arcs = rnd() < 0.55 ? 2 : 1;
+  const arcs = rnd() < 0.35 ? 2 : 1;
   let a0 = between(0, 360);
   for (let i = 0; i < arcs; i++) {
-    const span = between(arcs === 1 ? 150 : 80, arcs === 1 ? 300 : 150);
+    const span = between(arcs === 1 ? 200 : 100, arcs === 1 ? 330 : 160);
     const a1 = a0 + span;
     const large = span > 180 ? 1 : 0;
     const x0 = (r * Math.cos(deg(a0))).toFixed(1);
@@ -58,15 +59,17 @@ function rosette() {
   return { svg: parts.join(""), extent: r + sw };
 }
 
-/** Solid irregular blob: a wobbly closed quadratic loop. */
+/** Solid irregular blob: a wobbly closed quadratic loop, slightly elongated
+ *  like the stamped solid spots in the reference. */
 function blob() {
-  const r = between(5, 11);
+  const r = between(5, 10.5);
+  const stretch = between(1.1, 1.7);
   const k = 6;
   const pts = [];
   for (let i = 0; i < k; i++) {
     const a = (i / k) * 360 + between(-14, 14);
     const rr = r * between(0.65, 1.3);
-    pts.push([rr * Math.cos(deg(a)), rr * Math.sin(deg(a))]);
+    pts.push([rr * stretch * Math.cos(deg(a)), rr * Math.sin(deg(a))]);
   }
   let d = `M${((pts[0][0] + pts[k - 1][0]) / 2).toFixed(1)} ${((pts[0][1] + pts[k - 1][1]) / 2).toFixed(1)}`;
   for (let i = 0; i < k; i++) {
@@ -78,16 +81,16 @@ function blob() {
 }
 
 // ── Placement: jittered grid → dense but organic, like the reference ──────
-const CELL = 40;
-const N = W / CELL; // 14×14 cells — dense, like the stamped reference print
+const CELL = 35;
+const N = W / CELL; // 16×16 cells — packed tight, like the stamped reference print
 const items = [];
 for (let cy = 0; cy < N; cy++) {
   for (let cx = 0; cx < N; cx++) {
-    if (rnd() < 0.06) continue; // occasional breathing room
-    const x = cx * CELL + CELL / 2 + between(-16, 16);
-    const y = cy * CELL + CELL / 2 + between(-16, 16);
+    if (rnd() < 0.08) continue; // occasional breathing room
+    const x = cx * CELL + CELL / 2 + between(-13, 13);
+    const y = cy * CELL + CELL / 2 + between(-13, 13);
     const rot = between(0, 360).toFixed(0);
-    const shape = rnd() < 0.58 ? rosette() : blob();
+    const shape = rnd() < 0.5 ? rosette() : blob();
     items.push({ x, y, rot, ...shape });
   }
 }

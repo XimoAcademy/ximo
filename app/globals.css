@@ -283,9 +283,10 @@ html::after {
      reference mock. (0.16 was imperceptible on the dark teal.) */
   opacity: 0.45;
 }
-/* Light theme: dark spots read much stronger on the warm base → lower opacity. */
+/* Light theme: dark spots on the warm base — lower than dark mode but
+   clearly visible (0.09 was too faint even once the body-layer bug was fixed). */
 .theme-light::after {
-  opacity: 0.09;
+  opacity: 0.13;
 }
 @keyframes ximo-leopard-drift {
   from { transform: translate3d(0, 0, 0); }
@@ -769,8 +770,11 @@ select option {
    ══════════════════════════════════════════════════════════════ */
 
 .theme-light body {
-  background: var(--app-bg);
-  background-attachment: fixed;
+  /* Transparent, NOT var(--app-bg): body's background paints ABOVE the
+     negative-z leopard layer (html::after) and was hiding it completely in
+     light mode. The page colour comes from html { background: var(--bg) },
+     which is themed and sits beneath the leopard. */
+  background: transparent;
   color: var(--text);
 }
 /* Light mode keeps its existing palette — no animated dark layers. */
