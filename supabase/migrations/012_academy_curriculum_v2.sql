@@ -1,44 +1,40 @@
 -- ════════════════════════════════════════════════════════════════════════
--- Ximo — seed data (safe sample content)
+-- 012 — Academia v2: currículo completo (6 cursos · 35 lecciones)
 --
--- Run after the migration:  supabase db reset   (applies migration + seed)
--- or paste into the SQL editor.
+-- Alinea la BD con el currículo maestro "Ximo Academia Completa"
+-- (versión de trabajo 2026-07-16): actualiza títulos/descripciones de las
+-- 22 lecciones existentes e inserta las 13 nuevas. Los slugs posicionales
+-- (lesson-N) se conservan, por lo que lesson_progress sigue siendo válido.
 --
--- Only GLOBAL content is seeded automatically (courses + lessons): these have
--- no user foreign key. User-owned sample rows (universities, posts, brand ads…)
--- need a real auth.users id, so they are provided as COMMENTED templates at the
--- bottom — fill in a real user id after creating a test account.
+-- NOTA: algunos slugs cambian de tema (p. ej. recruiting-basics/lesson-2
+-- pasa de "Divisiones NCAA y NAIA" a "Los coaches construyen un roster").
+-- Los videos aún no están publicados (status coming_soon), así que el
+-- progreso registrado hasta hoy es de prueba; no se borra nada.
 --
--- Slugs intentionally match the frontend (app/app/cursos/courseData.ts) so the
--- UI can switch from static data to these rows with no route changes.
--- No sensitive or harmful sample content is included.
+-- Idempotente: upsert por (course_id, slug). Probar primero en ximo-staging.
+-- Mantener en sync con app/app/cursos/courseData.ts y supabase/seed.sql.
 -- ════════════════════════════════════════════════════════════════════════
 
--- ── Courses ──────────────────────────────────────────────────────────────
-insert into public.courses (slug, title, description, category, level, sort_order, is_published)
-values
-  ('recruiting-basics', 'Recruiting universitario desde cero',
-   'La base estratégica: cómo decide un coach, dónde existen oportunidades y cómo construir un proceso con orden.',
-   'Recruiting', 'Fundamentos', 1, true),
-  ('emails-to-coaches', 'Cómo escribirle a coaches',
-   'Comunicación que abre conversaciones, demuestra preparación y mantiene una reputación profesional.',
-   'Correos a coaches', 'Práctico', 2, true),
-  ('scholarships', 'Becas y costo neto',
-   'Entiende el presupuesto del programa, combina fuentes de ayuda y compara el costo real antes de decidir.',
-   'Becas', 'Intermedio', 3, true),
-  ('sat-toefl', 'SAT / TOEFL para atletas',
-   'Planifica exámenes académicos e idioma sin sacrificar entrenamiento, escuela ni fechas de admisión.',
-   'SAT/TOEFL', 'Académico', 4, true),
-  ('athlete-profile', 'Perfil y mentalidad del atleta',
-   'Construye una presentación honesta, profesional y memorable, respaldada por evidencia y hábitos.',
-   'Mentalidad', 'Esencial', 5, true),
-  ('documents-ready', 'Documentos listos para recruiting',
-   'Prepara, traduce, ordena y envía documentos oficiales sin retrasar oportunidades.',
-   'Documentos', 'Práctico', 6, true)
-on conflict (slug) do nothing;
+-- ── 1. Cursos: descripciones alineadas al mapa de la academia ────────────
+update public.courses set title = v.title, description = v.description
+from (
+  values
+    ('recruiting-basics', 'Recruiting universitario desde cero',
+     'La base estratégica: cómo decide un coach, dónde existen oportunidades y cómo construir un proceso con orden.'),
+    ('emails-to-coaches', 'Cómo escribirle a coaches',
+     'Comunicación que abre conversaciones, demuestra preparación y mantiene una reputación profesional.'),
+    ('scholarships', 'Becas y costo neto',
+     'Entiende el presupuesto del programa, combina fuentes de ayuda y compara el costo real antes de decidir.'),
+    ('sat-toefl', 'SAT / TOEFL para atletas',
+     'Planifica exámenes académicos e idioma sin sacrificar entrenamiento, escuela ni fechas de admisión.'),
+    ('athlete-profile', 'Perfil y mentalidad del atleta',
+     'Construye una presentación honesta, profesional y memorable, respaldada por evidencia y hábitos.'),
+    ('documents-ready', 'Documentos listos para recruiting',
+     'Prepara, traduce, ordena y envía documentos oficiales sin retrasar oportunidades.')
+) as v(slug, title, description)
+where public.courses.slug = v.slug;
 
--- ── Lessons ──────────────────────────────────────────────────────────────
--- Inserted relative to their course via a sub-select on the course slug.
+-- ── 2. Lecciones: upsert de las 35 del currículo maestro ─────────────────
 insert into public.lessons (course_id, slug, title, description, duration_seconds, sort_order, is_published)
 select c.id, l.slug, l.title, l.description, l.duration_seconds, l.sort_order, true
 from public.courses c
@@ -81,30 +77,9 @@ join (
     ('documents-ready', 'lesson-4', 'Fechas, versiones y envíos oficiales', 'Controla caducidad, recepción y trazabilidad de cada documento.', 420, 4)
 ) as l(course_slug, slug, title, description, duration_seconds, sort_order)
   on l.course_slug = c.slug
-on conflict (course_id, slug) do nothing;
-
--- ── User-owned sample data (TEMPLATES) ───────────────────────────────────
--- These need a real profiles.id (= auth.users.id). After signing up a test
--- account, grab its id and uncomment, replacing <USER_ID>. Kept commented so
--- `supabase db reset` never fails on a missing user.
---
--- All sample community content is safe; moderation defaults to pending and one
--- row is pre-approved to show how an approved post looks.
---
--- insert into public.universities (user_id, name, division, location, fit_type, priority, recruiting_stage)
--- values ('<USER_ID>', 'Niagara University', 'NCAA D1', 'Niagara, NY', 'target', 'Alta', 'Interés');
---
--- insert into public.community_posts (user_id, type, body, topic, moderation_status)
--- values
---   ('<USER_ID>', 'achievement', 'Nuevo PB en 50 libre esta semana. El proceso funciona.', '50libre', 'approved'),
---   ('<USER_ID>', 'question', '¿Cómo organizan su lista de universidades?', 'Recruiting', 'pending');
---
--- insert into public.brand_profiles (user_id, brand_name, contact_email, category, verification_status)
--- values ('<USER_ID>', 'Marca Deportiva Demo', 'contacto@marca.example', 'Equipo deportivo', 'verified')
--- returning id;  -- use the returned brand id below
---
--- insert into public.brand_ads (brand_id, title, body, format, review_status)
--- values
---   ('<BRAND_ID>', 'Descuento para atletas', 'Oferta de muestra para la comunidad Ximo.', 'offer', 'approved'),
---   ('<BRAND_ID>', 'Anuncio en revisión',   'Anuncio de muestra pendiente de revisión.', 'product', 'pending'),
---   ('<BRAND_ID>', 'Anuncio rechazado',     'Anuncio de muestra no alineado con la comunidad.', 'text', 'rejected');
+on conflict (course_id, slug) do update
+  set title = excluded.title,
+      description = excluded.description,
+      duration_seconds = excluded.duration_seconds,
+      sort_order = excluded.sort_order,
+      updated_at = now();

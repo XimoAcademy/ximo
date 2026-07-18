@@ -22,7 +22,7 @@
 //     entra a staging (no producción). Cambia el dominio aquí si registras uno.
 //   - 3 programas NCAA con coaches (directorio)
 //   - 1 perfil de marca verificado + 1 anuncio aprobado + 1 pendiente
-//   - 2 cursos publicados con lecciones
+//   - El catálogo real de cursos (supabase/seed.sql: 6 cursos · 35 lecciones)
 //
 // Idempotente: puede correrse varias veces (upsert por claves naturales).
 // ════════════════════════════════════════════════════════════════════════
@@ -154,25 +154,13 @@ await client.query(
 );
 
 console.log("Sembrando cursos…");
-const courses = [
-  ["recruiting-101", "Recruiting 101", "Introducción al proceso de recruiting", "Recruiting", "Básico"],
-  ["tiempos-y-marcas", "Tiempos y marcas", "Cómo registrar y mejorar tus tiempos", "Rendimiento", "Intermedio"],
-];
-for (const [slug, title, description, category, level] of courses) {
-  const { rows } = await client.query(
-    `insert into public.courses (slug, title, description, category, level, is_published, sort_order)
-     values ($1,$2,$3,$4,$5,true,0)
-     on conflict (slug) do update set title = excluded.title
-     returning id`,
-    [slug, title, description, category, level]
-  );
-  await client.query(
-    `insert into public.lessons (course_id, slug, title, sort_order, is_published)
-     select $1, $2 || '-leccion-1', 'Lección 1', 0, true
-     where not exists (select 1 from public.lessons where course_id = $1)`,
-    [rows[0].id, slug]
-  );
-}
+// El catálogo real (6 cursos · 35 lecciones) vive en supabase/seed.sql y sus
+// slugs deben coincidir con app/app/cursos/courseData.ts (el registro de
+// progreso resuelve por slug). Ejecutamos ese seed tal cual para que staging
+// nunca vuelva a divergir del frontend con cursos de juguete.
+const { readFileSync } = await import("node:fs");
+const seedSql = readFileSync(new URL("../supabase/seed.sql", import.meta.url), "utf8");
+await client.query(seedSql);
 
 const counts = await client.query(`
   select
