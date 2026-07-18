@@ -36,9 +36,7 @@ export async function getSubscriptionStatus(): Promise<SubscriptionStatus | null
   const supabase = await createClient();
   if (!supabase) return null;
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return null;
 
   const { data, error } = await supabase
@@ -81,9 +79,7 @@ export async function resolveAccess(): Promise<AccessResolution> {
   const supabase = await createClient();
   if (!supabase) return "unauthenticated"; // unconfigured: behave as logged-out for routing
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return "unauthenticated";
 
   const { data, error } = await supabase

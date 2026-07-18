@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth/getUser";
 
 /**
  * The set of completed lessons for the signed-in user, keyed as
@@ -8,9 +9,7 @@ import { createClient } from "@/lib/supabase/server";
 export async function getCompletedLessons(): Promise<Set<string>> {
   const supabase = await createClient();
   if (!supabase) return new Set();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return new Set();
 
   const { data } = await supabase

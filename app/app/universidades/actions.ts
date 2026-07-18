@@ -2,21 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { requireUser } from "@/lib/auth/getUser";
 import { getPostHogClient } from "@/lib/posthog-server";
 
 export interface ActionResult {
   ok: boolean;
   error?: string;
-}
-
-async function requireUser() {
-  const supabase = await createClient();
-  if (!supabase) return { supabase: null, userId: null } as const;
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  return { supabase, userId: user?.id ?? null } as const;
 }
 
 export async function createUniversityAction(

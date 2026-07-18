@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { parseTime } from "@/lib/util/swim-time";
+import { getCurrentUser } from "@/lib/auth/getUser";
 
 export { parseTime } from "@/lib/util/swim-time";
 
@@ -26,9 +27,7 @@ export interface Swim {
 export async function getProgressEntries(): Promise<{ swims: Swim[]; configured: boolean }> {
   const supabase = await createClient();
   if (!supabase) return { swims: [], configured: false };
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return { swims: [], configured: true };
 
   const { data } = await supabase

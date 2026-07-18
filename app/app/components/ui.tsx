@@ -111,32 +111,6 @@ export function ProgressBar({
   );
 }
 
-// Dark glass card — the default for all in-app surfaces
-export function Card({
-  children,
-  className = "",
-  glow = false,
-}: {
-  children: ReactNode;
-  className?: string;
-  glow?: boolean;
-}) {
-  return (
-    <div
-      className={`rounded-2xl ximo-card-3d ${className}`}
-      style={{
-        background: "rgba(17,37,56,0.75)",
-        border: "1px solid rgba(47,127,134,0.14)",
-        boxShadow: glow
-          ? "0 0 30px rgba(30,206,206,0.12), 0 4px 24px rgba(0,0,0,0.35)"
-          : "0 4px 20px rgba(0,0,0,0.28)",
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
 /* ──────────────────────────────────────────────────────────────
    SHARED SURFACES — themed glass via CSS vars. Use these so every
    page reads from one design system (dark + light supported).

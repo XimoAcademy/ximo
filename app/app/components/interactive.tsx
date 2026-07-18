@@ -9,28 +9,6 @@ import { useState, type ReactNode } from "react";
    still feeling alive.
    ────────────────────────────────────────────────────────────── */
 
-// A single "mark as done" CTA that flips to a confirmed state.
-export function MarkCompleteButton({
-  label = "Marcar como completada",
-  doneLabel = "Completada ✓",
-  tone = "teal",
-}: {
-  label?: string;
-  doneLabel?: string;
-  tone?: "teal" | "gold" | "dark";
-}) {
-  const [done, setDone] = useState(false);
-  return (
-    <button
-      type="button"
-      onClick={() => setDone((d) => !d)}
-      className={`ximo-glass-btn ${done ? "gold" : tone} text-xs`}
-    >
-      {done ? doneLabel : label}
-    </button>
-  );
-}
-
 // Toggleable checklist (visual). Pre-checked items can be passed.
 export function Checklist({
   items,
@@ -80,88 +58,6 @@ export function Checklist({
   );
 }
 
-// Visual notes textarea with a save confirmation.
-export function NotesBox({
-  placeholder = "Escribe tus notas…",
-  defaultValue = "",
-}: {
-  placeholder?: string;
-  defaultValue?: string;
-}) {
-  const [val, setVal] = useState(defaultValue);
-  const [saved, setSaved] = useState(false);
-  return (
-    <div>
-      <textarea
-        value={val}
-        onChange={(e) => {
-          setVal(e.target.value);
-          setSaved(false);
-        }}
-        placeholder={placeholder}
-        rows={4}
-        className="w-full resize-none rounded-xl px-3.5 py-3 text-sm outline-none placeholder:text-[var(--text-label)]"
-        style={{ background: "var(--surface-hover)", border: "1px solid var(--border)", color: "var(--text)" }}
-      />
-      <button
-        type="button"
-        onClick={() => setSaved(true)}
-        className="ximo-glass-btn dark mt-3 text-xs"
-      >
-        {saved ? "Notas guardadas" : "Guardar notas"}
-      </button>
-    </div>
-  );
-}
-
-// A labelled liquid-glass switch row (notifications, privacy).
-export function SwitchRow({
-  title,
-  description,
-  defaultOn = false,
-}: {
-  title: string;
-  description?: string;
-  defaultOn?: boolean;
-}) {
-  const [on, setOn] = useState(defaultOn);
-  return (
-    <div
-      className="flex items-center justify-between gap-4 rounded-xl px-3.5 py-3"
-      style={{ background: "var(--surface-hover)", border: "1px solid var(--border-subtle)" }}
-    >
-      <div className="min-w-0">
-        <p className="text-sm font-bold" style={{ color: "var(--text)" }}>
-          {title}
-        </p>
-        {description && (
-          <p className="mt-0.5 text-[11px] leading-snug" style={{ color: "var(--text-label)" }}>
-            {description}
-          </p>
-        )}
-      </div>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={on}
-        aria-label={title}
-        onClick={() => setOn((v) => !v)}
-        className={`ximo-glass-chip relative flex h-7 w-12 shrink-0 items-center rounded-full p-1 ${on ? "active" : ""}`}
-      >
-        <span
-          aria-hidden
-          className="h-5 w-5 rounded-full"
-          style={{
-            background: on ? "#ffffff" : "var(--text-3)",
-            transform: on ? "translateX(20px)" : "translateX(0)",
-            transition: "transform 0.32s cubic-bezier(0.22,1,0.36,1), background 0.2s ease",
-          }}
-        />
-      </button>
-    </div>
-  );
-}
-
 // FAQ accordion item.
 export function FaqItem({ q, a }: { q: string; a: ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -190,49 +86,6 @@ export function FaqItem({ q, a }: { q: string; a: ReactNode }) {
           {a}
         </div>
       )}
-    </div>
-  );
-}
-
-// A composer-style text field with a publish confirmation (community).
-export function MiniComposer({
-  placeholder = "Escribe tu respuesta…",
-  button = "Publicar",
-}: {
-  placeholder?: string;
-  button?: string;
-}) {
-  const [val, setVal] = useState("");
-  const [sent, setSent] = useState(false);
-  return (
-    <div>
-      <textarea
-        value={val}
-        onChange={(e) => {
-          setVal(e.target.value);
-          setSent(false);
-        }}
-        placeholder={placeholder}
-        rows={3}
-        className="w-full resize-none rounded-xl px-3.5 py-3 text-sm outline-none placeholder:text-[var(--text-label)]"
-        style={{ background: "var(--surface-hover)", border: "1px solid var(--border)", color: "var(--text)" }}
-      />
-      <div className="mt-3 flex items-center justify-between">
-        <span className="text-[11px]" style={{ color: "var(--text-label)" }}>
-          {sent ? "Enviado · visible para la comunidad" : "Sé respetuoso y específico."}
-        </span>
-        <button
-          type="button"
-          disabled={!val.trim()}
-          onClick={() => {
-            setSent(true);
-            setVal("");
-          }}
-          className="ximo-glass-btn teal text-xs"
-        >
-          {button}
-        </button>
-      </div>
     </div>
   );
 }

@@ -16,9 +16,10 @@ export async function GET(req: Request): Promise<Response> {
   const secret = process.env.CRON_SECRET;
   if (!secret) return new Response("Cron not configured", { status: 503 });
 
+  // Header-only auth: query-string secrets end up in request logs, so the
+  // `?secret=` fallback was removed. Vercel Cron always sends the Bearer header.
   const auth = req.headers.get("authorization");
-  const url = new URL(req.url);
-  const provided = auth?.replace(/^Bearer\s+/i, "") ?? url.searchParams.get("secret");
+  const provided = auth?.replace(/^Bearer\s+/i, "") ?? "";
   if (provided !== secret) return new Response("Unauthorized", { status: 401 });
 
   const svc = createServiceRoleClient();

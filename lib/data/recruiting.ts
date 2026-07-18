@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import type { UniversityRow } from "./universities";
 import type { CoachRow } from "./coaches";
+import { getCurrentUser } from "@/lib/auth/getUser";
 
 export interface RecruitingData {
   universities: UniversityRow[];
@@ -27,9 +28,7 @@ const EMPTY: RecruitingData = {
 export async function getRecruitingData(): Promise<RecruitingData> {
   const supabase = await createClient();
   if (!supabase) return EMPTY;
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return { ...EMPTY, configured: true };
 
   const [uniRes, coachRes, taskRes] = await Promise.all([

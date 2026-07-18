@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth/getUser";
 
 export { COACH_STATUSES, COACH_PRIORITIES } from "./recruiting-constants";
 
@@ -26,9 +27,7 @@ export interface UniversityOption {
 export async function getUniversityOptions(): Promise<UniversityOption[]> {
   const supabase = await createClient();
   if (!supabase) return [];
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return [];
   const { data } = await supabase
     .from("universities")
@@ -41,9 +40,7 @@ export async function getUniversityOptions(): Promise<UniversityOption[]> {
 export async function getCoaches(): Promise<{ rows: CoachRow[]; configured: boolean }> {
   const supabase = await createClient();
   if (!supabase) return { rows: [], configured: false };
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return { rows: [], configured: true };
 
   const { data } = await supabase
@@ -58,9 +55,7 @@ export async function getCoaches(): Promise<{ rows: CoachRow[]; configured: bool
 export async function getCoach(id: string): Promise<CoachRow | null> {
   const supabase = await createClient();
   if (!supabase) return null;
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return null;
   const { data } = await supabase
     .from("coaches")

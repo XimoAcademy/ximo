@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth/getUser";
 
 export interface NotificationRow {
   id: string;
@@ -13,9 +14,7 @@ export interface NotificationRow {
 export async function getUnreadCount(): Promise<number> {
   const supabase = await createClient();
   if (!supabase) return 0;
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return 0;
   const { count } = await supabase
     .from("notifications")
@@ -28,9 +27,7 @@ export async function getUnreadCount(): Promise<number> {
 export async function getNotifications(): Promise<{ rows: NotificationRow[]; unread: number }> {
   const supabase = await createClient();
   if (!supabase) return { rows: [], unread: 0 };
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return { rows: [], unread: 0 };
 
   const { data } = await supabase

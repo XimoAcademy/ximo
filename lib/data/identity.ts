@@ -1,5 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
-import { getProfile } from "@/lib/auth/getUser";
+import { getProfile, getCurrentUser } from "@/lib/auth/getUser";
 import { computeInitials } from "@/lib/util/initials";
 
 export { computeInitials } from "@/lib/util/initials";
@@ -20,12 +19,9 @@ export interface Identity {
 
 
 export async function getIdentity(): Promise<Identity | null> {
-  const supabase = await createClient();
-  if (!supabase) return null;
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getCurrentUser() is null when Supabase is unconfigured OR signed out —
+  // covers both cases without needing a client here.
+  const user = await getCurrentUser();
   if (!user) return null;
 
   const profile = await getProfile();

@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth/getUser";
 
 export interface ProfileRow {
   id: string;
@@ -58,9 +59,7 @@ export interface FullProfile {
 export async function getFullProfile(): Promise<FullProfile> {
   const supabase = await createClient();
   if (!supabase) return { profile: null, athlete: null };
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return { profile: null, athlete: null };
 
   const [{ data: profile }, { data: athlete }] = await Promise.all([

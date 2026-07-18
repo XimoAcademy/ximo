@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth/getUser";
 
 export interface BillingInfo {
   status: string;
@@ -12,9 +13,7 @@ export interface BillingInfo {
 export async function getBillingInfo(): Promise<BillingInfo | null> {
   const supabase = await createClient();
   if (!supabase) return null;
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return null;
 
   const [{ data: sub }, { data: profile }] = await Promise.all([

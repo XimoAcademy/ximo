@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth/getUser";
 
 export type TaskPriority = "alta" | "media" | "baja";
 export type TaskStatus = "pendiente" | "en progreso" | "completada";
@@ -40,9 +41,7 @@ export async function getTasks(): Promise<TasksData> {
   const supabase = await createClient();
   if (!supabase) return EMPTY;
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return { ...EMPTY, configured: true };
 
   const { data } = await supabase
@@ -75,9 +74,7 @@ export async function getTasks(): Promise<TasksData> {
 export async function getTask(id: string): Promise<TaskRow | null> {
   const supabase = await createClient();
   if (!supabase) return null;
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return null;
 
   const { data } = await supabase

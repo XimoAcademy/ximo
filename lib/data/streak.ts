@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth/getUser";
 
 /**
  * Daily login streak — Duolingo-style.
@@ -61,9 +62,7 @@ export async function touchDailyStreak(): Promise<StreakState> {
   const supabase = await createClient();
   if (!supabase) return ZERO;
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return ZERO;
 
   const { data: row } = await supabase

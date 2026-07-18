@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth/getUser";
 
 export { RECRUITING_STAGES, PRIORITIES } from "./recruiting-constants";
 
@@ -21,9 +22,7 @@ export interface UniversityRow {
 export async function getUniversities(): Promise<{ rows: UniversityRow[]; configured: boolean }> {
   const supabase = await createClient();
   if (!supabase) return { rows: [], configured: false };
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return { rows: [], configured: true };
 
   const { data } = await supabase
@@ -44,9 +43,7 @@ export interface UniversityDetail {
 export async function getUniversity(id: string): Promise<UniversityDetail | null> {
   const supabase = await createClient();
   if (!supabase) return null;
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return null;
 
   const { data: university } = await supabase

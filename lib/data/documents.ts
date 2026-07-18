@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth/getUser";
 
 export { DOC_STATUSES, DOC_IMPORTANCE } from "./documents-constants";
 
@@ -30,9 +31,7 @@ export interface DocumentRow {
 export async function getDocuments(): Promise<{ rows: DocumentRow[]; configured: boolean }> {
   const supabase = await createClient();
   if (!supabase) return { rows: [], configured: false };
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return { rows: [], configured: true };
 
   const { data } = await supabase
@@ -47,9 +46,7 @@ export async function getDocuments(): Promise<{ rows: DocumentRow[]; configured:
 export async function getDocument(id: string): Promise<DocumentRow | null> {
   const supabase = await createClient();
   if (!supabase) return null;
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return null;
   const { data } = await supabase
     .from("documents")

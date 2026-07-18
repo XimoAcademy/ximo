@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth/getUser";
 
 export { EMAIL_STATUSES, EMAIL_TEMPLATES } from "./email-templates";
 export type { EmailTemplate } from "./email-templates";
@@ -26,9 +27,7 @@ export interface CoachOption {
 export async function getCoachOptions(): Promise<CoachOption[]> {
   const supabase = await createClient();
   if (!supabase) return [];
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return [];
   const { data } = await supabase
     .from("coaches")
@@ -41,9 +40,7 @@ export async function getCoachOptions(): Promise<CoachOption[]> {
 export async function getEmails(): Promise<{ rows: EmailRow[]; configured: boolean }> {
   const supabase = await createClient();
   if (!supabase) return { rows: [], configured: false };
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return { rows: [], configured: true };
 
   const { data } = await supabase

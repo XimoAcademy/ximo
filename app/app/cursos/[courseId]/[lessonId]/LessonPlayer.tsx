@@ -107,6 +107,8 @@ export default function LessonPlayer({ courseId, courseTitle, lessons, lessonId,
                   src={lesson.videoUrl}
                   poster={lesson.thumbnail ?? undefined}
                   controls
+                  controlsList="nodownload"
+                  disablePictureInPicture
                   className="aspect-video w-full"
                   style={{ background: "#0B1F33" }}
                 />

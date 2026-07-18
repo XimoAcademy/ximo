@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type { AdReviewStatus } from "./ads";
+import { getCurrentUser } from "@/lib/auth/getUser";
 
 export interface BrandAd {
   id: string;
@@ -37,9 +38,7 @@ export interface UserBrandAd {
 export async function getUserBrandAds(): Promise<UserBrandAd[]> {
   const supabase = await createClient();
   if (!supabase) return [];
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return [];
 
   const { data: brands } = await supabase
@@ -95,9 +94,7 @@ export async function getUserBrandAds(): Promise<UserBrandAd[]> {
 export async function getMyAdPreview(): Promise<{ ad: BrandAd; review_status: AdReviewStatus } | null> {
   const supabase = await createClient();
   if (!supabase) return null;
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return null;
 
   const { data: brands } = await supabase
@@ -151,9 +148,7 @@ export async function getMyAdPreview(): Promise<{ ad: BrandAd; review_status: Ad
 export async function getApprovedBrandAds(): Promise<BrandAd[]> {
   const supabase = await createClient();
   if (!supabase) return [];
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return [];
 
   const { data } = await supabase

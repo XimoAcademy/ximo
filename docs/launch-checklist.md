@@ -132,7 +132,7 @@ A daily job emails + in-app-notifies each athlete about coach follow-ups and tas
    `Authorization: Bearer ${CRON_SECRET}` to the cron route.
 2. Requires `SUPABASE_SERVICE_ROLE_KEY` (reads across users, writes notifications) and,
    for the email part, the Resend vars from 7c.
-3. Test manually: `GET /api/cron/reminders?secret=YOUR_CRON_SECRET`.
+3. Test manually: `curl -H "Authorization: Bearer YOUR_CRON_SECRET" https://<host>/api/cron/reminders` (header-only — the old `?secret=` query param was removed so the secret never lands in request logs).
 
 ## 7e. Privacy rights (ARCO / LFPDPPP)
 
