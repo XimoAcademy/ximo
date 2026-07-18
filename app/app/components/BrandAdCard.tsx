@@ -25,7 +25,7 @@ export default function BrandAdCard({ b }: { b: BrandAd }) {
         {b.target_audience && <p className="mt-2 text-[11px]" style={{ color: "var(--text-label)" }}>Para: {b.target_audience}</p>}
       </div>
       <div className="mt-4 flex items-center justify-between gap-2 border-t pt-3" style={{ borderColor: "var(--border)" }}>
-        <span className="text-[10px] font-bold" style={{ color: "#6ee7b7" }}>✓ Revisado por Ximo</span>
+        <span className="text-[10px] font-bold" style={{ color: "var(--success)" }}>✓ Revisado por Ximo</span>
         {b.media_url && (
           <a href={b.media_url} target="_blank" rel="noopener noreferrer" className="ximo-glass-btn teal text-[11px]" style={{ padding: "0.5rem 0.9rem" }}>
             Ver oportunidad ↗

@@ -32,7 +32,8 @@ export default async function MarcasPage() {
 
       {/* Quality banner */}
       <div className="overflow-hidden rounded-2xl ximo-card-3d" style={CARD}>
-        <div className="flex items-start gap-4 p-4 sm:p-5" style={{ background: "linear-gradient(135deg, rgba(47,127,134,0.16), rgba(17,37,56,0.9))" }}>
+        {/* Themed gradient (was a hardcoded dark navy that turned unreadable in light mode) */}
+        <div className="flex items-start gap-4 p-4 sm:p-5" style={{ background: "linear-gradient(135deg, var(--teal-bg), var(--surface-2))" }}>
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-base font-black" style={{ background: "rgba(201,168,76,0.15)", color: "var(--gold)" }}>◈</div>
           <div>
             <p className="text-sm font-black" style={{ color: "var(--text)" }}>Filtro de calidad Ximo</p>
@@ -76,7 +77,7 @@ export default async function MarcasPage() {
 
       {/* Coming soon */}
       <div className="overflow-hidden rounded-2xl" style={CARD}>
-        <div className="p-5" style={{ background: "linear-gradient(135deg, var(--border), rgba(17,37,56,0.95))" }}>
+        <div className="p-5" style={{ background: "linear-gradient(135deg, var(--border), var(--surface-2))" }}>
           <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--gold)" }}>El ecosistema crece</p>
           <p className="mt-1 text-base font-black" style={{ color: "var(--text)" }}>Oportunidades para suscriptores activos</p>
           <p className="mt-1.5 max-w-xl text-xs" style={{ color: "var(--text-3)" }}>
