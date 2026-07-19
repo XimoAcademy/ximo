@@ -1,12 +1,19 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { GlassPanel, BackLink } from "../../../components/ui";
+import { GlassPanel, BackLink, StatCard } from "../../../components/ui";
 import ScrollReveal from "../../../../components/ScrollReveal";
-import { getCourse, courseProgress } from "../../courseData";
-import { getCompletedLessons } from "@/lib/data/courses";
+import { COURSES, getCourse, courseProgress } from "../../courseData";
+import { getCompletedLessons, getCourseQuizStats } from "@/lib/data/courses";
 import { getIdentity } from "@/lib/data/identity";
 
 export const dynamic = "force-dynamic";
+
+/** Sum of the course's lesson durations, e.g. "68 min". */
+function courseMinutes(courseId: string): number {
+  const course = getCourse(courseId);
+  if (!course) return 0;
+  return course.lessons.reduce((acc, l) => acc + (parseInt(l.duration) || 0), 0);
+}
 
 export default async function CertificadoPage({
   params,
@@ -17,13 +24,27 @@ export default async function CertificadoPage({
   const course = getCourse(courseId);
   if (!course) notFound();
 
-  const [completedSet, identity] = await Promise.all([getCompletedLessons(), getIdentity()]);
+  const [completedSet, identity, quizStats] = await Promise.all([
+    getCompletedLessons(),
+    getIdentity(),
+    getCourseQuizStats(courseId),
+  ]);
   const p = courseProgress(course, completedSet);
   // Only issue the certificate when the course is actually complete.
   if (p.pct < 100) redirect(`/app/cursos/${course.id}`);
 
   const STUDENT = identity?.name ?? "Atleta Ximo";
-  const date = new Date().toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" });
+  const completionDate = quizStats.completedAt ? new Date(quizStats.completedAt) : new Date();
+  const date = completionDate.toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" });
+
+  // Next course in catalogue order (first one not yet completed), for the CTA.
+  const idx = COURSES.findIndex((c) => c.id === course.id);
+  const nextCourse =
+    COURSES.slice(idx + 1).find((c) => courseProgress(c, completedSet).pct < 100) ??
+    COURSES.find((c) => c.id !== course.id && courseProgress(c, completedSet).pct < 100) ??
+    null;
+
+  const minutes = courseMinutes(course.id);
 
   return (
     <div className="mx-auto max-w-[760px] space-y-5">
@@ -82,6 +103,49 @@ export default async function CertificadoPage({
           </div>
         </GlassPanel>
       </ScrollReveal>
+
+      {/* Course stats */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatCard label="Completado" value="100%" accent="gold" />
+        <StatCard label="Lecciones" value={`${p.done}/${p.total}`} hint="completadas" />
+        <StatCard
+          label="Quizzes"
+          value={quizStats.avgBestScore !== null ? `${quizStats.avgBestScore}%` : "—"}
+          hint={
+            quizStats.totalAttempts > 0
+              ? `promedio · ${quizStats.totalAttempts} ${quizStats.totalAttempts === 1 ? "intento" : "intentos"}`
+              : "sin intentos registrados"
+          }
+        />
+        <StatCard label="Tiempo invertido" value={`~${minutes} min`} hint="en video y práctica" accent="text" />
+      </div>
+
+      {/* Next step */}
+      {nextCourse ? (
+        <GlassPanel className="p-5 text-center">
+          <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-label)" }}>
+            Tu siguiente paso
+          </p>
+          <p className="mt-1.5 text-base font-black" style={{ color: "var(--text)" }}>
+            {nextCourse.title}
+          </p>
+          <p className="mx-auto mt-1 max-w-md text-xs leading-relaxed" style={{ color: "var(--text-2)" }}>
+            {nextCourse.summary}
+          </p>
+          <Link href={`/app/cursos/${nextCourse.id}`} className="ximo-glass-btn gold shiny mt-4 inline-block text-sm">
+            Continuar al siguiente curso →
+          </Link>
+        </GlassPanel>
+      ) : (
+        <GlassPanel className="p-5 text-center">
+          <p className="text-base font-black" style={{ color: "var(--text)" }}>
+            Completaste toda la academia 🎓
+          </p>
+          <p className="mx-auto mt-1 max-w-md text-xs leading-relaxed" style={{ color: "var(--text-2)" }}>
+            Ahora tienes el mapa completo del recruiting. Vuelve a cualquier lección cuando necesites repasarla.
+          </p>
+        </GlassPanel>
+      )}
 
       <div className="flex flex-wrap justify-center gap-3">
         <Link href="/app/cursos" className="ximo-glass-btn teal text-sm">

@@ -34,7 +34,10 @@ values
    'Mentalidad', 'Esencial', 5, true),
   ('documents-ready', 'Documentos listos para recruiting',
    'Prepara, traduce, ordena y envía documentos oficiales sin retrasar oportunidades.',
-   'Documentos', 'Práctico', 6, true)
+   'Documentos', 'Práctico', 6, true),
+  ('recruiting-strategy', 'Estrategia y gestión del proceso',
+   'Convierte lo aprendido en un sistema: pipeline, seguimiento, calendario de comunicación y decisiones con varias ofertas.',
+   'Estrategia', 'Avanzado', 7, true)
 on conflict (slug) do nothing;
 
 -- ── Lessons ──────────────────────────────────────────────────────────────
@@ -53,6 +56,7 @@ join (
     ('recruiting-basics', 'lesson-7', 'El calendario completo del recruiting', 'Recruiting, admisión, exámenes y documentos avanzan en paralelo: planifícalos con anticipación.', 420, 7),
     ('recruiting-basics', 'lesson-8', 'Eligibility Center y proceso para atletas internacionales', 'Cuentas, documentos y certificaciones explicadas de manera clara y segura.', 420, 8),
     ('recruiting-basics', 'lesson-9', 'Construye tu lista estratégica y tu plan de acción', 'Une nivel deportivo, carrera, costo y probabilidad de encaje en una estrategia medible.', 420, 9),
+    ('recruiting-basics', 'lesson-10', 'Mitos del recruiting y el efecto de los transfers', 'Los mitos que descartan atletas sin razón y cómo los transfers cambian las necesidades de un roster cada año.', 420, 10),
     ('emails-to-coaches', 'lesson-1', 'Anatomía de un buen correo', 'Una estructura breve, útil y fácil de responder.', 420, 1),
     ('emails-to-coaches', 'lesson-2', 'Personalización que importa', 'Diferencia la investigación real de los cumplidos genéricos.', 360, 2),
     ('emails-to-coaches', 'lesson-3', 'Tu video y tus tiempos', 'Evidencia deportiva clara, verificable y fácil de abrir.', 420, 3),
@@ -75,10 +79,17 @@ join (
     ('athlete-profile', 'lesson-3', 'Tu narrativa: cómo contar quién eres', 'Una historia concreta que conecta esfuerzo, aprendizaje y metas.', 360, 3),
     ('athlete-profile', 'lesson-4', 'Mentalidad para desafiar las probabilidades', 'Acción valiente, sin prometer resultados ni negar la realidad.', 360, 4),
     ('athlete-profile', 'lesson-5', 'Reduce el riesgo: carácter, disciplina y confianza', 'Traduce tus cualidades en conductas que un coach pueda observar.', 420, 5),
+    ('athlete-profile', 'lesson-6', 'Marca personal y redes sociales del atleta', 'Lo que un coach encuentra cuando te busca en internet: cómo cuidar tu presencia pública y convertirla en evidencia a tu favor.', 420, 6),
+    ('athlete-profile', 'lesson-7', 'Rechazo, paciencia y constancia', 'Cómo sostener el proceso cuando llegan los ''no'', el silencio y las semanas sin avances.', 420, 7),
     ('documents-ready', 'lesson-1', 'Tu checklist de documentos', 'Documentos deportivos, académicos, personales y financieros antes de que sean urgentes.', 360, 1),
     ('documents-ready', 'lesson-2', 'Transcript y traducciones', 'Registros académicos comprensibles y oficiales para EE. UU.', 420, 2),
     ('documents-ready', 'lesson-3', 'Organiza tu carpeta', 'Una estructura digital segura, actualizable y fácil de compartir.', 300, 3),
-    ('documents-ready', 'lesson-4', 'Fechas, versiones y envíos oficiales', 'Controla caducidad, recepción y trazabilidad de cada documento.', 420, 4)
+    ('documents-ready', 'lesson-4', 'Fechas, versiones y envíos oficiales', 'Controla caducidad, recepción y trazabilidad de cada documento.', 420, 4),
+    ('recruiting-strategy', 'lesson-1', 'Tu pipeline de recruiting: de lista a sistema', 'Convierte tu lista de universidades en un pipeline vivo con etapas, prioridades y próximos pasos claros.', 420, 1),
+    ('recruiting-strategy', 'lesson-2', 'Seguimiento de coaches y universidades', 'Qué registrar de cada conversación, qué actualizaciones le importan a un coach y cuándo enviarlas.', 420, 2),
+    ('recruiting-strategy', 'lesson-3', 'Tu calendario de comunicación', 'Un calendario realista que alinea tus contactos con la temporada, tus resultados y las fechas del recruiting.', 420, 3),
+    ('recruiting-strategy', 'lesson-4', 'Varias conversaciones y ofertas a la vez', 'Cómo avanzar con varios programas en paralelo con honestidad, sin quemar puentes y sin perder ninguna oportunidad.', 420, 4),
+    ('recruiting-strategy', 'lesson-5', 'Después del sí: compromiso y plan a cuatro años', 'Qué sigue después de elegir: cerrar el proceso con profesionalismo y llegar a tu primer año con un plan.', 420, 5)
 ) as l(course_slug, slug, title, description, duration_seconds, sort_order)
   on l.course_slug = c.slug
 on conflict (course_id, slug) do nothing;

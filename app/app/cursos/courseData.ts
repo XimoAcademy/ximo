@@ -81,6 +81,7 @@ export const CATEGORIES = [
   "SAT/TOEFL",
   "Mentalidad",
   "Documentos",
+  "Estrategia",
 ] as const;
 
 export const COURSES: Course[] = [
@@ -108,6 +109,7 @@ export const COURSES: Course[] = [
       { id: "lesson-7", title: "El calendario completo del recruiting", duration: "7 min", description: "Recruiting, admisión, exámenes y documentos avanzan en paralelo: planifícalos con anticipación." },
       { id: "lesson-8", title: "Eligibility Center y proceso para atletas internacionales", duration: "7 min", description: "Cuentas, documentos y certificaciones explicadas de manera clara y segura." },
       { id: "lesson-9", title: "Construye tu lista estratégica y tu plan de acción", duration: "7 min", description: "Une nivel deportivo, carrera, costo y probabilidad de encaje en una estrategia medible." },
+      { id: "lesson-10", title: "Mitos del recruiting y el efecto de los transfers", duration: "7 min", description: "Los mitos que descartan atletas sin razón y cómo los transfers cambian las necesidades de un roster cada año." },
     ],
   },
   {
@@ -198,6 +200,8 @@ export const COURSES: Course[] = [
       { id: "lesson-3", title: "Tu narrativa: cómo contar quién eres", duration: "6 min", description: "Una historia concreta que conecta esfuerzo, aprendizaje y metas." },
       { id: "lesson-4", title: "Mentalidad para desafiar las probabilidades", duration: "6 min", description: "Acción valiente, sin prometer resultados ni negar la realidad." },
       { id: "lesson-5", title: "Reduce el riesgo: carácter, disciplina y confianza", duration: "7 min", description: "Traduce tus cualidades en conductas que un coach pueda observar." },
+      { id: "lesson-6", title: "Marca personal y redes sociales del atleta", duration: "7 min", description: "Lo que un coach encuentra cuando te busca en internet: cómo cuidar tu presencia pública y convertirla en evidencia a tu favor." },
+      { id: "lesson-7", title: "Rechazo, paciencia y constancia", duration: "7 min", description: "Cómo sostener el proceso cuando llegan los 'no', el silencio y las semanas sin avances." },
     ],
   },
   {
@@ -219,6 +223,28 @@ export const COURSES: Course[] = [
       { id: "lesson-2", title: "Transcript y traducciones", duration: "7 min", description: "Registros académicos comprensibles y oficiales para EE. UU." },
       { id: "lesson-3", title: "Organiza tu carpeta", duration: "5 min", description: "Una estructura digital segura, actualizable y fácil de compartir." },
       { id: "lesson-4", title: "Fechas, versiones y envíos oficiales", duration: "7 min", description: "Controla caducidad, recepción y trazabilidad de cada documento." },
+    ],
+  },
+  {
+    id: "recruiting-strategy",
+    title: "Estrategia y gestión del proceso",
+    category: "Estrategia",
+    level: "Avanzado",
+    summary: "Convierte lo aprendido en un sistema: pipeline, seguimiento, calendario de comunicación y decisiones con varias ofertas.",
+    description:
+      "Saber recruiting no basta: hay que gestionarlo. Este curso convierte todo lo aprendido en un sistema de trabajo — tu pipeline de universidades, el seguimiento de cada conversación, un calendario de comunicación realista y un método para decidir con claridad cuando hay varias opciones sobre la mesa.",
+    whatYouLearn: [
+      "Construir y mantener tu pipeline de universidades",
+      "Registrar cada contacto y saber qué actualización enviar y cuándo",
+      "Un calendario de comunicación que no depende de la memoria",
+      "Gestionar varias conversaciones y cerrar el proceso con un plan a cuatro años",
+    ],
+    lessons: [
+      { id: "lesson-1", title: "Tu pipeline de recruiting: de lista a sistema", duration: "7 min", description: "Convierte tu lista de universidades en un pipeline vivo con etapas, prioridades y próximos pasos claros." },
+      { id: "lesson-2", title: "Seguimiento de coaches y universidades", duration: "7 min", description: "Qué registrar de cada conversación, qué actualizaciones le importan a un coach y cuándo enviarlas." },
+      { id: "lesson-3", title: "Tu calendario de comunicación", duration: "7 min", description: "Un calendario realista que alinea tus contactos con la temporada, tus resultados y las fechas del recruiting." },
+      { id: "lesson-4", title: "Varias conversaciones y ofertas a la vez", duration: "7 min", description: "Cómo avanzar con varios programas en paralelo con honestidad, sin quemar puentes y sin perder ninguna oportunidad." },
+      { id: "lesson-5", title: "Después del sí: compromiso y plan a cuatro años", duration: "7 min", description: "Qué sigue después de elegir: cerrar el proceso con profesionalismo y llegar a tu primer año con un plan." },
     ],
   },
 ];

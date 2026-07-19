@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getCourse, getLesson, lessonKey, sortedLessons } from "../../courseData";
 import { getQuiz, getQuizForLesson } from "../../quizData";
+import { getLessonAction } from "../../lessonActions";
 import { getCompletedLessons } from "@/lib/data/courses";
 import { getIdentity } from "@/lib/data/identity";
 import ProtectedContent from "../../../components/ProtectedContent";
@@ -44,16 +45,25 @@ export default async function LessonPage({
         lessonId={lessonId}
         completedIds={completedIds}
         quiz={quiz ?? null}
-        lessons={ordered.map((l) => ({
-          id: l.id,
-          title: l.title,
-          duration: l.duration,
-          description: l.description,
-          videoUrl: l.videoUrl ?? null,
-          thumbnail: l.thumbnail ?? null,
-          status: l.status ?? "coming_soon",
-          resources: l.resources ?? [],
-        }))}
+        action={getLessonAction(course.id, lessonId) ?? null}
+        lessons={ordered.map((l, i) => {
+          // Server-side lock check: locked lessons never ship their video URL
+          // to the client, so the sequence cannot be bypassed from devtools.
+          const isUnlocked =
+            i === 0 ||
+            completedSet.has(lessonKey(course.id, l.id)) ||
+            completedSet.has(lessonKey(course.id, ordered[i - 1].id));
+          return {
+            id: l.id,
+            title: l.title,
+            duration: l.duration,
+            description: l.description,
+            videoUrl: isUnlocked ? l.videoUrl ?? null : null,
+            thumbnail: l.thumbnail ?? null,
+            status: l.status ?? "coming_soon",
+            resources: isUnlocked ? l.resources ?? [] : [],
+          };
+        })}
       />
     </ProtectedContent>
   );
