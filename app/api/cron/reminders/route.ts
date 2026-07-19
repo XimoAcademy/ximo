@@ -3,6 +3,10 @@ import { emailUserViaService } from "@/lib/email/notify";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+// Daily job iterates every user with due items; the 10s default would truncate
+// the run as the user base grows. 60s is the plan's ceiling — beyond that the
+// job should batch (see docs/infrastructure-scaling.md).
+export const maxDuration = 60;
 
 /**
  * Daily reminder job. Finds coach follow-ups and tasks due TODAY across all

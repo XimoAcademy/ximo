@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth/getUser";
 
@@ -67,8 +68,9 @@ export async function getCourseQuizStats(courseSlug: string): Promise<CourseQuiz
  * The set of completed lessons for the signed-in user, keyed as
  * `${courseSlug}/${lessonSlug}` so it lines up with the static catalogue
  * in app/app/cursos/courseData.ts (whose ids ARE the slugs).
+ * Request-memoized: several gates read it during one render/action.
  */
-export async function getCompletedLessons(): Promise<Set<string>> {
+export const getCompletedLessons = cache(async (): Promise<Set<string>> => {
   const supabase = await createClient();
   if (!supabase) return new Set();
   const user = await getCurrentUser();
@@ -89,4 +91,4 @@ export async function getCompletedLessons(): Promise<Set<string>> {
     if (course?.slug && lesson.slug) set.add(`${course.slug}/${lesson.slug}`);
   }
   return set;
-}
+});

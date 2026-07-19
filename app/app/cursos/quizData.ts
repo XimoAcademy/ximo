@@ -1668,6 +1668,25 @@ export const QUIZZES: Quiz[] = [
   },
 ];
 
+/**
+ * Client-safe view of a quiz: identical shape minus `correctAnswer`, so the
+ * answer key never ships to the browser before grading. The server action
+ * returns the correct answers together with the grade after a submission.
+ */
+export type PublicQuizQuestion = Omit<QuizQuestion, "correctAnswer">;
+export type PublicQuiz = Omit<Quiz, "questions"> & { questions: PublicQuizQuestion[] };
+
+export function toPublicQuiz(quiz: Quiz): PublicQuiz {
+  return {
+    ...quiz,
+    questions: quiz.questions.map((q) => {
+      const { correctAnswer, ...rest } = q;
+      void correctAnswer;
+      return rest;
+    }),
+  };
+}
+
 export function getQuiz(quizId: string | null | undefined): Quiz | undefined {
   if (!quizId) return undefined;
   return QUIZZES.find((q) => q.quizId === quizId);

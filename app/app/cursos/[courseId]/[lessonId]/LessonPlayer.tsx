@@ -5,7 +5,7 @@ import Link from "next/link";
 import { GlassPanel, InnerTile, BackLink, StatusBadge } from "../../../components/ui";
 import { markLessonCompleteAction, submitQuizAction } from "../../actions";
 import type { LessonResource, LessonStatus } from "../../courseData";
-import type { Quiz } from "../../quizData";
+import type { PublicQuiz } from "../../quizData";
 import type { QuizGrade } from "@/lib/education/quiz";
 import posthog from "posthog-js";
 
@@ -27,7 +27,7 @@ interface Props {
   lessonId: string;
   completedIds: string[];
   /** Present only when the lesson has real quiz data (see quizData.ts). */
-  quiz: Quiz | null;
+  quiz: PublicQuiz | null;
   /** "Acción dentro de Ximo" — the practical exercise for this lesson. */
   action: string | null;
 }
@@ -342,7 +342,7 @@ function LessonQuiz({
   nextLabel,
   onLessonCompleted,
 }: {
-  quiz: Quiz;
+  quiz: PublicQuiz;
   courseId: string;
   lessonId: string;
   alreadyDone: boolean;
@@ -352,6 +352,7 @@ function LessonQuiz({
 }) {
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [grade, setGrade] = useState<QuizGrade | null>(null);
+  const [answerKey, setAnswerKey] = useState<number[] | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
   const [justUnlocked, setJustUnlocked] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -370,6 +371,7 @@ function LessonQuiz({
         return;
       }
       setGrade(res.grade);
+      setAnswerKey(res.correctAnswers ?? null);
       posthog.capture("quiz_submitted", {
         quiz_id: quiz.quizId,
         score: res.grade.score,
@@ -387,6 +389,7 @@ function LessonQuiz({
   const retry = () => {
     setAnswers({});
     setGrade(null);
+    setAnswerKey(null);
     setServerError(null);
   };
 
@@ -422,8 +425,9 @@ function LessonQuiz({
             <div className="mt-2 space-y-1.5">
               {q.options.map((opt, oi) => {
                 const chosen = answers[qi] === oi;
-                const isCorrect = submitted && oi === q.correctAnswer;
-                const isWrongPick = submitted && chosen && oi !== q.correctAnswer;
+                const correctOption = answerKey?.[qi];
+                const isCorrect = submitted && correctOption !== undefined && oi === correctOption;
+                const isWrongPick = submitted && chosen && correctOption !== undefined && oi !== correctOption;
                 return (
                   <button
                     key={oi}

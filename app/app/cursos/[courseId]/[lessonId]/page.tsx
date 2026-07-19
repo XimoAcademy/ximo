@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { getCourse, getLesson, lessonKey, sortedLessons } from "../../courseData";
-import { getQuiz, getQuizForLesson } from "../../quizData";
+import { getQuiz, getQuizForLesson, toPublicQuiz } from "../../quizData";
 import { getLessonAction } from "../../lessonActions";
 import { getCompletedLessons } from "@/lib/data/courses";
 import { getIdentity } from "@/lib/data/identity";
@@ -44,7 +44,7 @@ export default async function LessonPage({
         courseTitle={course.title}
         lessonId={lessonId}
         completedIds={completedIds}
-        quiz={quiz ?? null}
+        quiz={quiz ? toPublicQuiz(quiz) : null}
         action={getLessonAction(course.id, lessonId) ?? null}
         lessons={ordered.map((l, i) => {
           // Server-side lock check: locked lessons never ship their video URL

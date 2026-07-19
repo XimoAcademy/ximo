@@ -16,6 +16,8 @@ export interface QuizSubmitResult {
   ok: boolean;
   error?: string;
   grade?: QuizGrade;
+  /** Answer key, revealed only after grading (the client never receives it upfront). */
+  correctAnswers?: number[];
   /** True when this submission (or a previous one) completed the lesson. */
   lessonCompleted?: boolean;
 }
@@ -110,6 +112,13 @@ export async function submitQuizAction(
 
   const grade = gradeQuiz(quiz, answers);
 
+  // Never store raw client input: normalize to one small int (or null) per
+  // question, so an oversized/garbage payload can't bloat the table.
+  const cleanAnswers = quiz.questions.map((_, i) => {
+    const a = Array.isArray(answers) ? answers[i] : undefined;
+    return typeof a === "number" && Number.isInteger(a) && a >= 0 && a < quiz.questions[i].options.length ? a : null;
+  });
+
   // Record the attempt (best-effort; never blocks the student).
   const ids = await resolveIds(supabase, courseSlug, lessonSlug);
   if (ids) {
@@ -119,7 +128,7 @@ export async function submitQuizAction(
       quiz_id: quiz.quizId,
       score: grade.score,
       passed: grade.passed,
-      answers,
+      answers: cleanAnswers,
     });
     if (attemptError) {
       // Table may not exist yet in this environment — degrade gracefully.
@@ -127,13 +136,15 @@ export async function submitQuizAction(
     }
   }
 
+  const correctAnswers = quiz.questions.map((q) => q.correctAnswer);
+
   if (grade.passed && !alreadyCompleted) {
     const res = await completeLesson(supabase, user.id, courseSlug, lessonSlug);
-    if (!res.ok) return { ok: false, error: res.error, grade };
-    return { ok: true, grade, lessonCompleted: true };
+    if (!res.ok) return { ok: false, error: res.error, grade, correctAnswers };
+    return { ok: true, grade, correctAnswers, lessonCompleted: true };
   }
 
-  return { ok: true, grade, lessonCompleted: alreadyCompleted };
+  return { ok: true, grade, correctAnswers, lessonCompleted: alreadyCompleted };
 }
 
 /**
