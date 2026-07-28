@@ -7,16 +7,21 @@ import { createAction } from "../actions";
 
 export const dynamic = "force-dynamic";
 
-export default async function NewAnnouncementPage() {
+export default async function NewAnnouncementPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
   const profile = await getProfile();
   if (profile?.role !== "admin") redirect("/app");
+  const { error } = await searchParams;
 
   return (
     <div className="mx-auto max-w-[640px] space-y-5">
       <BackLink href="/app/admin/announcements">Directos</BackLink>
       <PageHeader title="Programar directo" subtitle="Elige la fecha y la hora; el texto del aviso ya está definido." />
       <GlassPanel className="p-5">
-        <AnnouncementForm action={createAction} />
+        <AnnouncementForm action={createAction} error={error} />
       </GlassPanel>
     </div>
   );

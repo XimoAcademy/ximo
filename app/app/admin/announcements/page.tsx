@@ -33,9 +33,14 @@ function StatCardLite({ label, value }: { label: string; value: number }) {
   );
 }
 
-export default async function AnnouncementsAdminPage() {
+export default async function AnnouncementsAdminPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
   const { isAdmin, items } = await getAllAnnouncementsForAdmin();
   if (!isAdmin) redirect("/app");
+  const { error } = await searchParams;
 
   const counts = { draft: 0, published: 0, unpublished: 0 };
   for (const a of items) counts[a.status] += 1;
@@ -62,6 +67,15 @@ export default async function AnnouncementsAdminPage() {
           inmediato y programa los recordatorios de 24 h, 1 h y 10 min.
         </p>
       </div>
+
+      {error === "pasado" && (
+        <div
+          className="rounded-xl px-4 py-3 text-sm font-semibold"
+          style={{ background: "var(--error-bg)", color: "var(--error)", border: "1px solid var(--error)" }}
+        >
+          No se puede publicar un directo cuya fecha ya pasó. Cambia la fecha primero.
+        </div>
+      )}
 
       <div className="grid grid-cols-3 gap-3">
         <StatCardLite label="Borradores" value={counts.draft} />

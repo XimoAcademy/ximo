@@ -29,14 +29,31 @@ export default function AnnouncementForm({
   action,
   defaults,
   hiddenId,
+  error,
 }: {
   action: (formData: FormData) => void | Promise<void>;
   defaults?: AnnouncementFormDefaults;
   hiddenId?: string;
+  error?: string;
 }) {
+  // Tope inferior del selector de fecha. Se usa AYER en UTC (no hoy) para no
+  // bloquear una fecha legítima en zonas horarias por detrás de UTC; el
+  // rechazo real de fechas pasadas ocurre en el servidor.
+  const ayer = new Date(Date.now() - 24 * 60 * 60_000).toISOString().slice(0, 10);
+
   return (
     <form action={action} className="space-y-4">
       {hiddenId && <input type="hidden" name="id" value={hiddenId} />}
+
+      {error === "pasado" && (
+        <div
+          className="rounded-xl px-4 py-3 text-sm font-semibold"
+          style={{ background: "var(--error-bg)", color: "var(--error)", border: "1px solid var(--error)" }}
+        >
+          Esa fecha ya pasó. Elige una fecha y hora futuras: publicar un directo vencido avisaría a todos los
+          atletas de algo que ya ocurrió.
+        </div>
+      )}
 
       <div className="grid gap-3 sm:grid-cols-3">
         <div>
@@ -45,6 +62,7 @@ export default function AnnouncementForm({
             type="date"
             name="date"
             defaultValue={defaults?.date}
+            min={ayer}
             required
             className="w-full rounded-xl px-3.5 py-2.5 text-sm outline-none"
             style={inputStyle}

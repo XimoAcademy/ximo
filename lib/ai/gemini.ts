@@ -122,6 +122,13 @@ export async function askXimoSupport(
 
     if (!res.ok) {
       Sentry.captureException(new Error(`Gemini API responded ${res.status}: ${await res.text()}`));
+      // 429 = cuota diaria agotada. Decirlo con claridad evita que el atleta
+      // insista pensando que es un fallo puntual suyo.
+      if (res.status === 429) {
+        return next
+          ? `Hoy el asistente ya alcanzó su límite de consultas. Vuelve mañana, o resolvemos tu duda en el próximo directo: ${next.whenLabel}, en la comunidad de Discord.`
+          : "Hoy el asistente ya alcanzó su límite de consultas. Vuelve mañana, o pregunta en la comunidad de Discord.";
+      }
       return fallback;
     }
 

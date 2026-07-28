@@ -25,9 +25,19 @@ Legend: ✅ built & verified in production · 🟡 partial · ❌ not built (pla
 | 5.11 Documents & templates | ✅ | Private uploads (validated, signed URLs); no passports/IDs guidance in privacy notice |
 | 5.12 Payments & subscriptions | ✅ | Stripe LIVE: $0 demo checkout (no card), monthly/annual prices ready, idempotent webhook, billing page; no coupons/portal yet |
 | 5.13 Admin dashboard | 🟡 | Moderation + ad review queues, audit-ish trails; no full ops console (Phase 9) |
-| 5.14 Support | 🟡 | Help center + FAQ + mailto support; no ticketing system (Phase 9) |
+| 5.14 Support | 🟡 | Help center + FAQ + mailto; **Ximo Support AI** (Gemini, gratis, historial por usuario, límite 20 msg/h) en `/app/support`; **Directos** de dudas por Discord con aviso y recordatorios automáticos (24 h / 1 h / 10 min). Sin sistema de tickets (Phase 9) |
 | 5.15 Community (no social network) | ✅ | External Discord entry page + rules; complies with "no minor DMs" |
 | Advertising (extra, not in spec) | ✅ | Manual-review ad flow: wizard → email → approve/pay/publish; Discord posting admin-only |
+
+## Directos de soporte (extra, no en el spec)
+
+Panel solo-admin en `/app/admin/announcements`: el admin elige únicamente fecha,
+hora y zona horaria; el texto del aviso es fijo (`lib/announcements/text.ts`) y no
+lleva enlaces. Publicar avisa a todos los atletas, y los recordatorios de 24 h,
+1 h y 10 min los dispara un scheduler externo contra
+`/api/cron/session-reminders` (el plan Hobby de Vercel solo permite un cron
+diario). Exactamente-una-vez por ventana vía `announcement_reminders_sent`.
+Acceso verificado atacando la API con un atleta real: 8/8 defensas resistieron.
 
 ## Spec §6 assistant / agents
 

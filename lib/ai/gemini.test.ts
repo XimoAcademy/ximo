@@ -98,11 +98,21 @@ describe("askXimoSupport", () => {
   it("falls back to the live session instead of throwing when the API errors", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn(async () => ({ ok: false, status: 429, text: async () => "quota" }) as unknown as Response)
+      vi.fn(async () => ({ ok: false, status: 500, text: async () => "boom" }) as unknown as Response)
     );
     const reply = await askXimoSupport([], "hola", NEXT);
     expect(reply).toContain(NEXT.whenLabel);
     expect(reply).not.toContain("http");
+  });
+
+  it("says the daily quota ran out (429) instead of a vague error", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({ ok: false, status: 429, text: async () => "quota" }) as unknown as Response)
+    );
+    const reply = await askXimoSupport([], "hola", NEXT);
+    expect(reply).toContain("límite de consultas");
+    expect(reply).toContain(NEXT.whenLabel);
   });
 
   it("retries once on a transient 5xx and returns the recovered reply", async () => {

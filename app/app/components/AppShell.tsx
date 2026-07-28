@@ -27,7 +27,7 @@ const navGroups: NavGroup[] = [
       { href: "/app/comunidad",    label: "Comunidad",        icon: "◉" },
       { href: "/app/tareas",       label: "Tareas",           icon: "☐" },
       { href: "/app/support",      label: "Ximo Support AI",  icon: "✦" },
-      { href: "/app/live-support", label: "Soporte en vivo",  icon: "◷" },
+      { href: "/app/live-support", label: "Directos",         icon: "◷" },
     ],
   },
   {
@@ -65,7 +65,7 @@ const adminGroup: NavGroup = {
   items: [
     { href: "/app/admin/moderation", label: "Moderación", icon: "⚑" },
     { href: "/app/admin/ads", label: "Anuncios (marcas)", icon: "◈" },
-    { href: "/app/admin/announcements", label: "Soporte en vivo", icon: "▶" },
+    { href: "/app/admin/announcements", label: "Directos", icon: "▶" },
   ],
 };
 

@@ -9,11 +9,18 @@ import { updateAction } from "../../actions";
 
 export const dynamic = "force-dynamic";
 
-export default async function EditAnnouncementPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function EditAnnouncementPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ error?: string }>;
+}) {
   const profile = await getProfile();
   if (profile?.role !== "admin") redirect("/app");
 
   const { id } = await params;
+  const { error } = await searchParams;
   const a = await getAnnouncementById(id);
   if (!a) notFound();
 
@@ -28,6 +35,7 @@ export default async function EditAnnouncementPage({ params }: { params: Promise
           action={updateAction}
           hiddenId={a.id}
           defaults={{ date, time, timezone: a.timezone }}
+          error={error}
         />
       </GlassPanel>
     </div>
