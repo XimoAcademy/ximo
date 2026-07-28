@@ -34,9 +34,7 @@ export async function POST(req: Request) {
   const reply = await askXimoSupport(
     historyTurns,
     message,
-    next
-      ? { title: next.title, whenLabel: formatInZone(next.starts_at, next.timezone), discordLink: next.discord_link }
-      : null
+    next ? { whenLabel: formatInZone(next.starts_at, next.timezone) } : null
   );
 
   await insertMessage(conversationId, user.id, "assistant", reply);

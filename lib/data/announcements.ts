@@ -3,20 +3,21 @@ import { getProfile } from "@/lib/auth/getUser";
 
 export type AnnouncementStatus = "draft" | "published" | "unpublished";
 
+/**
+ * Un anuncio es solo un momento programado: el texto del aviso es fijo y
+ * vive en lib/announcements/text.ts (ver migración 016).
+ */
 export interface AnnouncementRow {
   id: string;
-  title: string;
-  description: string;
   starts_at: string;
   timezone: string;
-  discord_link: string;
   status: AnnouncementStatus;
   published_at: string | null;
   created_at: string;
   updated_at: string;
 }
 
-const COLUMNS = "id,title,description,starts_at,timezone,discord_link,status,published_at,created_at,updated_at";
+const COLUMNS = "id,starts_at,timezone,status,published_at,created_at,updated_at";
 
 /** Upcoming (ascending) + recent past (descending, capped) published sessions — for /app/live-support. */
 export async function getPublishedAnnouncements(): Promise<{

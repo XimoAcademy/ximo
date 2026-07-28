@@ -1,0 +1,211 @@
+<title>Ximo — Tablero de contenido del personaje</title>
+<style>
+  :root{
+    --navy:#0B1F33; --navy-card:#12314b; --navy-line:#24486a;
+    --cream:#F5F5F0; --cream-warm:#ECEBE4; --peach:#FBD1A2; --peach-deep:#E9B884;
+    --ink:#1E1E1E; --ink-soft:#55606b; --pos:#6FA98A; --neg:#C98A8A;
+    --bg:#E8E6DF; --panel:#F5F5F0; --panel-2:#FBFBF8; --text:#1E1E1E;
+    --text-soft:#55606b; --hairline:#D8D5CC;
+    --shadow:0 1px 2px rgba(11,31,51,.05), 0 12px 34px -18px rgba(11,31,51,.28);
+    --display:"Satoshi","Inter",system-ui,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+    --body:"Inter",system-ui,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+    --r:18px; --ease-out:cubic-bezier(.16,1,.3,1);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#081521; --panel:#0E2437; --panel-2:#103049; --text:#EEF1F0;
+      --text-soft:#9DB0C0; --hairline:#1E3E5B; --shadow:0 1px 2px rgba(0,0,0,.3), 0 16px 40px -20px rgba(0,0,0,.7); }
+  }
+  :root[data-theme="dark"]{ --bg:#081521; --panel:#0E2437; --panel-2:#103049; --text:#EEF1F0; --text-soft:#9DB0C0; --hairline:#1E3E5B; --shadow:0 1px 2px rgba(0,0,0,.3), 0 16px 40px -20px rgba(0,0,0,.7); }
+  :root[data-theme="light"]{ --bg:#E8E6DF; --panel:#F5F5F0; --panel-2:#FBFBF8; --text:#1E1E1E; --text-soft:#55606b; --hairline:#D8D5CC; --shadow:0 1px 2px rgba(11,31,51,.05), 0 12px 34px -18px rgba(11,31,51,.28); }
+
+  *{box-sizing:border-box}
+  body{margin:0}
+  .wrap{ background:var(--bg); color:var(--text); font-family:var(--body); -webkit-font-smoothing:antialiased; line-height:1.5; min-height:100vh; padding:clamp(20px,4vw,56px); }
+
+  .masthead{ max-width:1180px; margin:0 auto clamp(26px,4vw,46px); display:flex; flex-wrap:wrap; gap:18px 30px; align-items:flex-end; justify-content:space-between; }
+  .brandline{ display:flex; align-items:center; gap:14px; }
+  .brandmark{ width:46px; height:46px; border-radius:13px; background:var(--navy); color:var(--peach); display:grid; place-items:center; font-family:var(--display); font-weight:800; font-size:24px; letter-spacing:-.03em; box-shadow:var(--shadow); }
+  .eyebrow{ font-family:var(--display); text-transform:uppercase; letter-spacing:.22em; font-size:11px; font-weight:700; color:var(--peach-deep); }
+  .masthead h1{ font-family:var(--display); font-weight:800; font-size:clamp(24px,3.4vw,40px); letter-spacing:-.025em; margin:2px 0 0; line-height:1.05; }
+  .masthead .sub{ margin:6px 0 0; color:var(--text-soft); font-size:15px; max-width:52ch; }
+  .note-blocked{ font-size:12.5px; color:var(--navy); background:var(--peach); padding:9px 14px; border-radius:12px; font-weight:600; max-width:34ch; box-shadow:var(--shadow); }
+
+  h2.sec{ max-width:1180px; margin:clamp(30px,4vw,48px) auto 16px; font-family:var(--display); font-weight:800; font-size:clamp(18px,2.6vw,26px); letter-spacing:-.02em; display:flex; align-items:center; gap:12px; }
+  h2.sec::after{ content:""; flex:1; height:1px; background:var(--hairline); }
+
+  /* ---- shot board ---- */
+  .board{ max-width:1180px; margin:0 auto; display:grid; gap:clamp(16px,2.2vw,24px); grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); }
+  .shot{ background:var(--panel); border:1px solid var(--hairline); border-radius:var(--r); overflow:hidden; box-shadow:var(--shadow); display:flex; flex-direction:column; }
+  .poster{ position:relative; aspect-ratio:4/5; display:flex; flex-direction:column; justify-content:space-between; padding:15px; color:#fff; overflow:hidden; }
+  .poster .num{ font-family:var(--display); font-weight:800; font-size:clamp(30px,6vw,46px); letter-spacing:-.03em; line-height:1; opacity:.92; }
+  .poster .scene{ font-family:var(--display); font-weight:700; font-size:16px; letter-spacing:-.01em; text-shadow:0 2px 12px rgba(0,0,0,.4); }
+  .poster .mood{ font-size:11px; opacity:.85; margin-top:3px; }
+  .poster .swap{ position:absolute; top:13px; right:13px; font-size:9.5px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--navy); background:var(--peach); padding:4px 8px; border-radius:999px; }
+  /* mood grounds per shot */
+  .p1{ background:linear-gradient(150deg,#3a2a1e,#6b4a2a 60%,#caa24f); }
+  .p2{ background:linear-gradient(160deg,#0a1622,#123049 55%,#2f6fa0); }
+  .p3{ background:linear-gradient(150deg,#241a12,#5a3d22 65%,#a9701f); }
+  .p4{ background:linear-gradient(160deg,#1a1f24,#3a4450 60%,#c9d2da); }
+  .p5{ background:linear-gradient(155deg,#b9a892,#e7d9c4 60%,#f4ede0); color:var(--navy); }
+  .p5 .scene{ text-shadow:none; }
+  .p6{ background:linear-gradient(160deg,#111,#3a3a3a 60%,#dcdcdc); }
+  .p7{ background:linear-gradient(160deg,#151515,#4a4a4a 60%,#e6e6e6); }
+
+  .meta{ padding:14px 16px 16px; display:flex; flex-direction:column; gap:10px; }
+  .specrow{ display:flex; gap:8px; }
+  .spec{ flex:1; border-radius:10px; padding:8px 10px; font-size:11px; line-height:1.35; }
+  .keep{ background:rgba(111,169,138,.14); border:1px solid rgba(111,169,138,.5); }
+  .remove{ background:rgba(201,138,138,.14); border:1px solid rgba(201,138,138,.5); }
+  .spec .lbl{ font-family:var(--display); font-weight:800; font-size:9px; letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:3px; }
+  .keep .lbl{ color:var(--pos); } .remove .lbl{ color:var(--neg); }
+  .use{ font-size:11.5px; color:var(--text-soft); }
+  .use b{ color:var(--text); font-weight:700; }
+  .cap{ font-size:12.5px; font-style:italic; color:var(--text); border-left:3px solid var(--peach-deep); padding-left:10px; }
+  .ar{ align-self:flex-start; font-size:10px; font-weight:700; font-family:var(--display); letter-spacing:.06em; text-transform:uppercase; color:var(--text-soft); }
+
+  /* ---- feed grid ---- */
+  .feedwrap{ max-width:600px; margin:0 auto; }
+  .feed{ display:grid; grid-template-columns:repeat(3,1fr); gap:6px; border-radius:16px; overflow:hidden; box-shadow:var(--shadow); }
+  .cell{ aspect-ratio:4/5; display:flex; flex-direction:column; justify-content:flex-end; padding:9px; color:#fff; font-family:var(--display); font-weight:700; font-size:11px; }
+  .cell.brand{ background:var(--navy); color:var(--peach); align-items:center; justify-content:center; text-align:center; }
+  .cell.brand span{ font-size:20px; letter-spacing:-.02em; }
+  .cell .t{ text-shadow:0 2px 10px rgba(0,0,0,.45); font-size:10.5px; }
+  .feedcap{ text-align:center; font-size:12px; color:var(--text-soft); margin-top:12px; }
+
+  .foot{ max-width:1180px; margin:clamp(28px,4vw,46px) auto 0; padding-top:20px; border-top:1px solid var(--hairline); color:var(--text-soft); font-size:12.5px; display:flex; flex-wrap:wrap; gap:6px 22px; }
+  .foot b{ color:var(--text); font-weight:700; }
+</style>
+
+<div class="wrap">
+  <header class="masthead">
+    <div>
+      <div class="brandline">
+        <div class="brandmark">X</div>
+        <div>
+          <div class="eyebrow">Ximo · Contenido del personaje</div>
+          <h1>Tablero de las 7 tomas</h1>
+        </div>
+      </div>
+      <p class="sub">Plan de producción para el set estético del personaje. Cada toma trae su ficha de face-swap (qué mantener, qué quitar), su uso y una idea de caption. Los recuadros son bocetos de ambiente — no fotos reales.</p>
+    </div>
+    <div class="note-blocked">Higgsfield: 0 créditos · las imágenes se generan cuando se añadan créditos. Este tablero es gratis.</div>
+  </header>
+
+  <h2 class="sec">Las 7 tomas</h2>
+  <div class="board">
+
+    <article class="shot">
+      <div class="poster p1"><span class="swap">Face-swap</span><div class="num">01</div><div><div class="scene">Restaurante</div><div class="mood">Camisa blanca · noche cálida, booth dorado</div></div></div>
+      <div class="meta">
+        <div class="specrow">
+          <div class="spec keep"><span class="lbl">Mantener</span>Ropa, pose, mesa, luz ámbar, fondo</div>
+          <div class="spec remove"><span class="lbl">Quitar</span>Collar, arete, pulsera de muñeca</div>
+        </div>
+        <div class="use"><b>Uso:</b> Post de feed · lifestyle cercano</div>
+        <div class="cap">"Los pequeños momentos también entrenan la cabeza."</div>
+        <div class="ar">Cara + pelo del personaje · 3:4</div>
+      </div>
+    </article>
+
+    <article class="shot">
+      <div class="poster p2"><span class="swap">Face-swap</span><div class="num">02</div><div><div class="scene">Piscina de noche</div><div class="mood">Sin camisa · cine nocturno, agua azul</div></div></div>
+      <div class="meta">
+        <div class="specrow">
+          <div class="spec keep"><span class="lbl">Mantener</span>Cuerpo, pose, agua, luces de fondo</div>
+          <div class="spec remove"><span class="lbl">Quitar</span>Cualquier arete o cadena</div>
+        </div>
+        <div class="use"><b>Uso:</b> Story · ambiente / descanso</div>
+        <div class="cap">"Descansar también es parte del plan."</div>
+        <div class="ar">Cara + pelo · toma difícil (reintento probable) · 1:1</div>
+      </div>
+    </article>
+
+    <article class="shot">
+      <div class="poster p3"><span class="swap">Face-swap</span><div class="num">03</div><div><div class="scene">Bar</div><div class="mood">Camisa blanca, taza de cobre · ámbar</div></div></div>
+      <div class="meta">
+        <div class="specrow">
+          <div class="spec keep"><span class="lbl">Mantener</span>Ropa, bebida, ambiente, luz</div>
+          <div class="spec remove"><span class="lbl">Quitar</span>Collar de cruz, arete</div>
+        </div>
+        <div class="use"><b>Uso:</b> Post de feed · noche/salida</div>
+        <div class="cap">"Celebrar el proceso, no solo el resultado."</div>
+        <div class="ar">Cara + pelo · 3:4</div>
+      </div>
+    </article>
+
+    <article class="shot">
+      <div class="poster p4"><span class="swap">Face-swap</span><div class="num">04</div><div><div class="scene">Cuarto · film flash</div><div class="mood">Camisa negra, ventanas de día</div></div></div>
+      <div class="meta">
+        <div class="specrow">
+          <div class="spec keep"><span class="lbl">Mantener</span>Ropa, pose, cuarto, estética de flash</div>
+          <div class="spec remove"><span class="lbl">Quitar</span>Collares, <b>tatuajes de antebrazos</b>, arete</div>
+        </div>
+        <div class="use"><b>Uso:</b> Post de feed · retrato editorial</div>
+        <div class="cap">"Disciplina en silencio."</div>
+        <div class="ar">Cara + pelo · 3:4</div>
+      </div>
+    </article>
+
+    <article class="shot">
+      <div class="poster p5"><span class="swap">Face-swap</span><div class="num">05</div><div><div class="scene">Cama · bata</div><div class="mood">Bata blanca · mañana suave de hotel</div></div></div>
+      <div class="meta">
+        <div class="specrow">
+          <div class="spec keep"><span class="lbl">Mantener</span>Bata, pose, cama, luz de mañana</div>
+          <div class="spec remove"><span class="lbl">Quitar</span>Cadena fina del cuello</div>
+        </div>
+        <div class="use"><b>Uso:</b> Story · rutina de mañana</div>
+        <div class="cap">"El día empieza antes que la alarma de los demás."</div>
+        <div class="ar">Cara + pelo (reemplaza el rubio) · 3:4</div>
+      </div>
+    </article>
+
+    <article class="shot">
+      <div class="poster p6"><span class="swap">Face-swap</span><div class="num">06</div><div><div class="scene">Balcón · B&N</div><div class="mood">Camisa negra · palmeras, blanco y negro</div></div></div>
+      <div class="meta">
+        <div class="specrow">
+          <div class="spec keep"><span class="lbl">Mantener</span>Ropa, pose, balcón, blanco y negro</div>
+          <div class="spec remove"><span class="lbl">Quitar</span>Anillo de la mano</div>
+        </div>
+        <div class="use"><b>Uso:</b> Post de feed · editorial B&N</div>
+        <div class="cap">"Lejos de casa, cerca del objetivo."</div>
+        <div class="ar">Cara + pelo · 3:4</div>
+      </div>
+    </article>
+
+    <article class="shot">
+      <div class="poster p7"><span class="swap">Face-swap</span><div class="num">07</div><div><div class="scene">Calle · B&N</div><div class="mood">Suéter crema, auto · editorial de calle</div></div></div>
+      <div class="meta">
+        <div class="specrow">
+          <div class="spec keep"><span class="lbl">Mantener</span>Ropa, pose, auto, gafas, blanco y negro</div>
+          <div class="spec remove"><span class="lbl">Quitar</span>Cadena fina del cuello</div>
+        </div>
+        <div class="use"><b>Uso:</b> Foto de portada / perfil</div>
+        <div class="cap">"Mismo enfoque, en cualquier ciudad."</div>
+        <div class="ar">Cara + pelo · 3:4</div>
+      </div>
+    </article>
+
+  </div>
+
+  <h2 class="sec">Secuencia de feed</h2>
+  <div class="feedwrap">
+    <div class="feed">
+      <div class="cell p7"><div class="t">07 · Calle B&N</div></div>
+      <div class="cell brand"><span>XIMO</span></div>
+      <div class="cell p4"><div class="t">04 · Film flash</div></div>
+      <div class="cell p1"><div class="t">01 · Restaurante</div></div>
+      <div class="cell p6"><div class="t">06 · Balcón B&N</div></div>
+      <div class="cell p3"><div class="t">03 · Bar</div></div>
+      <div class="cell p5" style="color:var(--navy)"><div class="t" style="text-shadow:none">05 · Bata</div></div>
+      <div class="cell brand"><span>Vive<br>el sueño</span></div>
+      <div class="cell p2"><div class="t">02 · Piscina</div></div>
+    </div>
+    <p class="feedcap">Alterna B&N editorial · lifestyle cálido · placa de marca — para un feed premium y coherente.</p>
+  </div>
+
+  <footer class="foot">
+    <span><b>Personaje:</b> pelo castaño ondulado — refs: Real Madrid + selfie de cielo</span>
+    <span><b>Regla:</b> solo cara + pelo · nada de joyas, tatuajes ni cigarros</span>
+    <span><b>Generar:</b> Nano Banana Pro 2K · receta en FACESWAP_higgsfield_receta.md</span>
+  </footer>
+</div>

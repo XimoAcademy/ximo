@@ -2,6 +2,7 @@ import PageHeader from "../components/PageHeader";
 import { GlassPanel, EmptyState } from "../components/ui";
 import { getPublishedAnnouncements } from "@/lib/data/announcements";
 import { formatInZone } from "@/lib/scheduling/timezone";
+import { DIRECTO_TITULO, DIRECTO_DONDE } from "@/lib/announcements/text";
 
 export const dynamic = "force-dynamic";
 
@@ -11,35 +12,32 @@ export default async function LiveSupportPage() {
   return (
     <div className="mx-auto max-w-[760px] space-y-5">
       <PageHeader
-        title="Soporte en vivo"
-        subtitle="Sesiones en vivo por Discord con el equipo de Ximo — resuelve tus dudas en tiempo real."
+        title="Directos"
+        subtitle="Sesiones en vivo con el equipo de Ximo para resolver tus dudas, dentro de la comunidad de Discord."
       />
 
       <div className="space-y-3">
         <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-label)" }}>
-          Próximas sesiones {upcoming.length > 0 && `(${upcoming.length})`}
+          Próximos directos {upcoming.length > 0 && `(${upcoming.length})`}
         </p>
 
         {upcoming.length === 0 ? (
           <EmptyState
-            title="No hay sesiones programadas"
-            text="Cuando el equipo Ximo programe una nueva sesión de soporte en vivo, la verás aquí y recibirás una notificación."
+            title="No hay ningún directo programado"
+            text="Cuando el equipo Ximo programe el próximo directo lo verás aquí, y te avisaremos con 24 horas, 1 hora y 10 minutos de anticipación."
           />
         ) : (
           upcoming.map((a) => (
             <GlassPanel key={a.id} tone="teal" className="p-5">
-              <p className="text-xs font-semibold" style={{ color: "var(--teal)" }}>
+              <p className="text-base font-black" style={{ color: "var(--text)" }}>
+                🔴 {DIRECTO_TITULO}
+              </p>
+              <p className="mt-1 text-sm font-semibold" style={{ color: "var(--teal)" }}>
                 {formatInZone(a.starts_at, a.timezone)}
               </p>
-              <p className="mt-1 text-base font-black" style={{ color: "var(--text)" }}>
-                {a.title}
+              <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>
+                {DIRECTO_DONDE}
               </p>
-              <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>
-                {a.description}
-              </p>
-              <a href={a.discord_link} target="_blank" rel="noopener noreferrer" className="ximo-glass-btn teal mt-4 inline-block text-xs">
-                Unirse por Discord
-              </a>
             </GlassPanel>
           ))
         )}
@@ -48,7 +46,7 @@ export default async function LiveSupportPage() {
       {past.length > 0 && (
         <div className="space-y-3">
           <p className="mt-4 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-label)" }}>
-            Sesiones anteriores
+            Directos anteriores
           </p>
           {past.map((a) => (
             <GlassPanel key={a.id} className="p-4">
@@ -56,7 +54,7 @@ export default async function LiveSupportPage() {
                 {formatInZone(a.starts_at, a.timezone)}
               </p>
               <p className="mt-0.5 text-sm font-bold" style={{ color: "var(--text-2)" }}>
-                {a.title}
+                {DIRECTO_TITULO}
               </p>
             </GlassPanel>
           ))}

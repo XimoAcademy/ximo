@@ -13,8 +13,8 @@ export default async function NewAnnouncementPage() {
 
   return (
     <div className="mx-auto max-w-[640px] space-y-5">
-      <BackLink href="/app/admin/announcements">Anuncios</BackLink>
-      <PageHeader title="Nuevo anuncio" subtitle="Crea una sesión de soporte en vivo por Discord." />
+      <BackLink href="/app/admin/announcements">Directos</BackLink>
+      <PageHeader title="Programar directo" subtitle="Elige la fecha y la hora; el texto del aviso ya está definido." />
       <GlassPanel className="p-5">
         <AnnouncementForm action={createAction} />
       </GlassPanel>
