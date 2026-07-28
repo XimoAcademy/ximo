@@ -2,6 +2,7 @@ import { createServiceRoleClient } from "@/lib/supabase/server";
 import { notifyAllUsers } from "@/lib/notify/broadcast";
 import { formatInZone } from "@/lib/scheduling/timezone";
 import { nextDueReminder, type ReminderWindow } from "@/lib/scheduling/reminders";
+import { avisoRecordatorio } from "@/lib/announcements/text";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -9,10 +10,8 @@ export const maxDuration = 30;
 
 interface AnnouncementForReminder {
   id: string;
-  title: string;
   starts_at: string;
   timezone: string;
-  discord_link: string;
 }
 
 /**
@@ -45,7 +44,7 @@ export async function GET(req: Request): Promise<Response> {
 
   const { data: announcements } = await svc
     .from("live_announcements")
-    .select("id,title,starts_at,timezone,discord_link")
+    .select("id,starts_at,timezone")
     .eq("status", "published")
     .gte("starts_at", now.toISOString())
     .lte("starts_at", horizon.toISOString());
@@ -91,12 +90,8 @@ export async function GET(req: Request): Promise<Response> {
       continue;
     }
 
-    const result = await notifyAllUsers({
-      title: `⏰ ${a.title} empieza ${due.label}`,
-      body: `${formatInZone(a.starts_at, a.timezone)} · Únete por Discord cuando comience.`,
-      type: "live_support",
-      actionUrl: a.discord_link,
-    });
+    const texto = avisoRecordatorio(due.label, formatInZone(a.starts_at, a.timezone));
+    const result = await notifyAllUsers({ ...texto, type: "live_support" });
 
     if (result.ok) sent++;
     else failed++;

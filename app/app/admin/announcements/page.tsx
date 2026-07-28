@@ -3,6 +3,7 @@ import Link from "next/link";
 import { GlassPanel, InnerTile, BackLink, StatusBadge } from "../../components/ui";
 import { getAllAnnouncementsForAdmin, type AnnouncementRow } from "@/lib/data/announcements";
 import { formatInZone } from "@/lib/scheduling/timezone";
+import { DIRECTO_TITULO } from "@/lib/announcements/text";
 import { publishAction, unpublishAction, duplicateAction, deleteAction } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -38,6 +39,7 @@ export default async function AnnouncementsAdminPage() {
 
   const counts = { draft: 0, published: 0, unpublished: 0 };
   for (const a of items) counts[a.status] += 1;
+  const now = Date.now();
 
   return (
     <div className="mx-auto max-w-[920px] space-y-5">
@@ -47,17 +49,17 @@ export default async function AnnouncementsAdminPage() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-black sm:text-3xl" style={{ color: "var(--text)" }}>
-              Anuncios
+              Directos
             </h1>
-            <StatusBadge tone="gold">Admin</StatusBadge>
+            <StatusBadge tone="gold">Solo admin</StatusBadge>
           </div>
           <Link href="/app/admin/announcements/new" className="ximo-glass-btn teal text-xs">
-            Nuevo anuncio
+            Programar directo
           </Link>
         </div>
         <p className="mt-1 text-sm" style={{ color: "var(--text-label)" }}>
-          Programa y publica sesiones de soporte en vivo por Discord. Publicar avisa a todos los usuarios de
-          inmediato y programa sus recordatorios automáticos.
+          Elige fecha y hora; el texto del aviso es siempre el mismo. Publicar avisa a todos los atletas de
+          inmediato y programa los recordatorios de 24 h, 1 h y 10 min.
         </p>
       </div>
 
@@ -70,83 +72,69 @@ export default async function AnnouncementsAdminPage() {
       {items.length === 0 ? (
         <GlassPanel className="px-6 py-12 text-center">
           <p className="text-sm font-bold" style={{ color: "var(--text-label)" }}>
-            Todavía no hay anuncios.
+            Todavía no has programado ningún directo.
           </p>
           <p className="mx-auto mt-1 max-w-sm text-[12px]" style={{ color: "var(--text-3)" }}>
-            Crea el primero para avisar a los atletas de la próxima sesión de soporte en vivo.
+            Programa el primero para avisar a los atletas de la próxima sesión de dudas en Discord.
           </p>
         </GlassPanel>
       ) : (
         <div className="space-y-3">
-          {items.map((a) => (
-            <GlassPanel key={a.id} className="p-5">
-              <div className="flex flex-wrap items-center gap-2">
-                <StatusBadge tone={STATUS_TONE[a.status]}>{STATUS_LABEL[a.status]}</StatusBadge>
-                <span className="ml-auto text-[10px]" style={{ color: "var(--text-3)" }}>
-                  {formatInZone(a.starts_at, a.timezone)}
-                </span>
-              </div>
+          {items.map((a) => {
+            const pasado = new Date(a.starts_at).getTime() < now;
+            return (
+              <GlassPanel key={a.id} className="p-5">
+                <div className="flex flex-wrap items-center gap-2">
+                  <StatusBadge tone={STATUS_TONE[a.status]}>{STATUS_LABEL[a.status]}</StatusBadge>
+                  {pasado && <StatusBadge tone="neutral">Ya ocurrió</StatusBadge>}
+                </div>
 
-              <p className="mt-2 text-base font-black" style={{ color: "var(--text)" }}>
-                {a.title}
-              </p>
-              <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>
-                {a.description}
-              </p>
-
-              <InnerTile className="mt-3 px-3 py-2">
-                <p className="text-[9px] font-bold uppercase tracking-wide" style={{ color: "var(--text-label)" }}>
-                  Link de Discord
+                <p className="mt-2 text-base font-black" style={{ color: "var(--text)" }}>
+                  🔴 {DIRECTO_TITULO}
                 </p>
-                <a
-                  href={a.discord_link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-0.5 block truncate text-[11px] font-semibold underline underline-offset-2"
-                  style={{ color: "var(--teal)" }}
-                >
-                  {a.discord_link} ↗
-                </a>
-              </InnerTile>
+                <p className="mt-0.5 text-sm font-semibold" style={{ color: "var(--teal)" }}>
+                  {formatInZone(a.starts_at, a.timezone)}
+                </p>
 
-              <div className="mt-4 flex flex-wrap items-center gap-2 border-t pt-4" style={{ borderColor: "var(--border)" }}>
-                <Link
-                  href={`/app/admin/announcements/${a.id}/edit`}
-                  className="ximo-glass-chip rounded-full px-4 py-2 text-xs font-semibold"
-                  style={{ color: "var(--text-2)" }}
-                >
-                  Editar
-                </Link>
+                <div className="mt-4 flex flex-wrap items-center gap-2 border-t pt-4" style={{ borderColor: "var(--border)" }}>
+                  <Link
+                    href={`/app/admin/announcements/${a.id}/edit`}
+                    className="ximo-glass-chip rounded-full px-4 py-2 text-xs font-semibold"
+                    style={{ color: "var(--text-2)" }}
+                  >
+                    Cambiar fecha
+                  </Link>
 
-                {a.status !== "published" && (
-                  <form action={publishAction}>
-                    <input type="hidden" name="id" value={a.id} />
-                    <button className="ximo-glass-btn gold shiny text-xs">Publicar</button>
-                  </form>
-                )}
-                {a.status === "published" && (
-                  <form action={unpublishAction}>
+                  {a.status !== "published" && (
+                    <form action={publishAction}>
+                      <input type="hidden" name="id" value={a.id} />
+                      <button className="ximo-glass-btn gold shiny text-xs">Publicar</button>
+                    </form>
+                  )}
+                  {a.status === "published" && (
+                    <form action={unpublishAction}>
+                      <input type="hidden" name="id" value={a.id} />
+                      <button className="ximo-glass-chip rounded-full px-4 py-2 text-xs font-semibold" style={{ color: "var(--text-2)" }}>
+                        Despublicar
+                      </button>
+                    </form>
+                  )}
+                  <form action={duplicateAction}>
                     <input type="hidden" name="id" value={a.id} />
                     <button className="ximo-glass-chip rounded-full px-4 py-2 text-xs font-semibold" style={{ color: "var(--text-2)" }}>
-                      Despublicar
+                      Duplicar
                     </button>
                   </form>
-                )}
-                <form action={duplicateAction}>
-                  <input type="hidden" name="id" value={a.id} />
-                  <button className="ximo-glass-chip rounded-full px-4 py-2 text-xs font-semibold" style={{ color: "var(--text-2)" }}>
-                    Duplicar
-                  </button>
-                </form>
-                <form action={deleteAction}>
-                  <input type="hidden" name="id" value={a.id} />
-                  <button className="ximo-glass-chip rounded-full px-4 py-2 text-xs font-semibold" style={{ color: "var(--error)" }}>
-                    Eliminar
-                  </button>
-                </form>
-              </div>
-            </GlassPanel>
-          ))}
+                  <form action={deleteAction}>
+                    <input type="hidden" name="id" value={a.id} />
+                    <button className="ximo-glass-chip rounded-full px-4 py-2 text-xs font-semibold" style={{ color: "var(--error)" }}>
+                      Eliminar
+                    </button>
+                  </form>
+                </div>
+              </GlassPanel>
+            );
+          })}
         </div>
       )}
     </div>

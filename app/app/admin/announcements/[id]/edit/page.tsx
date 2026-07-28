@@ -21,20 +21,13 @@ export default async function EditAnnouncementPage({ params }: { params: Promise
 
   return (
     <div className="mx-auto max-w-[640px] space-y-5">
-      <BackLink href="/app/admin/announcements">Anuncios</BackLink>
-      <PageHeader title="Editar anuncio" subtitle={a.title} />
+      <BackLink href="/app/admin/announcements">Directos</BackLink>
+      <PageHeader title="Cambiar fecha del directo" subtitle="Solo puedes cambiar cuándo: el texto del aviso es fijo." />
       <GlassPanel className="p-5">
         <AnnouncementForm
           action={updateAction}
           hiddenId={a.id}
-          defaults={{
-            title: a.title,
-            description: a.description,
-            date,
-            time,
-            timezone: a.timezone,
-            discord_link: a.discord_link,
-          }}
+          defaults={{ date, time, timezone: a.timezone }}
         />
       </GlassPanel>
     </div>

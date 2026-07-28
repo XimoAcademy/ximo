@@ -6,7 +6,13 @@ import { createClient } from "@/lib/supabase/server";
 import { getProfile } from "@/lib/auth/getUser";
 import { zonedTimeToUtc, formatInZone } from "@/lib/scheduling/timezone";
 import { notifyAllUsers } from "@/lib/notify/broadcast";
+import { avisoPublicado } from "@/lib/announcements/text";
 
+/**
+ * Segunda barrera de admin. La primera es app/app/admin/layout.tsx y la
+ * tercera son las policies RLS (insert/update/delete exigen is_admin()), de
+ * modo que ni saltándose la interfaz se puede tocar un anuncio.
+ */
 async function requireAdmin() {
   const supabase = await createClient();
   if (!supabase) return null;
@@ -16,45 +22,28 @@ async function requireAdmin() {
 }
 
 interface ParsedForm {
-  title: string;
-  description: string;
   date: string;
   time: string;
   timezone: string;
-  discordLink: string;
 }
 
+/** El admin solo elige cuándo: el texto del aviso es fijo. */
 function parseForm(formData: FormData): ParsedForm {
   return {
-    title: String(formData.get("title") ?? "").trim(),
-    description: String(formData.get("description") ?? "").trim(),
     date: String(formData.get("date") ?? ""),
     time: String(formData.get("time") ?? ""),
     timezone: String(formData.get("timezone") ?? "").trim(),
-    discordLink: String(formData.get("discord_link") ?? "").trim(),
   };
 }
 
 function isValid(f: ParsedForm): boolean {
-  return Boolean(f.title && f.description && f.date && f.time && f.timezone && f.discordLink);
+  return Boolean(f.date && f.time && f.timezone);
 }
 
-interface PublishedRow {
-  title: string;
-  starts_at: string;
-  timezone: string;
-  discord_link: string;
-}
-
-/** In-app broadcast sent to every user the moment an announcement goes live. */
-async function broadcastPublished(a: PublishedRow): Promise<void> {
-  const whenLabel = formatInZone(a.starts_at, a.timezone);
-  await notifyAllUsers({
-    title: `🔴 Próxima sesión en vivo: ${a.title}`,
-    body: `${whenLabel} · Únete por Discord cuando comience.`,
-    type: "live_support",
-    actionUrl: a.discord_link,
-  });
+/** Aviso a todos los atletas en el momento de publicar. */
+async function broadcastPublished(a: { starts_at: string; timezone: string }): Promise<void> {
+  const texto = avisoPublicado(formatInZone(a.starts_at, a.timezone));
+  await notifyAllUsers({ ...texto, type: "live_support" });
 }
 
 export async function createAction(formData: FormData): Promise<void> {
@@ -70,21 +59,16 @@ export async function createAction(formData: FormData): Promise<void> {
   const { data, error } = await supabase
     .from("live_announcements")
     .insert({
-      title: f.title,
-      description: f.description,
       starts_at: startsAt.toISOString(),
       timezone: f.timezone,
-      discord_link: f.discordLink,
       status: publish ? "published" : "draft",
       published_at: publish ? new Date().toISOString() : null,
       created_by: profile?.id ?? null,
     })
-    .select("title,starts_at,timezone,discord_link")
+    .select("starts_at,timezone")
     .maybeSingle();
 
-  if (!error && data && publish) {
-    await broadcastPublished(data as PublishedRow);
-  }
+  if (!error && data && publish) await broadcastPublished(data);
 
   revalidatePath("/app/admin/announcements");
   revalidatePath("/app/live-support");
@@ -102,11 +86,8 @@ export async function updateAction(formData: FormData): Promise<void> {
   const startsAt = zonedTimeToUtc(f.date, f.time, f.timezone);
 
   const updates: Record<string, unknown> = {
-    title: f.title,
-    description: f.description,
     starts_at: startsAt.toISOString(),
     timezone: f.timezone,
-    discord_link: f.discordLink,
     updated_at: new Date().toISOString(),
   };
   if (publish) {
@@ -118,19 +99,17 @@ export async function updateAction(formData: FormData): Promise<void> {
     .from("live_announcements")
     .update(updates)
     .eq("id", id)
-    .select("title,starts_at,timezone,discord_link")
+    .select("starts_at,timezone")
     .maybeSingle();
 
-  if (!error && data && publish) {
-    await broadcastPublished(data as PublishedRow);
-  }
+  if (!error && data && publish) await broadcastPublished(data);
 
   revalidatePath("/app/admin/announcements");
   revalidatePath("/app/live-support");
   redirect("/app/admin/announcements");
 }
 
-/** Publishes an existing draft/unpublished row straight from the list view. */
+/** Publica un borrador directamente desde el listado. */
 export async function publishAction(formData: FormData): Promise<void> {
   const supabase = await requireAdmin();
   if (!supabase) return;
@@ -142,12 +121,10 @@ export async function publishAction(formData: FormData): Promise<void> {
     .from("live_announcements")
     .update({ status: "published", published_at: new Date().toISOString() })
     .eq("id", id)
-    .select("title,starts_at,timezone,discord_link")
+    .select("starts_at,timezone")
     .maybeSingle();
 
-  if (!error && data) {
-    await broadcastPublished(data as PublishedRow);
-  }
+  if (!error && data) await broadcastPublished(data);
 
   revalidatePath("/app/admin/announcements");
   revalidatePath("/app/live-support");
@@ -175,18 +152,15 @@ export async function duplicateAction(formData: FormData): Promise<void> {
 
   const { data } = await supabase
     .from("live_announcements")
-    .select("title,description,starts_at,timezone,discord_link")
+    .select("starts_at,timezone")
     .eq("id", id)
     .maybeSingle();
   if (!data) return;
 
   const profile = await getProfile();
   await supabase.from("live_announcements").insert({
-    title: `${data.title} (copia)`,
-    description: data.description,
     starts_at: data.starts_at,
     timezone: data.timezone,
-    discord_link: data.discord_link,
     status: "draft",
     created_by: profile?.id ?? null,
   });

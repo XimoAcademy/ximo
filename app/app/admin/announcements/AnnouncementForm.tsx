@@ -1,11 +1,12 @@
-import { FieldLabel } from "../../components/ui";
+import { FieldLabel, InnerTile } from "../../components/ui";
+import { DIRECTO_TITULO, DIRECTO_DONDE } from "@/lib/announcements/text";
 
 const TIMEZONES = [
+  { value: "America/Mexico_City", label: "Ciudad de México (America/Mexico_City)" },
   { value: "America/New_York", label: "Este de EE. UU. (America/New_York)" },
   { value: "America/Chicago", label: "Central de EE. UU. (America/Chicago)" },
   { value: "America/Denver", label: "Montaña de EE. UU. (America/Denver)" },
   { value: "America/Los_Angeles", label: "Pacífico de EE. UU. (America/Los_Angeles)" },
-  { value: "America/Mexico_City", label: "Ciudad de México (America/Mexico_City)" },
   { value: "America/Bogota", label: "Bogotá (America/Bogota)" },
   { value: "America/Sao_Paulo", label: "São Paulo (America/Sao_Paulo)" },
   { value: "Europe/Madrid", label: "Madrid (Europe/Madrid)" },
@@ -19,12 +20,9 @@ const inputStyle: React.CSSProperties = {
 };
 
 export interface AnnouncementFormDefaults {
-  title: string;
-  description: string;
   date: string;
   time: string;
   timezone: string;
-  discord_link: string;
 }
 
 export default function AnnouncementForm({
@@ -39,31 +37,6 @@ export default function AnnouncementForm({
   return (
     <form action={action} className="space-y-4">
       {hiddenId && <input type="hidden" name="id" value={hiddenId} />}
-
-      <div>
-        <FieldLabel>Título</FieldLabel>
-        <input
-          name="title"
-          defaultValue={defaults?.title}
-          required
-          placeholder="Sesión en vivo: dudas de recruiting"
-          className="w-full rounded-xl px-3.5 py-2.5 text-sm outline-none"
-          style={inputStyle}
-        />
-      </div>
-
-      <div>
-        <FieldLabel>Descripción</FieldLabel>
-        <textarea
-          name="description"
-          defaultValue={defaults?.description}
-          required
-          rows={4}
-          placeholder="De qué trata la sesión, quién la da y qué se puede preguntar."
-          className="w-full rounded-xl px-3.5 py-2.5 text-sm outline-none"
-          style={inputStyle}
-        />
-      </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
         <div>
@@ -92,7 +65,7 @@ export default function AnnouncementForm({
           <FieldLabel>Zona horaria</FieldLabel>
           <select
             name="timezone"
-            defaultValue={defaults?.timezone ?? "America/New_York"}
+            defaultValue={defaults?.timezone ?? "America/Mexico_City"}
             required
             className="w-full rounded-xl px-3.5 py-2.5 text-sm outline-none"
             style={inputStyle}
@@ -106,18 +79,23 @@ export default function AnnouncementForm({
         </div>
       </div>
 
-      <div>
-        <FieldLabel>Link de Discord</FieldLabel>
-        <input
-          type="url"
-          name="discord_link"
-          defaultValue={defaults?.discord_link}
-          required
-          placeholder="https://discord.gg/..."
-          className="w-full rounded-xl px-3.5 py-2.5 text-sm outline-none"
-          style={inputStyle}
-        />
-      </div>
+      {/* El texto no se edita: se muestra para que sepas exactamente qué
+          recibirán los atletas. Si hay que cambiarlo, se cambia en
+          lib/announcements/text.ts y aplica a todos los avisos. */}
+      <InnerTile className="px-4 py-3">
+        <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--text-label)" }}>
+          Lo que recibirán los atletas
+        </p>
+        <p className="mt-1.5 text-sm font-bold" style={{ color: "var(--text)" }}>
+          🔴 {DIRECTO_TITULO} · <span style={{ color: "var(--teal)" }}>fecha y hora que elijas</span>
+        </p>
+        <p className="text-[12px]" style={{ color: "var(--text-2)" }}>
+          {DIRECTO_DONDE}
+        </p>
+        <p className="mt-2 text-[10px]" style={{ color: "var(--text-3)" }}>
+          El texto es siempre el mismo y no se edita. Solo cambia la fecha y la hora.
+        </p>
+      </InnerTile>
 
       <div className="flex flex-wrap items-center gap-2 border-t pt-4" style={{ borderColor: "var(--border)" }}>
         <button
@@ -133,7 +111,7 @@ export default function AnnouncementForm({
           Publicar
         </button>
         <p className="w-full text-[10px] sm:ml-auto sm:w-auto" style={{ color: "var(--text-3)" }}>
-          Publicar avisa a todos los usuarios de inmediato.
+          Publicar avisa a todos los atletas de inmediato.
         </p>
       </div>
     </form>

@@ -3,11 +3,7 @@ import { askXimoSupport } from "./gemini";
 
 vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn() }));
 
-const NEXT = {
-  title: "Sesión de dudas",
-  whenLabel: "14 ago 2026, 7:00 p.m. EDT",
-  discordLink: "https://discord.gg/ximo",
-};
+const NEXT = { whenLabel: "14 ago 2026, 7:00 p.m. GMT-6" };
 
 function geminiResponse(parts: Array<{ text?: string; thought?: boolean }>, finishReason = "STOP") {
   return {
@@ -58,15 +54,23 @@ describe("askXimoSupport", () => {
     expect(body.generationConfig.maxOutputTokens).toBeGreaterThan(500);
   });
 
-  it("injects the next live session so the model never invents a date or link", async () => {
+  it("injects the next live session so the model never invents a date", async () => {
     const fetchMock = vi.fn(async () => geminiResponse([{ text: "ok" }]));
     vi.stubGlobal("fetch", fetchMock);
     await askXimoSupport([], "necesito ayuda humana", NEXT);
 
     const body = JSON.parse(fetchMock.mock.calls[0][1].body as string);
     const lastTurn = body.contents.at(-1).parts[0].text as string;
-    expect(lastTurn).toContain("Sesión de dudas");
-    expect(lastTurn).toContain("https://discord.gg/ximo");
+    expect(lastTurn).toContain(NEXT.whenLabel);
+  });
+
+  it("instructs the model not to share any link (athletes already know the community)", async () => {
+    const fetchMock = vi.fn(async () => geminiResponse([{ text: "ok" }]));
+    vi.stubGlobal("fetch", fetchMock);
+    await askXimoSupport([], "hola", NEXT);
+
+    const system = JSON.parse(fetchMock.mock.calls[0][1].body as string).systemInstruction.parts[0].text;
+    expect(system).toContain("No\ncompartas ningún enlace");
   });
 
   it("only sends the last 10 turns of history", async () => {
@@ -97,8 +101,8 @@ describe("askXimoSupport", () => {
       vi.fn(async () => ({ ok: false, status: 429, text: async () => "quota" }) as unknown as Response)
     );
     const reply = await askXimoSupport([], "hola", NEXT);
-    expect(reply).toContain("Sesión de dudas");
-    expect(reply).toContain("https://discord.gg/ximo");
+    expect(reply).toContain(NEXT.whenLabel);
+    expect(reply).not.toContain("http");
   });
 
   it("retries once on a transient 5xx and returns the recovered reply", async () => {
@@ -128,7 +132,7 @@ describe("askXimoSupport", () => {
     );
     vi.stubGlobal("fetch", fetchMock);
 
-    await expect(askXimoSupport([], "hola", NEXT)).resolves.toContain("https://discord.gg/ximo");
+    await expect(askXimoSupport([], "hola", NEXT)).resolves.toContain(NEXT.whenLabel);
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 

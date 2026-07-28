@@ -4,7 +4,6 @@ export interface BroadcastNotification {
   title: string;
   body: string;
   type: string;
-  actionUrl?: string | null;
 }
 
 const BATCH_SIZE = 500;
@@ -29,7 +28,6 @@ export async function notifyAllUsers(n: BroadcastNotification): Promise<{ ok: bo
     title: n.title,
     body: n.body,
     type: n.type,
-    action_url: n.actionUrl ?? null,
   }));
 
   for (let i = 0; i < rows.length; i += BATCH_SIZE) {

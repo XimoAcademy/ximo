@@ -25,9 +25,8 @@ export interface ChatTurn {
 }
 
 export interface NextSessionContext {
-  title: string;
-  whenLabel: string; // pre-formatted, e.g. "14 ago 2026, 7:00 p.m. EDT"
-  discordLink: string;
+  /** Pre-formatted, e.g. "14 ago 2026, 7:00 p.m. GMT-6". */
+  whenLabel: string;
 }
 
 const SYSTEM_PROMPT = `Eres "Ximo Support AI", el asistente de soporte técnico de Ximo Academy, una
@@ -44,14 +43,15 @@ la academia o un profesional calificado, no tú.
 Responde siempre en español, de forma breve, cálida y directa (2-5 frases salvo que la pregunta
 realmente requiera más detalle). Nunca pidas contraseñas, datos de pago ni documentos sensibles.
 
-Si no puedes resolver la duda con confianza, o el usuario necesita ayuda humana, recomienda la
-próxima sesión de soporte en vivo por Discord. Usa exactamente los datos que se te dan a
-continuación sobre la próxima sesión (si existen) — nunca inventes fecha, hora ni link.`;
+Si no puedes resolver la duda con confianza, o el usuario necesita ayuda humana, recomienda el
+próximo directo para resolver dudas, que se hace dentro de la comunidad de Discord de Ximo. Usa
+exactamente la fecha y hora que se te dan a continuación (si existen) — nunca las inventes. No
+compartas ningún enlace: los atletas ya saben cómo entrar a la comunidad.`;
 
 function buildContents(history: ChatTurn[], userMessage: string, next: NextSessionContext | null) {
   const contextNote = next
-    ? `[Contexto interno — no visible al usuario, solo para ti]\nPróxima sesión de soporte en vivo: "${next.title}", ${next.whenLabel}. Link: ${next.discordLink}`
-    : `[Contexto interno — no visible al usuario, solo para ti]\nNo hay ninguna sesión de soporte en vivo programada por ahora.`;
+    ? `[Contexto interno — no visible al usuario, solo para ti]\nPróximo directo para resolver dudas: ${next.whenLabel}, en la comunidad de Discord.`
+    : `[Contexto interno — no visible al usuario, solo para ti]\nNo hay ningún directo programado por ahora.`;
 
   const turns = [
     ...history.slice(-10).map((t) => ({
@@ -75,8 +75,8 @@ export async function askXimoSupport(
 ): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY;
   const fallback = next
-    ? `No pude procesar tu mensaje en este momento. Mientras tanto, la próxima sesión de soporte en vivo es "${next.title}" (${next.whenLabel}) — puedes unirte aquí: ${next.discordLink}`
-    : "No pude procesar tu mensaje en este momento. Intenta de nuevo en unos minutos, o revisa Soporte en vivo para la próxima sesión.";
+    ? `No pude procesar tu mensaje en este momento. Mientras tanto, el próximo directo para resolver dudas es el ${next.whenLabel}, en la comunidad de Discord.`
+    : "No pude procesar tu mensaje en este momento. Intenta de nuevo en unos minutos, o revisa la sección de Directos para ver el próximo.";
 
   if (!apiKey) {
     Sentry.captureException(new Error("askXimoSupport called without GEMINI_API_KEY configured"));
