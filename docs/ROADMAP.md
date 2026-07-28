@@ -11,7 +11,7 @@ Production baseline: https://ximo.com.mx, commit `9b83c14`, fully verified.
 | 3 University DB & verification | 🟡 ~60% | verification_records + data_change_proposals tables; freshness status + review queue in admin; correction/dispute channel |
 | 4 Matching | ❌ | Rules-first explainable engine (athletic/academic/financial fit, confidence, missing-data category); versioned logic + fixtures; NO probability claims |
 | 5 CRM completion | 🟡 ~70% | Offers/visits/scholarship entities; offer-comparison table; timeline view; export |
-| 6 Claude assistant | ❌ blocked | Needs Anthropic API key + budget (founder). Then: RAG over verified data, citations, guardrails, evals, cost controls |
+| 6 Claude assistant | ❌ blocked | Needs Anthropic API key + budget (founder). Then: RAG over verified data, citations, guardrails, evals, cost controls. (Separately, "Ximo Support AI" — Gemini, free tier, narrow platform-troubleshooting chat — shipped; see lib/ai/gemini.ts. Not this Phase 6 RAG assistant.) |
 | 7 Academy content | 🟡 | Manuel records videos → paste into courseData registry; quizzes into quizData |
 | 8 Billing | ✅ live | Later: coupons, Stripe customer portal, trials, dunning polish |
 | 9 Ops & automation | 🟡 | Weekly founder report (automate current manual digest), ticket system, backup-restore drill, runbooks |

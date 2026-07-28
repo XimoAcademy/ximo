@@ -25,7 +25,9 @@ Older decisions (pre-log) are recorded in git history and docs/launch-checklist.
 - **No internal social network / no minor DMs:** already true (community = external Discord). ✔
 - **Coach outreach = drafts + mailto, never auto-send:** already true (correos section). ✔
 - **Assistant (Anthropic API), RAG, agents (spec §6):** NOT built. Deferred to Phase 6 —
-  requires an Anthropic API key (billing decision → founder blocker).
+  requires an Anthropic API key (billing decision → founder blocker). Separately, "Ximo
+  Support AI" (Gemini, free tier) shipped as a narrower platform-troubleshooting chatbot
+  (lib/ai/gemini.ts) — not this Phase 6 assistant, does not close this item.
 - **Explainable matching engine (spec §5.6):** NOT built. Directory + manual pipeline exist.
   Phase 4 work; rules-first design documented in docs/ROADMAP.md.
 - **Verification/freshness system (spec §5.5):** partial (ncaa directory has source URLs and

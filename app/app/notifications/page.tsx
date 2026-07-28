@@ -27,6 +27,7 @@ const TYPE_TONE: Record<string, "success" | "info" | "warning" | "gold" | "neutr
   document: "warning",
   subscription: "gold",
   recruiting: "info",
+  live_support: "info",
 };
 
 export default async function NotificationsPage() {
@@ -72,20 +73,30 @@ export default async function NotificationsPage() {
           ) : (
             <div className="space-y-2">
               {rows.map((n) => (
-                <form key={n.id} action={markReadAction}>
-                  <input type="hidden" name="id" value={n.id} />
-                  <button type="submit" className="block w-full text-left">
-                    <InnerTile className="flex items-center gap-3 px-3.5 py-3">
+                <InnerTile key={n.id} className="flex items-center gap-2 px-3.5 py-3">
+                  <form action={markReadAction} className="min-w-0 flex-1">
+                    <input type="hidden" name="id" value={n.id} />
+                    <button type="submit" className="flex w-full items-center gap-3 text-left">
                       <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: n.read_at ? "var(--border-strong)" : "var(--teal)" }} />
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-bold" style={{ color: "var(--text)" }}>{n.title ?? "Notificación"}</p>
                         {n.body && <p className="truncate text-[12px]" style={{ color: "var(--text-2)" }}>{n.body}</p>}
                         <p className="text-[11px]" style={{ color: "var(--text-label)" }}>{timeAgo(n.created_at)}</p>
                       </div>
-                      {n.type && <StatusBadge tone={TYPE_TONE[n.type] ?? "neutral"}>{n.type}</StatusBadge>}
-                    </InnerTile>
-                  </button>
-                </form>
+                    </button>
+                  </form>
+                  {n.type && <StatusBadge tone={TYPE_TONE[n.type] ?? "neutral"}>{n.type}</StatusBadge>}
+                  {n.type === "live_support" && n.action_url && (
+                    <a
+                      href={n.action_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ximo-glass-btn teal shrink-0 text-[11px]"
+                    >
+                      Unirse
+                    </a>
+                  )}
+                </InnerTile>
               ))}
             </div>
           )}
