@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 import { getProfile } from "@/lib/auth/getUser";
 import { zonedTimeToUtc, formatInZone } from "@/lib/scheduling/timezone";
 import { notifyAllUsers } from "@/lib/notify/broadcast";
@@ -40,6 +40,28 @@ function isValid(f: ParsedForm): boolean {
   return Boolean(f.date && f.time && f.timezone);
 }
 
+/**
+ * Un directo en el pasado no tiene sentido, y publicarlo avisaría a TODOS los
+ * atletas de una fecha ya vencida (basta con equivocarse de año al teclear).
+ * El input tiene `min` en el navegador; esto es la red de seguridad real.
+ */
+function esFutura(startsAt: Date): boolean {
+  return startsAt.getTime() > Date.now();
+}
+
+/**
+ * Los recordatorios ya enviados se registran por (anuncio, ventana). Si el
+ * admin mueve la fecha, esas marcas dejan de tener sentido: sin borrarlas, un
+ * directo movido de mañana a la semana que viene nunca volvería a avisar con
+ * 24 h de anticipación. Requiere service-role: la tabla no tiene policy de
+ * escritura para nadie (solo la lee el admin).
+ */
+async function limpiarRecordatorios(announcementId: string): Promise<void> {
+  const svc = createServiceRoleClient();
+  if (!svc) return;
+  await svc.from("announcement_reminders_sent").delete().eq("announcement_id", announcementId);
+}
+
 /** Aviso a todos los atletas en el momento de publicar. */
 async function broadcastPublished(a: { starts_at: string; timezone: string }): Promise<void> {
   const texto = avisoPublicado(formatInZone(a.starts_at, a.timezone));
@@ -54,6 +76,7 @@ export async function createAction(formData: FormData): Promise<void> {
   if (!isValid(f)) return;
   const publish = String(formData.get("intent") ?? "") === "publish";
   const startsAt = zonedTimeToUtc(f.date, f.time, f.timezone);
+  if (!esFutura(startsAt)) redirect("/app/admin/announcements/new?error=pasado");
   const profile = await getProfile();
 
   const { data, error } = await supabase
@@ -84,6 +107,14 @@ export async function updateAction(formData: FormData): Promise<void> {
   if (!id || !isValid(f)) return;
   const publish = String(formData.get("intent") ?? "") === "publish";
   const startsAt = zonedTimeToUtc(f.date, f.time, f.timezone);
+  if (!esFutura(startsAt)) redirect(`/app/admin/announcements/${id}/edit?error=pasado`);
+
+  const { data: previo } = await supabase
+    .from("live_announcements")
+    .select("starts_at")
+    .eq("id", id)
+    .maybeSingle();
+  const cambioLaFecha = Boolean(previo) && previo!.starts_at !== startsAt.toISOString();
 
   const updates: Record<string, unknown> = {
     starts_at: startsAt.toISOString(),
@@ -102,6 +133,7 @@ export async function updateAction(formData: FormData): Promise<void> {
     .select("starts_at,timezone")
     .maybeSingle();
 
+  if (!error && cambioLaFecha) await limpiarRecordatorios(id);
   if (!error && data && publish) await broadcastPublished(data);
 
   revalidatePath("/app/admin/announcements");
@@ -116,6 +148,16 @@ export async function publishAction(formData: FormData): Promise<void> {
 
   const id = String(formData.get("id") ?? "");
   if (!id) return;
+
+  // No publicar un directo ya vencido: avisaría a todos de una fecha pasada.
+  const { data: previo } = await supabase
+    .from("live_announcements")
+    .select("starts_at")
+    .eq("id", id)
+    .maybeSingle();
+  if (!previo || !esFutura(new Date(previo.starts_at))) {
+    redirect("/app/admin/announcements?error=pasado");
+  }
 
   const { data, error } = await supabase
     .from("live_announcements")

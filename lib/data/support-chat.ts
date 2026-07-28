@@ -57,6 +57,24 @@ export async function getMessages(conversationId: string, limit = 50): Promise<S
   return (data as SupportMessage[]) ?? [];
 }
 
+/**
+ * Cuántos mensajes ha enviado el usuario en los últimos `minutos`. Sirve para
+ * limitar el ritmo: la cuota gratuita de Gemini es diaria y compartida entre
+ * todos los atletas, así que un solo usuario no debe poder agotarla.
+ */
+export async function countRecentUserMessages(conversationId: string, minutos: number): Promise<number> {
+  const supabase = await createClient();
+  if (!supabase) return 0;
+  const desde = new Date(Date.now() - minutos * 60_000).toISOString();
+  const { count } = await supabase
+    .from("support_messages")
+    .select("*", { count: "exact", head: true })
+    .eq("conversation_id", conversationId)
+    .eq("role", "user")
+    .gte("created_at", desde);
+  return count ?? 0;
+}
+
 export async function insertMessage(
   conversationId: string,
   userId: string,
