@@ -34,6 +34,10 @@ Legend: ✅ built & verified in production · 🟡 partial · ❌ not built (pla
 ❌ Not built. Requires Anthropic API key + budget (founder decision). Phase 6.
 No fake "AI" UI exists — complies with "no fake functionality".
 
+NOTE: "Ximo Support AI" (Gemini, free tier) shipped as a separate, narrower
+feature — platform/usage troubleshooting chat only, not RAG over verified
+recruiting data. It does not close this Phase 6 item.
+
 ## Spec §7 architecture (as found)
 
 Next.js 16.2.6 (App Router, Turbopack) · TypeScript · Tailwind · Supabase

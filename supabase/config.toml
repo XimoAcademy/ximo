@@ -2,6 +2,11 @@
 # Docs: https://supabase.com/docs/guides/cli/config
 # NOTE: For production (Supabase Cloud), copy these templates into the
 # Authentication → Email Templates section of the Supabase dashboard.
+#
+# content_path values are resolved from the PROJECT ROOT (where you run the
+# CLI), not from this file's directory — hence the ./supabase/ prefix. With a
+# bare ./email-templates/... path every CLI command aborts with
+# LegacyDbConfigLoadError before it can even connect.
 
 [api]
 enabled = true
@@ -44,19 +49,19 @@ max_frequency = "1s"
 # ── Password Reset ──────────────────────────────────────────────────────────
 [auth.email.template.recovery]
 subject = "Restablece tu contraseña · Ximo"
-content_path = "./email-templates/recovery.html"
+content_path = "./supabase/email-templates/recovery.html"
 
 # ── Email Change Confirmation ────────────────────────────────────────────────
 [auth.email.template.email_change]
 subject = "Confirma tu nuevo correo · Ximo"
-content_path = "./email-templates/email_change.html"
+content_path = "./supabase/email-templates/email_change.html"
 
 # ── Signup Confirmation ──────────────────────────────────────────────────────
 [auth.email.template.confirmation]
 subject = "Confirma tu cuenta · Ximo"
-content_path = "./email-templates/confirmation.html"
+content_path = "./supabase/email-templates/confirmation.html"
 
 # ── Magic Link ───────────────────────────────────────────────────────────────
 [auth.email.template.magic_link]
 subject = "Tu enlace de acceso a Ximo"
-content_path = "./email-templates/magic_link.html"
+content_path = "./supabase/email-templates/magic_link.html"
