@@ -56,6 +56,22 @@ const FLIGHT_WAV = 1.6;
 const FLIGHT_FIT = 10.5;
 
 /**
+ * Caída total del viaje, en unidades de mundo.
+ *
+ * Antes el descenso era lineal (1.1 - p * 8.5) y a partir de p≈0.7 el dragón
+ * quedaba por debajo del encuadre: desaparecía durante el último 30% de la
+ * página, justo donde está el CTA. Ahora la caída usa una salida suave
+ * (ease-out cuadrática), que conserva el ritmo original al principio —donde se
+ * nota el paralaje— y se asienta en un piso que sigue en cuadro al final.
+ *
+ * El tope lo fija la PROFUNDIDAD, no la altura: al final del scroll la espiral
+ * deja al dragón en z≈2.8 y la cámara ya avanzó a z=9.5, así que a esa distancia
+ * el medio-alto visible es ~3.1, no 4.4. Con el cuerpo midiendo ~1.5 de medio
+ * alto, 2.3 es lo más profundo que puede caer sin que se recorte.
+ */
+const JOURNEY_DESCENT = 2.3;
+
+/**
  * ── Aura azul ────────────────────────────────────────────────────────────
  * Dos capas, ambas montadas sobre el MISMO esqueleto, así que respiran con el
  * cuerpo sin cálculo extra por frame:
@@ -567,9 +583,13 @@ function DragonModel({ disp, entered }: { disp: React.RefObject<number>; entered
       const travel = t * 0.22;
       const drift = reducedMotion ? 0 : 1;
 
+      // Ease-out on the fall: same pace as before early on, then it settles
+      // onto a floor instead of sinking past the bottom of the viewport.
+      const fall = 1 - (1 - p) * (1 - p);
+
       outer.current.position.x = Math.sin(ang) * R + Math.sin(travel) * 0.5 * drift;
       outer.current.position.z = 1.4 + Math.cos(ang) * 1.4 + Math.cos(travel * 0.63) * 0.22 * drift;
-      outer.current.position.y = 1.1 - p * 8.5 + Math.sin(travel * 0.71 + 0.9) * 0.24 * drift;
+      outer.current.position.y = 1.1 - fall * JOURNEY_DESCENT + Math.sin(travel * 0.71 + 0.9) * 0.24 * drift;
 
       // Face along the spiral, wander the heading slowly, look down as you
       // scroll, and bank into the turns (roll follows with its own phase).
