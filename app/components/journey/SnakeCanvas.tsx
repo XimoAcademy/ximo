@@ -5,50 +5,55 @@
 /* eslint-disable react-hooks/purity -- procedural geometry uses Math.random()
    once to scatter the particle field; it's built in a memo and never re-run. */
 
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import { Suspense, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
-type WaveShader = { uniforms: { uTime: { value: number }; uStrength: { value: number }; uScroll: { value: number } } };
-type WaveMaterial = THREE.Material & { userData: { shader?: WaveShader } };
-
 /**
  * Ximo's dragon — the founder-provided "fantasy dragon" GLB (single dense mesh,
- * NO armature/skin/animation clips, so THREE.AnimationMixer cannot animate it).
- * It swims like an Eastern serpent dragon via PROCEDURAL vertex-shader
- * deformation (spec: prompt_para_claude_dragon.md, "web-only fallback"):
+ * NO armature/skin/animation clips in the file itself). It is RIGGED AT LOAD
+ * with a 24-bone serpent skeleton and flies a continuous head-led loop, the
+ * same rig authored in the Claude Design project "Ximo Dragon Rigged".
  *
- *  - per-vertex longitudinal coordinate (0 = tail at -Y, 1 = head at +Y)
- *  - travelling waves whose phase is delayed toward the tail, so motion clearly
- *    runs head → neck → torso → tail (overlapping action / follow-through)
- *  - amplitude low at the head (face stays recognizable), strongest through the
- *    middle body and tail (long smooth S-curves)
- *  - subtle longitudinal roll/banking so the body doesn't read as a flat ribbon
- *  - the root additionally drifts along a slow looping path on top of the
- *    scroll-driven descent through the journey's "worlds"
+ * How the rig gets here without costing the visitor anything:
+ *  - the skeleton is derived from the mesh by a voxel/geodesic pipeline
+ *    (solid fill → distance field → centerline → 24 joints by arc length).
+ *    Measured at ~1.4 s on desktop, so it is NOT run in the browser.
+ *  - it is baked once, offline, into `/models/dragon-rig.bin` (~190 KB):
+ *    the 24 joint positions, the body length, and ONE seed-joint byte per
+ *    vertex. Skin weights are a pure function of those three, so the client
+ *    reconstructs bit-identical skinIndex/skinWeight in ~40 ms.
+ *  - see docs/dragon-rig.md for how to re-bake if the model ever changes.
  *
- * Respects prefers-reduced-motion (wave strength 0 → calm drift; note the
- * canvas itself is also skipped entirely by JourneyBackground in that case)
- * and pauses all updates while the tab is hidden.
+ * The motion is "follow-the-leader": the head samples a closed Catmull-Rom
+ * flight path, every joint behind it sits at its exact rest distance from the
+ * one ahead (so no segment can stretch or compress), and a travelling
+ * serpentine offset runs down the body — head → neck → torso → tail.
+ *
+ * Respects prefers-reduced-motion (holds the bind pose; note the canvas itself
+ * is also skipped entirely by JourneyBackground in that case) and pauses all
+ * updates while the tab is hidden.
  */
 
 // TODO(Manuel): para volver al dragón anterior, cambia esta ruta a
-// "/models/dragon-opt.glb" — ambos viven en public/models/.
+// "/models/dragon-opt.glb" — ambos viven en public/models/. OJO: el esqueleto
+// (dragon-rig.bin) se horneó contra la malla de dragon2-opt.glb y se indexa por
+// vértice, así que si cambias de modelo hay que volver a hornearlo — el código
+// lanza un error claro si no coinciden. Ver docs/dragon-rig.md.
 const MODEL_URL = "/models/dragon2-opt.glb";
+const RIG_URL = "/models/dragon-rig.bin";
 
-/**
- * ── Dragon motion version ────────────────────────────────────────────────
- * "v3": cinematic eastern-dragon swim (head-led travelling wave, tail
- *       follow-through, banking roll, looping drift). Current.
- * "v1": original subtle wave (pre jul-2026). Kept for instant revert.
- * (v2 lives in git history — commit 1e199aa — if ever needed.)
- */
-const DRAGON_MOTION: "v3" | "v1" = "v3";
+/** Joint index of the rig root (mid body); head chain runs up, tail chain down. */
+const RIG_ROOT = 9;
 
-// Visual elongation of the body along its length axis (reads more serpentine).
-const STRETCH_Y = 1.16;
+/** Flight feel — the design project's defaults (amplitude / wavelength). */
+const FLIGHT_AMP = 0.45;
+const FLIGHT_WAV = 1.6;
+
+/** How many world units the whole flight loop should span. */
+const FLIGHT_FIT = 7;
 
 // Enchanted-forest "worlds" (scroll 0 → 1), inspired by the Ori games: deep
 // mossy dark backgrounds lit by bioluminescent spirit colours.
@@ -63,62 +68,297 @@ function lerpPalette(palette: THREE.Color[], p: number, out: THREE.Color) {
   return out;
 }
 
-// GLSL injected into <common>: the eastern-dragon swim. `t` is the longitudinal
-// coordinate (0 = tail, 1 = head). Phase is delayed toward the tail (lag), so a
-// crest born at the head visibly travels down the body — overlapping action.
-const DRAGON_WAVE_V3 = /* glsl */ `
-  attribute float aLongitudinal;
-  uniform float uTime;
-  uniform float uStrength;
-  uniform float uScroll;
+type RigData = {
+  jointCount: number;
+  bodyLength: number;
+  joints: THREE.Vector3[];
+  seed: Uint8Array;
+};
 
-  vec3 dragonWave(vec3 p, float t) {
-    float lag = 1.0 - t;
-    float phaseA = uTime * 1.05 - lag * 7.2;
-    float phaseB = uTime * 0.72 - lag * 4.7 + 1.25;
-
-    // Head controlled and recognizable; middle/tail carry the follow-through.
-    float tailGain = mix(1.22, 0.30, smoothstep(0.30, 1.0, t));
-    float middleGain = 0.45 + 0.55 * sin(t * 3.14159265);
-    float amp = tailGain * middleGain * uStrength;
-
-    float side = sin(phaseA) * 0.115 * amp;
-    side += sin(phaseA * 0.53 + 1.9) * 0.038 * amp;
-
-    float depth = cos(phaseB) * 0.082 * amp;
-    depth += sin(phaseA * 1.42 - 0.8) * 0.020 * amp;
-
-    float lift = sin(uTime * 0.48 + t * 4.2) * 0.023 * uStrength;
-    lift += (uScroll - 0.5) * 0.06;
-
-    p.x += side;
-    p.z += depth;
-    p.y += lift;
-
-    // Slight longitudinal roll/banking so the body never reads as a flat ribbon.
-    float roll = sin(phaseA - 0.55) * 0.13 * amp;
-    float c = cos(roll);
-    float s = sin(roll);
-    p.xz = mat2(c, -s, s, c) * p.xz;
-    return p;
+/** Parse `/models/dragon-rig.bin` — "XRIG" | v | verts | joints | L | pts | seeds. */
+function parseRig(buf: ArrayBuffer): RigData {
+  const dv = new DataView(buf);
+  const magic = String.fromCharCode(dv.getUint8(0), dv.getUint8(1), dv.getUint8(2), dv.getUint8(3));
+  if (magic !== "XRIG") throw new Error(`dragon-rig.bin: bad magic "${magic}"`);
+  const version = dv.getUint32(4, true);
+  if (version !== 1) throw new Error(`dragon-rig.bin: unsupported version ${version}`);
+  const verts = dv.getUint32(8, true);
+  const jointCount = dv.getUint32(12, true);
+  const bodyLength = dv.getFloat32(16, true);
+  const HEAD = 20;
+  const joints: THREE.Vector3[] = [];
+  for (let j = 0; j < jointCount; j += 1) {
+    joints.push(new THREE.Vector3(
+      dv.getFloat32(HEAD + j * 12, true),
+      dv.getFloat32(HEAD + j * 12 + 4, true),
+      dv.getFloat32(HEAD + j * 12 + 8, true)
+    ));
   }
-`;
+  return { jointCount, bodyLength, joints, seed: new Uint8Array(buf, HEAD + jointCount * 12, verts) };
+}
 
-// v1 legacy: single gentle sine, linear tail weight (kept for instant revert).
-const DRAGON_WAVE_V1 = /* glsl */ `
-  attribute float aLongitudinal;
-  uniform float uTime;
-  uniform float uStrength;
-  uniform float uScroll;
+/**
+ * Rebuild the skeleton + skin weights and bind them to a SkinnedMesh.
+ *
+ * Skin weights reproduce the offline bake exactly: for each vertex the baked
+ * seed joint defines an 11-joint window, the 4 nearest of those get gaussian
+ * weights (sigma = 1.5 segment lengths) and are normalised. Done with a manual
+ * top-4 selection rather than sort+slice — same result, no per-vertex garbage.
+ */
+function buildRiggedDragon(scene: THREE.Group, rig: RigData) {
+  scene.updateMatrixWorld(true);
+  let src: THREE.Mesh | null = null;
+  scene.traverse((o) => {
+    const m = o as THREE.Mesh;
+    if (m.isMesh && !src) src = m;
+  });
+  if (!src) throw new Error("dragon GLB: no mesh found");
+  const source = src as THREE.Mesh;
 
-  vec3 dragonWave(vec3 p, float t) {
-    float ph2 = t * 6.5 + uTime * 2.0;
-    float aw = (1.25 - t) * uStrength;
-    p.x += sin(ph2) * 0.08 * aw;
-    p.z += cos(ph2) * 0.04 * aw;
-    return p;
+  const geo = source.geometry.clone();
+  geo.applyMatrix4(source.matrixWorld); // bake node transform — the bake did the same
+  const pos = geo.attributes.position as THREE.BufferAttribute;
+
+  const { joints, jointCount: NJ, bodyLength: L, seed } = rig;
+
+  // The seed array is indexed by vertex, so it is only valid for the exact mesh
+  // it was baked against. Fail loudly rather than skinning to garbage.
+  if (seed.length !== pos.count) {
+    throw new Error(
+      `dragon-rig.bin was baked for ${seed.length} vertices but ${MODEL_URL} has ${pos.count}. Re-bake the rig (see docs/dragon-rig.md).`
+    );
   }
-`;
+
+  // ── bones: root mid-body, one chain to the head, one to the tail ──
+  const bones: THREE.Bone[] = [];
+  const jointOfBone: number[] = [];
+  const jointBone = new Array<THREE.Bone>(NJ);
+  const mk = (name: string, j: number, parent: THREE.Bone | null) => {
+    const b = new THREE.Bone();
+    b.name = name;
+    if (parent) b.position.copy(joints[j]).sub(joints[jointOfBone[bones.indexOf(parent)]]);
+    else b.position.copy(joints[j]);
+    parent?.add(b);
+    bones.push(b);
+    jointOfBone.push(j);
+    jointBone[j] = b;
+    return b;
+  };
+  const root = mk("root", RIG_ROOT, null);
+  let prev = root;
+  let n = 1;
+  for (let j = RIG_ROOT + 1; j < NJ; j += 1) {
+    const name = j === NJ - 1 ? "head" : j === NJ - 2 ? "neck" : `spine_${String(n++).padStart(2, "0")}`;
+    prev = mk(name, j, prev);
+  }
+  prev = root;
+  n = 1;
+  for (let j = RIG_ROOT - 1; j >= 0; j -= 1) {
+    prev = mk(j === 0 ? "tail_tip" : `tail_${String(n++).padStart(2, "0")}`, j, prev);
+  }
+  const boneIndexOfJoint = joints.map((_, j) => bones.indexOf(jointBone[j]));
+
+  // ── skin weights from the baked seed joints ──
+  const SIGMA = (L / (NJ - 1)) * 1.5;
+  const si = new Uint16Array(pos.count * 4);
+  const sw = new Float32Array(pos.count * 4);
+  const bj = new Int32Array(4);
+  const bd = new Float64Array(4);
+  const v = new THREE.Vector3();
+  for (let i = 0; i < pos.count; i += 1) {
+    v.fromBufferAttribute(pos, i);
+    const s = seed[i];
+    const lo = Math.max(0, s - 5);
+    const hi = Math.min(NJ - 1, s + 5);
+    let filled = 0;
+    for (let j = lo; j <= hi; j += 1) {
+      const d = v.distanceTo(joints[j]);
+      // insert into the running top-4-nearest
+      let k = filled < 4 ? filled : 3;
+      if (filled === 4 && d >= bd[3]) continue;
+      while (k > 0 && bd[k - 1] > d) {
+        bd[k] = bd[k - 1];
+        bj[k] = bj[k - 1];
+        k -= 1;
+      }
+      bd[k] = d;
+      bj[k] = j;
+      if (filled < 4) filled += 1;
+    }
+    let sum = 0;
+    for (let k = 0; k < filled; k += 1) {
+      bd[k] = Math.exp(-(bd[k] / SIGMA) * (bd[k] / SIGMA));
+      sum += bd[k];
+    }
+    if (sum < 1e-8) {
+      bd[0] = 1;
+      sum = 1;
+    }
+    for (let k = 0; k < filled; k += 1) {
+      si[i * 4 + k] = boneIndexOfJoint[bj[k]];
+      sw[i * 4 + k] = bd[k] / sum;
+    }
+  }
+  geo.setAttribute("skinIndex", new THREE.BufferAttribute(si, 4));
+  geo.setAttribute("skinWeight", new THREE.BufferAttribute(sw, 4));
+
+  const mesh = new THREE.SkinnedMesh(geo, source.material);
+  mesh.name = "ximo_dragon";
+  mesh.frustumCulled = false; // the flight path leaves the bind-pose bounds
+  const rigGroup = new THREE.Group();
+  rigGroup.name = "ximo_dragon_rig";
+  rigGroup.add(mesh);
+  rigGroup.add(root);
+  root.updateMatrixWorld(true);
+  mesh.bind(new THREE.Skeleton(bones));
+  mesh.updateMatrixWorld(true);
+
+  return { rigGroup, mesh, bones, jointOfBone, joints, NJ, L };
+}
+
+/**
+ * Follow-the-leader flight solver. The head walks a closed Catmull-Rom loop;
+ * each joint behind it is pinned at its exact rest distance from the one ahead,
+ * so the body can never stretch or bunch. Returns an `update(t)` to call per
+ * frame. Ported from the design project's rigged page.
+ */
+function makeFlight(rigged: ReturnType<typeof buildRiggedDragon>) {
+  const { bones, jointOfBone, joints, NJ } = rigged;
+
+  const bIdx = new Map(bones.map((b, i) => [b, i]));
+  const parentIdx = bones.map((b) => (b.parent && bIdx.has(b.parent as THREE.Bone) ? bIdx.get(b.parent as THREE.Bone)! : -1));
+  const jOf = jointOfBone;
+  const childJ = jOf.map((j) => (j === RIG_ROOT ? RIG_ROOT + 1 : j > RIG_ROOT ? (j < NJ - 1 ? j + 1 : -1) : j > 0 ? j - 1 : -1));
+  const restDir = bones.map((_, i) =>
+    childJ[i] >= 0
+      ? joints[childJ[i]].clone().sub(joints[jOf[i]]).normalize()
+      : joints[jOf[i]].clone().sub(joints[jOf[parentIdx[i]]]).normalize()
+  );
+
+  const cum = new Array<number>(NJ);
+  cum[NJ - 1] = 0;
+  for (let j = NJ - 2; j >= 0; j -= 1) cum[j] = cum[j + 1] + joints[j + 1].distanceTo(joints[j]);
+  const Lbody = cum[0];
+  const segLen = joints.map((_, j) => (j < NJ - 1 ? cum[j] - cum[j + 1] : 0));
+
+  // Closed flight loop, scaled so its arc length is 1.65 body lengths.
+  const pathPts: THREE.Vector3[] = [];
+  for (let k = 0; k < 16; k += 1) {
+    const th = (k / 16) * Math.PI * 2;
+    pathPts.push(new THREE.Vector3(Math.cos(th), 0.16 * Math.sin(3 * th), 0.55 * Math.sin(2 * th)));
+  }
+  let curve = new THREE.CatmullRomCurve3(pathPts, true, "catmullrom", 0.5);
+  const k0 = (Lbody * 1.65) / curve.getLength();
+  curve = new THREE.CatmullRomCurve3(pathPts.map((p) => p.multiplyScalar(k0)), true, "catmullrom", 0.5);
+  const pathLen = curve.getLength();
+
+  // Bind frame of each bone: forward along its segment, dorsal up.
+  const XAX = new THREE.Vector3(1, 0, 0);
+  const qBind = bones.map((_, i) => {
+    const f = restDir[i].clone();
+    const sgn = jOf[i] >= RIG_ROOT ? 1 : -1;
+    const u = new THREE.Vector3().crossVectors(XAX, f).normalize().multiplyScalar(sgn);
+    const r = new THREE.Vector3().crossVectors(u, f).normalize();
+    return new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(r, u, f)).invert();
+  });
+
+  const T = joints.map(() => new THREE.Vector3());
+  const P = joints.map(() => new THREE.Vector3());
+  const Wq = bones.map(() => new THREE.Quaternion());
+  const Uw = bones.map(() => new THREE.Vector3(0, 1, 0));
+  const UP = new THREE.Vector3(0, 1, 0);
+  const n1 = new THREE.Vector3();
+  const n2 = new THREE.Vector3();
+  const tan = new THREE.Vector3();
+  const tmp = new THREE.Vector3();
+  const tmp2 = new THREE.Vector3();
+  const F = new THREE.Vector3();
+  const U = new THREE.Vector3();
+  const Rv = new THREE.Vector3();
+  const mT = new THREE.Matrix4();
+  const qT = new THREE.Quaternion();
+  const invQ = new THREE.Quaternion();
+  const qL = new THREE.Quaternion();
+
+  // Extent of the animated loop (path + serpentine offset + body thickness),
+  // so the caller can scale the whole flight to a predictable size.
+  const bbox = new THREE.Box3();
+  for (let k = 0; k <= 200; k += 1) bbox.expandByPoint(curve.getPointAt(k / 200, tmp));
+  bbox.expandByScalar(FLIGHT_AMP * 0.11 + 0.1);
+  const size = bbox.getSize(new THREE.Vector3());
+  const fitScale = FLIGHT_FIT / (Math.max(size.x, size.y, size.z) || 1);
+
+  const update = (t: number) => {
+    const sHead = t * 0.16;
+    // 1 — sample the flight path, head first, plus a travelling serpentine offset
+    for (let j = NJ - 1; j >= 0; j -= 1) {
+      let u = sHead - cum[j] / pathLen;
+      u -= Math.floor(u);
+      curve.getPointAt(u, P[j]);
+      curve.getTangentAt(u, tan);
+      n1.copy(tan).cross(UP);
+      if (n1.lengthSq() < 1e-6) n1.set(1, 0, 0);
+      n1.normalize();
+      n2.copy(tan).cross(n1).normalize();
+      const f = cum[j] / Lbody;
+      const ph = f * Math.PI * 2 * (2 / FLIGHT_WAV) - t * 2;
+      const a = FLIGHT_AMP * 0.11 * (0.25 + 0.75 * f);
+      P[j].addScaledVector(n1, Math.sin(ph) * a).addScaledVector(n2, Math.cos(ph) * a * 0.5);
+    }
+    // 2 — follow-the-leader: exact rest distance behind the joint ahead
+    T[NJ - 1].copy(P[NJ - 1]);
+    for (let j = NJ - 2; j >= 0; j -= 1) {
+      tmp.copy(P[j]).sub(T[j + 1]);
+      const len = tmp.length() || 1;
+      T[j].copy(T[j + 1]).addScaledVector(tmp, segLen[j] / len);
+    }
+    // 3 — drive the bones straight onto those joint positions
+    for (let i = 0; i < bones.length; i += 1) {
+      const p = parentIdx[i];
+      const b = bones[i];
+      const j = jOf[i];
+      const c = childJ[i];
+      if (c < 0) F.copy(T[j]).sub(T[jOf[p]]).normalize();
+      else F.copy(T[c]).sub(T[j]).normalize();
+      const ref = p < 0 ? UP : Uw[p];
+      U.copy(ref).addScaledVector(F, -ref.dot(F));
+      if (U.lengthSq() < 1e-8) U.copy(UP).addScaledVector(F, -UP.dot(F));
+      if (U.lengthSq() < 1e-8) U.set(0, 0, 1).addScaledVector(F, -F.z);
+      U.normalize();
+      // Ease the transported up back toward world up by a CAPPED angle — a raw
+      // lerp collapses to zero length when the two are near-antiparallel, which
+      // flipped the basis 180° for a single frame.
+      tmp2.copy(UP).addScaledVector(F, -UP.dot(F));
+      if (tmp2.lengthSq() > 1e-6) {
+        tmp2.normalize();
+        const d = Math.max(-1, Math.min(1, U.dot(tmp2)));
+        if (d > 0.05) {
+          const ang = Math.acos(d);
+          if (ang > 1e-4) U.lerp(tmp2, Math.min(1, 0.1 / ang));
+          if (U.lengthSq() > 1e-8) U.normalize();
+          else U.copy(tmp2);
+        }
+      }
+      Rv.crossVectors(U, F);
+      if (Rv.lengthSq() < 1e-8) Rv.set(1, 0, 0).addScaledVector(F, -F.x);
+      Rv.normalize();
+      U.crossVectors(F, Rv).normalize();
+      qT.setFromRotationMatrix(mT.makeBasis(Rv, U, F));
+      Wq[i].copy(qT).multiply(qBind[i]);
+      Uw[i].copy(U);
+      if (p < 0) {
+        b.position.copy(T[j]);
+        b.quaternion.copy(Wq[i]);
+      } else {
+        invQ.copy(Wq[p]).invert();
+        b.position.copy(T[j]).sub(T[jOf[p]]).applyQuaternion(invQ);
+        b.quaternion.copy(qL.copy(invQ).multiply(Wq[i]));
+      }
+    }
+  };
+
+  return { update, fitScale };
+}
 
 // ── One-time cinematic entrance ─────────────────────────────────────────────
 // The dragon is HIDDEN during the initial hero view. When the visitor scrolls
@@ -130,9 +370,12 @@ const DRAGON_WAVE_V1 = /* glsl */ `
 const ENTRANCE_SECS = 4.6;
 const easeInOutCubic = (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
 
-/** Loads the dragon GLB, normalises its size/centre, and drives its motion. */
+/** Loads the dragon GLB + baked rig, binds the skeleton, and drives its motion. */
 function DragonModel({ disp, entered }: { disp: React.RefObject<number>; entered: React.RefObject<boolean> }) {
   const { scene } = useGLTF(MODEL_URL);
+  const rigBuffer = useLoader(THREE.FileLoader, RIG_URL, (loader) => {
+    (loader as THREE.FileLoader).setResponseType("arraybuffer");
+  }) as unknown as ArrayBuffer;
   const outer = useRef<THREE.Group>(null);
   // Latched entrance state — never resets during the page visit.
   const ent = useRef({ firstFrame: true, started: false, t0: 0, done: false });
@@ -143,47 +386,15 @@ function DragonModel({ disp, entered }: { disp: React.RefObject<number>; entered
     []
   );
 
-  const { fitScale, offset, mats } = useMemo(() => {
-    const box = new THREE.Box3().setFromObject(scene);
-    const size = box.getSize(new THREE.Vector3());
-    const center = box.getCenter(new THREE.Vector3());
-    const maxDim = Math.max(size.x, size.y, size.z) || 1;
-    const minY = box.min.y;
-    const height = size.y || 1;
-
-    const list: WaveMaterial[] = [];
-    scene.traverse((o) => {
-      const mesh = o as THREE.Mesh;
-      if (!mesh.isMesh) return;
-
-      // Per-vertex longitudinal coordinate: 0 at the tail (-Y) → 1 at the head (+Y).
-      const pos = mesh.geometry.attributes.position as THREE.BufferAttribute;
-      const longitudinal = new Float32Array(pos.count);
-      for (let i = 0; i < pos.count; i += 1) {
-        longitudinal[i] = THREE.MathUtils.clamp((pos.getY(i) - minY) / height, 0, 1);
-      }
-      mesh.geometry.setAttribute("aLongitudinal", new THREE.BufferAttribute(longitudinal, 1));
-      // Shader displacement can leave the original bounds — never cull the dragon.
-      mesh.frustumCulled = false;
-
-      const arr = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
-      arr.forEach((m) => {
-        m.onBeforeCompile = (shader) => {
-          shader.uniforms.uTime = { value: 0 };
-          shader.uniforms.uStrength = { value: reducedMotion ? 0 : 1 };
-          shader.uniforms.uScroll = { value: 0 };
-          shader.vertexShader = shader.vertexShader
-            .replace("#include <common>", "#include <common>\n" + (DRAGON_MOTION === "v3" ? DRAGON_WAVE_V3 : DRAGON_WAVE_V1))
-            .replace("#include <begin_vertex>", "vec3 transformed = dragonWave(position, aLongitudinal);");
-          (m as WaveMaterial).userData.shader = shader as unknown as WaveShader;
-        };
-        m.customProgramCacheKey = () => `ximo-dragon-wave-${DRAGON_MOTION}`;
-        m.needsUpdate = true;
-        list.push(m as WaveMaterial);
-      });
-    });
-    return { fitScale: 7 / maxDim, offset: center, mats: list };
-  }, [scene, reducedMotion]);
+  const { rigGroup, fitScale, flight } = useMemo(() => {
+    const rig = parseRig(rigBuffer);
+    const rigged = buildRiggedDragon(scene as THREE.Group, rig);
+    const f = makeFlight(rigged);
+    // Settle on frame 0 so the very first render already shows the flight pose
+    // rather than the coiled bind pose.
+    f.update(0);
+    return { rigGroup: rigged.rigGroup, fitScale: f.fitScale, flight: f };
+  }, [scene, rigBuffer]);
 
   useFrame((state) => {
     // NOTE: no manual document.hidden guard — r3f's frameloop runs on
@@ -211,16 +422,9 @@ function DragonModel({ disp, entered }: { disp: React.RefObject<number>; entered
     }
     const k = e0.started ? 1 - e : 1; // remaining entrance amount
 
-    for (const m of mats) {
-      const sh = m.userData.shader;
-      if (sh) {
-        sh.uniforms.uTime.value = reducedMotion ? 0 : t;
-        sh.uniforms.uScroll.value = p;
-        // Slightly stronger body wave while travelling in — the head leads and
-        // the tail whips a little more until it settles.
-        sh.uniforms.uStrength.value = reducedMotion ? 0 : 1 + 0.45 * k;
-      }
-    }
+    // Skeletal flight: the head leads the loop and the body follows it. Runs a
+    // touch faster while travelling in, so the creature reads as "arriving".
+    if (!reducedMotion) flight.update(t * (1 + 0.35 * k));
 
     if (outer.current) {
       // Hidden until the visitor passes "Entra al viaje" — also guarantees the
@@ -268,11 +472,10 @@ function DragonModel({ disp, entered }: { disp: React.RefObject<number>; entered
     // visible={false} until the entrance triggers (useFrame flips it) — the
     // GLB is still preloaded and compiled while the hero is on screen.
     <group ref={outer} visible={false}>
-      <group
-        scale={[fitScale, fitScale * STRETCH_Y, fitScale]}
-        position={[-offset.x * fitScale, -offset.y * fitScale * STRETCH_Y, -offset.z * fitScale]}
-      >
-        <primitive object={scene} />
+      {/* The flight loop is already centred on the rig's origin, so the only
+          normalisation needed is a uniform fit to FLIGHT_FIT world units. */}
+      <group scale={fitScale}>
+        <primitive object={rigGroup} />
       </group>
     </group>
   );

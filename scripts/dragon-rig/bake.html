@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>dragon rig bake</title>
+<script type="importmap">
+{"imports":{
+  "three":"https://unpkg.com/three@0.184.0/build/three.module.js",
+  "three/addons/loaders/GLTFLoader.js":"https://unpkg.com/three@0.184.0/examples/jsm/loaders/GLTFLoader.js",
+  "three/addons/libs/meshopt_decoder.module.js":"https://unpkg.com/three@0.184.0/examples/jsm/libs/meshopt_decoder.module.js"
+}}
+</script>
+</head><body style="font:13px monospace;padding:12px">
+<pre id="out">baking…</pre>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
+
+/* Offline bake of the design project's rigging pipeline, run once against
+   public/models/dragon2-opt.glb. Emits the minimum needed to rebuild the rig
+   on the client EXACTLY: the 24 centerline joints, the body length (which
+   sets the skin-weight falloff sigma), and one seed-joint byte per vertex.
+   Everything else (bone hierarchy, skinIndex, skinWeight) is a pure function
+   of those, so the client reproduces the identical skinning in ~50ms. */
+
+const R = {}, T = {};
+const mark = (k, fn) => { const a = performance.now(); const v = fn(); T[k] = +(performance.now() - a).toFixed(1); return v; };
+
+const gltf = await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync('/dragon2-opt.glb');
+gltf.scene.updateMatrixWorld(true);
+let src = null; gltf.scene.traverse(o => { if (o.isMesh && !src) src = o; });
+
+const geo = src.geometry.clone();
+geo.applyMatrix4(src.matrixWorld);          // bake node transform — runtime does the same
+geo.computeBoundingBox();
+const box = geo.boundingBox, pos = geo.attributes.position;
+R.verts = pos.count;
+R.matrixWorld = src.matrixWorld.elements.map(n => +n.toFixed(6));
+
+const S = 0.008, PAD = 2;
+const org = box.min.clone().addScalar(-PAD * S);
+const dim = box.max.clone().sub(org).divideScalar(S).addScalar(PAD + 1).toArray().map(Math.ceil);
+const [NX, NY, NZ] = dim, NYZ = NY * NZ, TOT = NX * NYZ;
+const idx = (x, y, z) => (x * NY + y) * NZ + z;
+
+const solid = mark('voxelize', () => {
+  const s = new Uint8Array(TOT); const v = new THREE.Vector3();
+  for (let i = 0; i < pos.count; i++) { v.fromBufferAttribute(pos, i).sub(org).divideScalar(S); s[idx(v.x|0, v.y|0, v.z|0)] = 1; }
+  return s;
+});
+mark('floodfill', () => {
+  const out = new Uint8Array(TOT), q = new Int32Array(TOT); let h = 0, t = 0;
+  q[t++] = 0; out[0] = 1;
+  while (h < t) {
+    const c = q[h++], z = c % NZ, y = ((c - z) / NZ) % NY, x = (c - z - y * NZ) / NYZ;
+    const nb = [[x-1,y,z],[x+1,y,z],[x,y-1,z],[x,y+1,z],[x,y,z-1],[x,y,z+1]];
+    for (const [a,b,c2] of nb) { if (a<0||b<0||c2<0||a>=NX||b>=NY||c2>=NZ) continue;
+      const j = idx(a,b,c2); if (out[j]||solid[j]) continue; out[j]=1; q[t++]=j; }
+  }
+  for (let i = 0; i < TOT; i++) if (!out[i]) solid[i] = 1;
+});
+const bfs = (seeds) => {
+  const d = new Int32Array(TOT).fill(-1), q = new Int32Array(TOT); let h = 0, t = 0;
+  for (const s of seeds) if (d[s] === -1) { d[s] = 0; q[t++] = s; }
+  while (h < t) {
+    const c = q[h++], z = c % NZ, y = ((c - z) / NZ) % NY, x = (c - z - y * NZ) / NYZ, nd = d[c] + 1;
+    const nb = [[x-1,y,z],[x+1,y,z],[x,y-1,z],[x,y+1,z],[x,y,z-1],[x,y,z+1]];
+    for (const [a,b,c2] of nb) { if (a<0||b<0||c2<0||a>=NX||b>=NY||c2>=NZ) continue;
+      const j = idx(a,b,c2); if (!solid[j]||d[j]!==-1) continue; d[j]=nd; q[t++]=j; }
+  }
+  return d;
+};
+const depth = mark('depthBFS', () => { const sh=[]; for (let i=0;i<TOT;i++) if (!solid[i]) sh.push(i); return bfs(sh); });
+const dist = mark('geodesicBFS', () => {
+  let seed = -1;
+  for (let y = NY-1; y >= 0 && seed < 0; y--) for (let x = 0; x < NX && seed < 0; x++) for (let z = 0; z < NZ; z++) if (solid[idx(x,y,z)]) { seed = idx(x,y,z); break; }
+  const d0 = bfs([seed]); let far = seed;
+  for (let i = 0; i < TOT; i++) if (d0[i] > d0[far]) far = i;
+  return bfs([far]);
+});
+let maxD = 0; for (let i = 0; i < TOT; i++) if (dist[i] > maxD) maxD = dist[i];
+
+const NJ = 24;
+let bodyLength = 0;
+const joints = mark('centerline', () => {
+  const NB = 220, bins = Array.from({length:NB}, () => ({w:0,x:0,y:0,z:0}));
+  for (let i = 0; i < TOT; i++) {
+    if (!solid[i] || dist[i] < 0 || depth[i] < 1) continue;
+    const b = Math.min(NB-1, Math.floor(dist[i]/maxD*NB)), w = depth[i]*depth[i];
+    const z = i % NZ, y = ((i-z)/NZ) % NY, x = (i-z-y*NZ)/NYZ;
+    const bn = bins[b]; bn.w += w; bn.x += w*x; bn.y += w*y; bn.z += w*z;
+  }
+  let line = bins.filter(b => b.w > 0).map(b => new THREE.Vector3(b.x/b.w, b.y/b.w, b.z/b.w).multiplyScalar(S).add(org));
+  for (let p = 0; p < 6; p++) line = line.map((v,i) => i===0||i===line.length-1 ? v : v.clone().add(line[i-1]).add(line[i+1]).multiplyScalar(1/3));
+  const arc = [0]; for (let i = 1; i < line.length; i++) arc.push(arc[i-1] + line[i].distanceTo(line[i-1]));
+  const L = arc[arc.length-1]; bodyLength = L;
+  const js = [];
+  for (let j = 0; j < NJ; j++) {
+    const s = L*j/(NJ-1); let k = 1; while (k < arc.length-1 && arc[k] < s) k++;
+    const t = (s - arc[k-1]) / Math.max(1e-6, arc[k]-arc[k-1]);
+    js.push(line[k-1].clone().lerp(line[k], t));
+  }
+  return js;
+});
+
+// seed joint per vertex — the one value the client cannot cheaply recompute
+const seed = mark('seeds', () => {
+  const gJ = joints.map(p => {
+    const v = p.clone().sub(org).divideScalar(S);
+    let x=v.x|0, y=v.y|0, z=v.z|0, best=-1;
+    for (let r = 0; r <= 3 && best < 0; r++)
+      for (let a=-r;a<=r&&best<0;a++) for (let b=-r;b<=r&&best<0;b++) for (let c=-r;c<=r;c++) {
+        const i2 = idx(Math.min(NX-1,Math.max(0,x+a)), Math.min(NY-1,Math.max(0,y+b)), Math.min(NZ-1,Math.max(0,z+c)));
+        if (dist[i2] >= 0) { best = dist[i2]; break; }
+      }
+    return best < 0 ? 0 : best;
+  });
+  const out = new Uint8Array(pos.count), v = new THREE.Vector3();
+  for (let i = 0; i < pos.count; i++) {
+    v.fromBufferAttribute(pos, i);
+    const g = v.clone().sub(org).divideScalar(S);
+    const gi = idx(Math.min(NX-1,Math.max(0,g.x|0)), Math.min(NY-1,Math.max(0,g.y|0)), Math.min(NZ-1,Math.max(0,g.z|0)));
+    const ds = dist[gi];
+    let sj = 0, bd = Infinity;
+    if (ds >= 0) { for (let j=0;j<NJ;j++){ const e=Math.abs(gJ[j]-ds); if(e<bd){bd=e;sj=j;} } }
+    else { for (let j=0;j<NJ;j++){ const e=v.distanceToSquared(joints[j]); if(e<bd){bd=e;sj=j;} } }
+    out[i] = sj;
+  }
+  return out;
+});
+
+// ── pack: magic | version | verts | jointCount | bodyLength | joints | seeds ──
+const HEAD = 4 + 4 + 4 + 4 + 4;
+const buf = new ArrayBuffer(HEAD + NJ * 3 * 4 + pos.count);
+const dv = new DataView(buf);
+dv.setUint8(0, 88); dv.setUint8(1, 82); dv.setUint8(2, 73); dv.setUint8(3, 71); // "XRIG"
+dv.setUint32(4, 1, true);
+dv.setUint32(8, pos.count, true);
+dv.setUint32(12, NJ, true);
+dv.setFloat32(16, bodyLength, true);
+for (let j = 0; j < NJ; j++) {
+  dv.setFloat32(HEAD + j*12 + 0, joints[j].x, true);
+  dv.setFloat32(HEAD + j*12 + 4, joints[j].y, true);
+  dv.setFloat32(HEAD + j*12 + 8, joints[j].z, true);
+}
+new Uint8Array(buf, HEAD + NJ*12).set(seed);
+
+R.bodyLength = +bodyLength.toFixed(5);
+R.joints = joints.map(j => j.toArray().map(n => +n.toFixed(4)));
+R.seedHistogram = Array.from({length:NJ}, (_, j) => seed.reduce((a,s) => a + (s===j?1:0), 0));
+R.bytes = buf.byteLength;
+R.timings_ms = T;
+
+const resp = await fetch('/save?name=dragon-rig.bin', { method: 'POST', body: buf });
+R.saved = await resp.json();
+
+document.getElementById('out').textContent = JSON.stringify(R, null, 1);
+window.__R = R;
+</script>
+</body></html>
