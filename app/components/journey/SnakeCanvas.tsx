@@ -52,8 +52,24 @@ const RIG_ROOT = 9;
 const FLIGHT_AMP = 0.45;
 const FLIGHT_WAV = 1.6;
 
-/** How many world units the whole flight loop should span. */
-const FLIGHT_FIT = 7;
+/** How many world units the whole flight loop should span (bigger = bigger dragon). */
+const FLIGHT_FIT = 10.5;
+
+/**
+ * ── Aura azul ────────────────────────────────────────────────────────────
+ * Dos capas, ambas montadas sobre el MISMO esqueleto, así que respiran con el
+ * cuerpo sin cálculo extra por frame:
+ *  1. borde fresnel sobre la piel del dragón (energía sobre las escamas)
+ *  2. un casco inflado a lo largo de las normales, additive y en BackSide —
+ *     el cuerpo tapa su interior, así que solo se ve lo que sobresale de la
+ *     silueta: el halo. Es el truco clásico de outline, sin post-procesado.
+ * Una onda viajera recorre el cuerpo y el brillo sube hacia la cola, de modo
+ * que la estela se lee como energía que va quedando atrás.
+ */
+const AURA_COLOR = new THREE.Color("#1e9bff");
+const AURA_INFLATE = 0.01; // unidades de modelo, antes del FLIGHT_FIT
+const AURA_GAIN = 0.5; // intensidad del halo exterior
+const BODY_GLOW = 0.32; // intensidad del borde sobre la piel
 
 // Enchanted-forest "worlds" (scroll 0 → 1), inspired by the Ori games: deep
 // mossy dark backgrounds lit by bioluminescent spirit colours.
@@ -202,18 +218,122 @@ function buildRiggedDragon(scene: THREE.Group, rig: RigData) {
   geo.setAttribute("skinIndex", new THREE.BufferAttribute(si, 4));
   geo.setAttribute("skinWeight", new THREE.BufferAttribute(sw, 4));
 
-  const mesh = new THREE.SkinnedMesh(geo, source.material);
+  // Longitudinal coordinate for the aura: the baked seed joint already IS a
+  // position along the body (0 = tail_tip → 1 = head), so it costs nothing.
+  const along = new Float32Array(pos.count);
+  for (let i = 0; i < pos.count; i += 1) along[i] = seed[i] / (NJ - 1);
+  geo.setAttribute("aLong", new THREE.BufferAttribute(along, 1));
+
+  // Shared clock for both aura layers, ticked once per frame.
+  const auraTime = { value: 0 };
+
+  // ── layer 1: fresnel rim on the dragon's own skin ──
+  // The GLTF material is cached by useGLTF and shared, so clone before
+  // injecting — otherwise a remount would stack the patch onto the cache.
+  const bodyMat = (Array.isArray(source.material) ? source.material[0] : source.material).clone() as THREE.MeshStandardMaterial;
+  bodyMat.name = "ximo_dragon_skin";
+  bodyMat.onBeforeCompile = (shader) => {
+    shader.uniforms.uAuraTime = auraTime;
+    shader.uniforms.uBodyGlow = { value: BODY_GLOW };
+    shader.uniforms.uAuraColor = { value: AURA_COLOR };
+    shader.vertexShader = shader.vertexShader
+      .replace("#include <common>", "#include <common>\nattribute float aLong;\nvarying float vLong;\nvarying float vRim;")
+      // project_vertex defines mvPosition; defaultnormal_vertex (pulled in for
+      // skinned meshes) defines transformedNormal. Both exist by here.
+      .replace(
+        "#include <project_vertex>",
+        "#include <project_vertex>\nvLong = aLong;\nvRim = 1.0 - abs( dot( normalize( transformedNormal ), normalize( -mvPosition.xyz ) ) );"
+      );
+    shader.fragmentShader = shader.fragmentShader
+      .replace(
+        "#include <common>",
+        "#include <common>\nvarying float vLong;\nvarying float vRim;\nuniform float uAuraTime;\nuniform float uBodyGlow;\nuniform vec3 uAuraColor;"
+      )
+      .replace(
+        "#include <emissivemap_fragment>",
+        `#include <emissivemap_fragment>
+        {
+          // High exponent → the glow stays on the grazing edges instead of
+          // washing blue over the scales and killing the dragon's own colour.
+          float rim = pow( clamp( vRim, 0.0, 1.0 ), 3.2 );
+          float pulse = 0.65 + 0.35 * sin( vLong * 14.0 - uAuraTime * 3.2 );
+          float tail = mix( 1.25, 0.55, smoothstep( 0.0, 0.9, vLong ) );
+          totalEmissiveRadiance += uAuraColor * rim * pulse * tail * uBodyGlow;
+        }`
+      );
+  };
+  bodyMat.customProgramCacheKey = () => "ximo-dragon-skin-aura";
+  bodyMat.needsUpdate = true;
+
+  // ── layer 2: inflated additive shell → the halo around the body ──
+  const auraMat = new THREE.MeshBasicMaterial({
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    side: THREE.BackSide,
+  });
+  auraMat.name = "ximo_dragon_aura";
+  auraMat.onBeforeCompile = (shader) => {
+    shader.uniforms.uAuraTime = auraTime;
+    shader.uniforms.uAuraGain = { value: AURA_GAIN };
+    shader.uniforms.uAuraColor = { value: AURA_COLOR };
+    shader.uniforms.uInflate = { value: AURA_INFLATE };
+    shader.vertexShader = shader.vertexShader
+      .replace(
+        "#include <common>",
+        "#include <common>\nattribute float aLong;\nvarying float vLong;\nvarying float vRim;\nuniform float uInflate;"
+      )
+      // Offset along the BIND normal before skinning, so the shell is carried
+      // by the skeleton exactly like the body instead of drifting off it.
+      .replace("#include <begin_vertex>", "vec3 transformed = position + normal * uInflate;")
+      .replace(
+        "#include <project_vertex>",
+        "#include <project_vertex>\nvLong = aLong;\nvRim = 1.0 - abs( dot( normalize( transformedNormal ), normalize( -mvPosition.xyz ) ) );"
+      );
+    shader.fragmentShader = shader.fragmentShader
+      .replace(
+        "#include <common>",
+        "#include <common>\nvarying float vLong;\nvarying float vRim;\nuniform float uAuraTime;\nuniform float uAuraGain;\nuniform vec3 uAuraColor;"
+      )
+      .replace(
+        "#include <opaque_fragment>",
+        // The body is a spiky, non-convex mesh, so the inflated hull pokes
+        // through the gaps between fins. A high exponent collapses the halo
+        // onto the silhouette, where rim → 1, and hides that show-through.
+        `float rim = pow( clamp( vRim, 0.0, 1.0 ), 3.0 );
+        float pulse = 0.70 + 0.30 * sin( vLong * 14.0 - uAuraTime * 3.2 );
+        float tail = mix( 1.35, 0.45, smoothstep( 0.0, 0.9, vLong ) );
+        float a = rim * pulse * tail * uAuraGain;
+        gl_FragColor = vec4( uAuraColor * a, a );`
+      );
+  };
+  auraMat.customProgramCacheKey = () => "ximo-dragon-halo";
+  auraMat.needsUpdate = true;
+
+  const skeleton = new THREE.Skeleton(bones);
+
+  const mesh = new THREE.SkinnedMesh(geo, bodyMat);
   mesh.name = "ximo_dragon";
   mesh.frustumCulled = false; // the flight path leaves the bind-pose bounds
+
+  // Same geometry and same skeleton — the halo deforms with the body for free.
+  const aura = new THREE.SkinnedMesh(geo, auraMat);
+  aura.name = "ximo_dragon_aura";
+  aura.frustumCulled = false;
+  aura.renderOrder = 2;
+
   const rigGroup = new THREE.Group();
   rigGroup.name = "ximo_dragon_rig";
   rigGroup.add(mesh);
+  rigGroup.add(aura);
   rigGroup.add(root);
   root.updateMatrixWorld(true);
-  mesh.bind(new THREE.Skeleton(bones));
+  mesh.bind(skeleton);
+  aura.bind(skeleton);
   mesh.updateMatrixWorld(true);
+  aura.updateMatrixWorld(true);
 
-  return { rigGroup, mesh, bones, jointOfBone, joints, NJ, L };
+  return { rigGroup, mesh, aura, auraTime, bones, jointOfBone, joints, NJ, L };
 }
 
 /**
@@ -386,14 +506,18 @@ function DragonModel({ disp, entered }: { disp: React.RefObject<number>; entered
     []
   );
 
-  const { rigGroup, fitScale, flight } = useMemo(() => {
+  const { rigGroup, fitScale, flight, auraTime } = useMemo(() => {
     const rig = parseRig(rigBuffer);
     const rigged = buildRiggedDragon(scene as THREE.Group, rig);
     const f = makeFlight(rigged);
     // Settle on frame 0 so the very first render already shows the flight pose
     // rather than the coiled bind pose.
     f.update(0);
-    return { rigGroup: rigged.rigGroup, fitScale: f.fitScale, flight: f };
+    // The halo shell doubles the skinned triangles (325k → 650k). Same policy
+    // as the dpr cap and the mote count above: phones skip it. The fresnel rim
+    // on the skin stays — it rides the body's own draw call, so it's free.
+    rigged.aura.visible = typeof window === "undefined" || window.innerWidth >= 768;
+    return { rigGroup: rigged.rigGroup, fitScale: f.fitScale, flight: f, auraTime: rigged.auraTime };
   }, [scene, rigBuffer]);
 
   useFrame((state) => {
@@ -424,7 +548,10 @@ function DragonModel({ disp, entered }: { disp: React.RefObject<number>; entered
 
     // Skeletal flight: the head leads the loop and the body follows it. Runs a
     // touch faster while travelling in, so the creature reads as "arriving".
-    if (!reducedMotion) flight.update(t * (1 + 0.35 * k));
+    if (!reducedMotion) {
+      flight.update(t * (1 + 0.35 * k));
+      auraTime.value = t; // travelling pulse down the aura
+    }
 
     if (outer.current) {
       // Hidden until the visitor passes "Entra al viaje" — also guarantees the
